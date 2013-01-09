@@ -39,6 +39,9 @@
       <bold>true</bold>
      </font>
     </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
     <property name="numDigits">
      <number>3</number>
     </property>
@@ -58,6 +61,9 @@
       <weight>75</weight>
       <bold>true</bold>
      </font>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
     </property>
     <property name="numDigits">
      <number>3</number>
@@ -79,6 +85,9 @@
       <bold>true</bold>
      </font>
     </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
     <property name="numDigits">
      <number>3</number>
     </property>
@@ -99,6 +108,9 @@
       <bold>true</bold>
      </font>
     </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
     <property name="numDigits">
      <number>3</number>
     </property>
@@ -118,6 +130,9 @@
       <weight>75</weight>
       <bold>true</bold>
      </font>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
     </property>
     <property name="numDigits">
      <number>3</number>

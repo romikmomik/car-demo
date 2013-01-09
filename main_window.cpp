@@ -3,6 +3,8 @@
 #include <QtGlobal>
 #include <QStringList>
 #include <QProcess>
+#include <QPalette>
+#include <QColor>
 
 #include <math.h>
 
@@ -18,12 +20,11 @@ void CopterMotor::invoke(const QStringList& _args)
 }
 
 CopterMotor::CopterMotor(const QString& _ctrlPath, QLCDNumber* _lcd)
- :m_ctrlPath(_ctrlPath),
+ :m_lcd(_lcd),
+  m_ctrlPath(_ctrlPath),
   m_factor(1.0)
 {
   invoke(QStringList("open"));
-
-  connect(this, SIGNAL(lcdUpdate(int)), _lcd, SLOT(display(int)));
 }
 
 CopterMotor::~CopterMotor()
@@ -39,7 +40,19 @@ void CopterMotor::factor(double _factor)
 void CopterMotor::setPower(unsigned _power)
 {
   int pwr = round(m_factor * (double)_power);
-  emit lcdUpdate(pwr);
+
+  QPalette palette = m_lcd->palette();
+  QColor bg = palette.color(QPalette::Disabled, m_lcd->backgroundRole());
+  double pwrSat = (100.0-_power)/100.0;
+  double ftrSat = m_factor;
+  bg.setBlue( bg.blue() *pwrSat);
+  bg.setGreen(bg.green()*pwrSat + 200*(1.0-pwrSat)*ftrSat);
+  bg.setRed(  bg.red()  *pwrSat + 200*(1.0-pwrSat)*(1-ftrSat));
+  palette.setColor(QPalette::Normal, m_lcd->backgroundRole(), bg);
+  palette.setColor(QPalette::Active, m_lcd->backgroundRole(), bg);
+  palette.setColor(QPalette::Inactive, m_lcd->backgroundRole(), bg);
+  m_lcd->setPalette(palette);
+  m_lcd->display(pwr);
 
   QStringList args;
   args.push_back("set");
@@ -87,11 +100,11 @@ void CopterAxis::tilt(double _tilt) const
 CopterCtrl::CopterCtrl(const QSharedPointer<CopterAxis>& _axisX,
                        const QSharedPointer<CopterAxis>& _axisY,
                        QLCDNumber* _lcd)
- :m_power(0),
+ :m_lcd(_lcd),
+  m_power(0),
   m_axisX(_axisX),
   m_axisY(_axisY)
 {
-  connect(this, SIGNAL(lcdUpdate(int)), _lcd, SLOT(display(int)));
 }
 
 void CopterCtrl::adjustTilt(double _tiltX, double _tiltY) const
@@ -106,7 +119,19 @@ void CopterCtrl::adjustPower(int _incr)
 {
   m_power += _incr;
   m_power = qMax(qMin(m_power, 100), 0);
-  emit lcdUpdate(m_power);
+
+  QPalette palette = m_lcd->palette();
+  QColor bg = palette.color(QPalette::Disabled, m_lcd->backgroundRole());
+  double pwrSat = (100.0-m_power)/100.0;
+  bg.setBlue( bg.blue() *pwrSat);
+  bg.setGreen(bg.green()*pwrSat + 200*(1.0-pwrSat));
+  bg.setRed(  bg.red()  *pwrSat);
+  palette.setColor(QPalette::Normal, m_lcd->backgroundRole(), bg);
+  palette.setColor(QPalette::Active, m_lcd->backgroundRole(), bg);
+  palette.setColor(QPalette::Inactive, m_lcd->backgroundRole(), bg);
+  m_lcd->setPalette(palette);
+  m_lcd->display(m_power);
+
   m_axisX->setPower(m_power);
   m_axisY->setPower(m_power);
 }

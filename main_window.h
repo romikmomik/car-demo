@@ -13,6 +13,8 @@
 #include "ui_main_window.h"
 
 
+
+
 class CopterMotor : public QObject
 {
     Q_OBJECT
@@ -26,13 +28,11 @@ class CopterMotor : public QObject
     void setPower(unsigned _power);
 
   protected:
-    QString m_ctrlPath;
-    double  m_factor;
+    QLCDNumber* m_lcd;
+    QString     m_ctrlPath;
+    double      m_factor;
 
     void invoke(const QStringList& _args);
-
-  signals:
-    void lcdUpdate(int);
 };
 
 class CopterAxis : public QObject
@@ -68,6 +68,7 @@ class CopterCtrl : public QObject
 
     void adjustPower(int _incr);
   protected:
+    QLCDNumber* m_lcd;
     int m_power;
     QSharedPointer<CopterAxis> m_axisX;
     QSharedPointer<CopterAxis> m_axisY;
