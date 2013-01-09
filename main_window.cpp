@@ -9,7 +9,8 @@
 #include <math.h>
 
 
-static const QString s_ctrl_path("/sys/device/platform/ehrpwm");
+//static const QString s_ctrl_path("/sys/device/platform/ehrpwm");
+static const QString s_ctrl_path("");
 static const double s_tilt_step = 0.02;
 static const double s_power_step = 1;
 
@@ -161,7 +162,6 @@ MainWindow::MainWindow(QWidget* _parent)
 {
   m_ui->setupUi(this);
 
-  static const
   QSharedPointer<CopterMotor> mx1(new CopterMotor(s_ctrl_path+"0.0", m_ui->motor_x1));
   QSharedPointer<CopterMotor> mx2(new CopterMotor(s_ctrl_path+"0.1", m_ui->motor_x2));
   QSharedPointer<CopterMotor> my1(new CopterMotor(s_ctrl_path+"1.0", m_ui->motor_y1));
@@ -174,6 +174,9 @@ MainWindow::MainWindow(QWidget* _parent)
   connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
 
   m_copterCtrl->adjustPower(0);
+
+  showFullScreen();
+  showMaximized();
 }
 
 void MainWindow::onConnection()
