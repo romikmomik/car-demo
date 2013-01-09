@@ -34,13 +34,12 @@ CopterMotor::~CopterMotor()
 void CopterMotor::factor(double _factor)
 {
   m_factor = qMax(qMin(_factor, 1.0), 0.0);
-  int factorPercentage = m_factor * 100;
-  emit lcdUpdate(factorPercentage);
 }
 
 void CopterMotor::setPower(unsigned _power)
 {
   int pwr = m_factor * (double)_power;
+  emit lcdUpdate(pwr);
 
   QStringList args;
   args.push_back("set");
