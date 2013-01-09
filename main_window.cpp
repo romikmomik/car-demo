@@ -78,7 +78,7 @@ void CopterAxis::tilt(double _tilt) const
   else if (_tilt > 0)
   {
     m_motor1->factor(1.0);
-    m_motor2->factor(_tilt);
+    m_motor2->factor(1.0-_tilt);
   }
 }
 
@@ -139,16 +139,17 @@ MainWindow::MainWindow(QWidget* _parent)
 void MainWindow::onConnection()
 {
   if (!m_tcpConnection.isNull())
-    qDebug() << "Replacing existing connection\n";
+    qDebug() << "Replacing existing connection";
   m_tcpConnection = m_tcpServer.nextPendingConnection();
-  qDebug() << "Accepted new connection\n";
+  qDebug() << "Accepted new connection";
+  m_tcpConnection->setSocketOption(QAbstractSocket::LowDelayOption, 1);
   connect(m_tcpConnection, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
   connect(m_tcpConnection, SIGNAL(readyRead()), this, SLOT(onNetworkRead()));
 }
 
 void MainWindow::onDisconnected()
 {
-  qDebug() << "Existing connection disconnected\n";
+  qDebug() << "Existing connection disconnected";
   m_tcpConnection = 0;
 }
 
@@ -160,9 +161,10 @@ void MainWindow::onNetworkRead()
   while (m_tcpConnection->isReadable())
   {
     char c;
-    static const double s_tilt_step = 0.05;
+    static const double s_tilt_step = 0.02;
     static const double s_power_step = 1;
-    m_tcpConnection->getChar(&c);
+    if (!m_tcpConnection->getChar(&c))
+      break;
     switch (c)
     {
       case '1': m_copterCtrl->adjustTilt(-s_tilt_step, -s_tilt_step); break;
@@ -174,10 +176,10 @@ void MainWindow::onNetworkRead()
       case '7': m_copterCtrl->adjustTilt(-s_tilt_step, +s_tilt_step); break;
       case '8': m_copterCtrl->adjustTilt(0,            +s_tilt_step); break;
       case '9': m_copterCtrl->adjustTilt(+s_tilt_step, +s_tilt_step); break;
-      case 'z': m_copterCtrl->adjustPower(-10*s_power_step); break;
+      case 'z': m_copterCtrl->adjustPower(-5*s_power_step); break;
       case 'x': m_copterCtrl->adjustPower(-s_power_step); break;
       case 'c': m_copterCtrl->adjustPower(+s_power_step); break;
-      case 'v': m_copterCtrl->adjustPower(+10*s_power_step); break;
+      case 'v': m_copterCtrl->adjustPower(+5*s_power_step); break;
     }
   }
 }
