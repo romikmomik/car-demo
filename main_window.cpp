@@ -98,6 +98,8 @@ void CopterCtrl::adjustTilt(double _tiltX, double _tiltY) const
 {
   m_axisX->tilt(m_axisX->tilt() + _tiltX);
   m_axisY->tilt(m_axisY->tilt() + _tiltY);
+  m_axisX->setPower(m_power);
+  m_axisY->setPower(m_power);
 }
 
 void CopterCtrl::adjustPower(int _incr)
