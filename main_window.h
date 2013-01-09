@@ -13,7 +13,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
   public:
     MainWindow(QWidget* _parent = 0);
-    virtual ~MainWindow();
+    ~MainWindow();
 
   private:
     Ui::MainWindow* m_ui;
