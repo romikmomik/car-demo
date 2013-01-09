@@ -4,21 +4,21 @@
 #include <QStringList>
 #include <QProcess>
 
+#include <math.h>
 
 
 void CopterMotor::invoke(const QStringList& _args)
 {
   QProcess prc;
   QStringList args(_args);
-  args.push_front(m_ctrlArg);
+  args.push_front(m_ctrlPath);
 
-  prc.start(m_ctrlPath, args);
+  prc.start("pwm-ctrl-helper", args);
   prc.waitForFinished();
 }
 
-CopterMotor::CopterMotor(const QString& _ctrlPath, const QString& _ctrlArg, QLCDNumber* _lcd)
+CopterMotor::CopterMotor(const QString& _ctrlPath, QLCDNumber* _lcd)
  :m_ctrlPath(_ctrlPath),
-  m_ctrlArg(_ctrlArg),
   m_factor(1.0)
 {
   invoke(QStringList("open"));
@@ -38,7 +38,7 @@ void CopterMotor::factor(double _factor)
 
 void CopterMotor::setPower(unsigned _power)
 {
-  int pwr = m_factor * (double)_power;
+  int pwr = round(m_factor * (double)_power);
   emit lcdUpdate(pwr);
 
   QStringList args;
@@ -123,10 +123,10 @@ MainWindow::MainWindow(QWidget* _parent)
 {
   m_ui->setupUi(this);
 
-  QSharedPointer<CopterMotor> mx1(new CopterMotor("pwm-ctrl-helper", "0.0", m_ui->motor_x1));
-  QSharedPointer<CopterMotor> mx2(new CopterMotor("pwm-ctrl-helper", "0.1", m_ui->motor_x2));
-  QSharedPointer<CopterMotor> my1(new CopterMotor("pwm-ctrl-helper", "1.0", m_ui->motor_y1));
-  QSharedPointer<CopterMotor> my2(new CopterMotor("pwm-ctrl-helper", "1.1", m_ui->motor_y2));
+  QSharedPointer<CopterMotor> mx1(new CopterMotor("0.0", m_ui->motor_x1));
+  QSharedPointer<CopterMotor> mx2(new CopterMotor("0.1", m_ui->motor_x2));
+  QSharedPointer<CopterMotor> my1(new CopterMotor("1.0", m_ui->motor_y1));
+  QSharedPointer<CopterMotor> my2(new CopterMotor("1.1", m_ui->motor_y2));
   QSharedPointer<CopterAxis>  m_axisX(new CopterAxis(mx1, mx2));
   QSharedPointer<CopterAxis>  m_axisY(new CopterAxis(my1, my2));
   m_copterCtrl = new CopterCtrl(m_axisX, m_axisY, m_ui->motor_all);

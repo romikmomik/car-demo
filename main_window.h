@@ -17,7 +17,7 @@ class CopterMotor : public QObject
 {
     Q_OBJECT
   public:
-    CopterMotor(const QString& _ctrlPath, const QString& _ctrlArg, QLCDNumber* _lcd);
+    CopterMotor(const QString& _ctrlPath, QLCDNumber* _lcd);
     ~CopterMotor();
 
     double factor() const { return m_factor; }
@@ -27,8 +27,7 @@ class CopterMotor : public QObject
 
   protected:
     QString m_ctrlPath;
-    QString m_ctrlArg;
-    double m_factor;
+    double  m_factor;
 
     void invoke(const QStringList& _args);
 
