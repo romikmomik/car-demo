@@ -11,7 +11,7 @@ CONFIG -=       warn_off
 
 TARGET =        pwm-ctrl
 
-SOURCE +=       main.cpp \
+SOURCES +=      main.cpp \
                 main_window.cpp
 
 HEADERS +=      main_window.h

@@ -4,7 +4,7 @@
 #include <QDebug>
 #include <QStringList>
 
-#include "mainwindow.h"
+#include "main_window.h"
 
 int main(int argc, char *argv[])
 {
@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
 
   MainWindow w;
   w.show();
+  w.applyCopterPower();
   return a.exec();
 }
 

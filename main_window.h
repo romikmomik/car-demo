@@ -4,7 +4,6 @@
 #include <QtGui/QApplication>
 #include <QMainWindow>
 #include <QSharedPointer>
-#include <QPointer>
 #include <QLCDNumber>
 #include <QString>
 #include "ui_main_window.h"
@@ -13,7 +12,7 @@
 class CopterMotor
 {
   public:
-    CopterMotor(const QString& _path, QLCDNumber* _lcd);
+    CopterMotor(const QString& _ctrlPath, const QString& _ctrlArg, QLCDNumber* _lcd);
     ~CopterMotor();
 
     double factor() const { return m_factor; }
@@ -22,8 +21,12 @@ class CopterMotor
     void setPower(unsigned _power);
 
   protected:
+    QString m_ctrlPath;
+    QString m_ctrlArg;
     QLCDNumber* m_lcd;
     double m_factor;
+
+    void invoke(const QStringList& _args);
 };
 
 class CopterAxis
@@ -71,9 +74,12 @@ class MainWindow : public QMainWindow
     Q_OBJECT
   public:
     MainWindow(QWidget* _parent = 0);
+    ~MainWindow();
+
+    void applyCopterPower();
 
   protected:
-    QPointer<CopterCtrl> m_copterCtrl;
+    QSharedPointer<CopterCtrl> m_copterCtrl;
 
   private:
     Ui::MainWindow* m_ui;
