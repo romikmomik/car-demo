@@ -94,13 +94,15 @@ class MainWindow : public QMainWindow
 
   protected:
     QPointer<CopterCtrl> m_copterCtrl;
-    QTcpServer m_tcpServer;
+    QTcpServer           m_tcpServer;
     QPointer<QTcpSocket> m_tcpConnection;
+    QFile                m_accelerometerFile;
 
   protected slots:
     void onConnection();
     void onDisconnected();
     void onNetworkRead();
+    void onAccelerometerRead();
 
 };
 

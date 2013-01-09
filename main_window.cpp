@@ -7,10 +7,12 @@
 #include <QColor>
 
 #include <math.h>
+#include <linux/input.h>
 
 
 //static const QString s_ctrl_path("/sys/device/platform/ehrpwm");
 static const QString s_ctrl_path("");
+static const QString s_accel_path("/dev/input/event3");
 static const double s_tilt_step = 0.02;
 static const double s_power_step = 1;
 
@@ -158,7 +160,8 @@ MainWindow::MainWindow(QWidget* _parent)
   m_ui(new Ui::MainWindow),
   m_copterCtrl(),
   m_tcpServer(),
-  m_tcpConnection()
+  m_tcpConnection(),
+  m_accelerometerFile(s_accel_path)
 {
   m_ui->setupUi(this);
 
@@ -172,6 +175,9 @@ MainWindow::MainWindow(QWidget* _parent)
 
   m_tcpServer.listen(QHostAddress::Any, 4000);
   connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
+
+  m_accelerometerFile.open(QIODevice::ReadOnly|QIODevice::Unbuffered);
+  connect(&m_accelerometerFile, SIGNAL(readyRead()), this, SLOT(onAccelerometerRead()));
 
   m_copterCtrl->adjustPower(0);
 
@@ -224,6 +230,42 @@ void MainWindow::onNetworkRead()
       case 'v': m_copterCtrl->adjustPower(+5*s_power_step); break;
       case 'V': m_copterCtrl->adjustPower(+10000); break;
     }
+  }
+}
+
+void MainWindow::onAccelerometerRead()
+{
+  struct input_event evt;
+
+  while (m_accelerometerFile.isReadable())
+  {
+    if (m_accelerometerFile.read(reinterpret_cast<char*>(&evt), sizeof(evt)) != sizeof(evt))
+    {
+      qDebug() << "Incomplete accelerometer data read";
+      continue;
+    }
+
+    if (evt.type != EV_ABS)
+    {
+      qDebug() << "Input event type is not ABS";
+      continue;
+    }
+
+    if (m_tcpConnection.isNull())
+      continue;
+
+    char code = 0;
+    switch (evt.code)
+    {
+      case ABS_X: code = 'x'; break;
+      case ABS_Y: code = 'y'; break;
+      case ABS_Z: code = 'z'; break;
+    }
+    if (code == 0)
+      continue;
+    QString buf;
+    buf.sprintf("%c%u ", code, evt.value);
+    m_tcpConnection->write(buf.toAscii());
   }
 }
 
