@@ -19,10 +19,11 @@ void CopterMotor::invoke(const QStringList& _args)
 CopterMotor::CopterMotor(const QString& _ctrlPath, const QString& _ctrlArg, QLCDNumber* _lcd)
  :m_ctrlPath(_ctrlPath),
   m_ctrlArg(_ctrlArg),
-  m_lcd(_lcd),
   m_factor(1.0)
 {
   invoke(QStringList("open"));
+
+  connect(this, SIGNAL(lcdUpdate(int)), _lcd, SLOT(display(int)));
 }
 
 CopterMotor::~CopterMotor()
@@ -34,7 +35,7 @@ void CopterMotor::factor(double _factor)
 {
   m_factor = qMax(qMin(_factor, 1.0), 0.0);
   int factorPercentage = m_factor * 100;
-  //m_lcd->display(factorPercentage);
+  emit lcdUpdate(factorPercentage);
 }
 
 void CopterMotor::setPower(unsigned _power)
@@ -87,11 +88,11 @@ void CopterAxis::tilt(double _tilt) const
 CopterCtrl::CopterCtrl(const QSharedPointer<CopterAxis>& _axisX,
                        const QSharedPointer<CopterAxis>& _axisY,
                        QLCDNumber* _lcd)
- :m_lcd(_lcd),
-  m_power(0),
+ :m_power(0),
   m_axisX(_axisX),
   m_axisY(_axisY)
 {
+  connect(this, SIGNAL(lcdUpdate(int)), _lcd, SLOT(display(int)));
 }
 
 void CopterCtrl::adjustTilt(double _tiltX, double _tiltY) const
@@ -104,7 +105,7 @@ void CopterCtrl::adjustPower(int _incr)
 {
   m_power += _incr;
   m_power = qMax(qMin(m_power, 100), 0);
-  //m_lcd->display(m_power);
+  emit lcdUpdate(m_power);
   m_axisX->setPower(m_power);
   m_axisY->setPower(m_power);
 }
@@ -116,6 +117,8 @@ MainWindow::MainWindow(QWidget* _parent)
  :QMainWindow(_parent),
   m_ui(new Ui::MainWindow)
 {
+  m_ui->setupUi(this);
+
   QSharedPointer<CopterMotor> mx1(new CopterMotor("pwm-ctrl-helper", "0.0", m_ui->motor_x1));
   QSharedPointer<CopterMotor> mx2(new CopterMotor("pwm-ctrl-helper", "0.1", m_ui->motor_x2));
   QSharedPointer<CopterMotor> my1(new CopterMotor("pwm-ctrl-helper", "1.0", m_ui->motor_y1));
@@ -123,15 +126,7 @@ MainWindow::MainWindow(QWidget* _parent)
   QSharedPointer<CopterAxis>  m_axisX(new CopterAxis(mx1, mx2));
   QSharedPointer<CopterAxis>  m_axisY(new CopterAxis(my1, my2));
   m_copterCtrl = QSharedPointer<CopterCtrl>(new CopterCtrl(m_axisX, m_axisY, m_ui->motor_all));
-}
 
-MainWindow::~MainWindow()
-{
-  m_copterCtrl.clear();
-}
-
-void MainWindow::applyCopterPower()
-{
   m_copterCtrl->adjustPower(0);
 }
 

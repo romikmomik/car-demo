@@ -2,6 +2,7 @@
 #define MAIN_WINDOW_H_
 
 #include <QtGui/QApplication>
+#include <QObject>
 #include <QMainWindow>
 #include <QSharedPointer>
 #include <QLCDNumber>
@@ -9,8 +10,9 @@
 #include "ui_main_window.h"
 
 
-class CopterMotor
+class CopterMotor : public QObject
 {
+    Q_OBJECT
   public:
     CopterMotor(const QString& _ctrlPath, const QString& _ctrlArg, QLCDNumber* _lcd);
     ~CopterMotor();
@@ -23,14 +25,17 @@ class CopterMotor
   protected:
     QString m_ctrlPath;
     QString m_ctrlArg;
-    QLCDNumber* m_lcd;
     double m_factor;
 
     void invoke(const QStringList& _args);
+
+  signals:
+    void lcdUpdate(int);
 };
 
-class CopterAxis
+class CopterAxis : public QObject
 {
+    Q_OBJECT
   public:
     CopterAxis(const QSharedPointer<CopterMotor>& _motor1,
                const QSharedPointer<CopterMotor>& _motor2);
@@ -45,8 +50,9 @@ class CopterAxis
     QSharedPointer<CopterMotor> m_motor2;
 };
 
-class CopterCtrl
+class CopterCtrl : public QObject
 {
+    Q_OBJECT
   public:
     CopterCtrl(const QSharedPointer<CopterAxis>& _axisX,
                const QSharedPointer<CopterAxis>& _axisY,
@@ -60,10 +66,12 @@ class CopterCtrl
 
     void adjustPower(int _incr);
   protected:
-    QLCDNumber* m_lcd;
     int m_power;
     QSharedPointer<CopterAxis> m_axisX;
     QSharedPointer<CopterAxis> m_axisY;
+
+  signals:
+    void lcdUpdate(int);
 };
 
 
@@ -74,9 +82,6 @@ class MainWindow : public QMainWindow
     Q_OBJECT
   public:
     MainWindow(QWidget* _parent = 0);
-    ~MainWindow();
-
-    void applyCopterPower();
 
   protected:
     QSharedPointer<CopterCtrl> m_copterCtrl;
