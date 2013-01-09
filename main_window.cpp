@@ -2,34 +2,50 @@
 
 #include <QtGlobal>
 #include <QStringList>
-#include <QProcess>
+#include <QIODevice>
 #include <QPalette>
 #include <QColor>
 
 #include <math.h>
 
 
-void CopterMotor::invoke(const QStringList& _args)
-{
-  QProcess prc;
-  QStringList args(_args);
-  args.push_front(m_ctrlPath);
+static const QString s_ctrl_path("/sys/device/platform/ehrpwm");
+static const double s_tilt_step = 0.02;
+static const double s_power_step = 1;
 
-  prc.start("pwm-ctrl-helper", args);
-  prc.waitForFinished();
+
+
+
+void CopterMotor::invoke_open()
+{
+  invoke(0);
+}
+
+void CopterMotor::invoke_close()
+{
+  invoke(0);
+}
+
+void CopterMotor::invoke(int _power)
+{
+  QString s;
+  m_ctrlFile.open(QIODevice::WriteOnly|QIODevice::Truncate|QIODevice::Unbuffered|QIODevice::Text);
+  s.sprintf("%d\n", _power);
+  m_ctrlFile.write(s.toAscii().data());
+  m_ctrlFile.close();
 }
 
 CopterMotor::CopterMotor(const QString& _ctrlPath, QLCDNumber* _lcd)
  :m_lcd(_lcd),
-  m_ctrlPath(_ctrlPath),
+  m_ctrlFile(_ctrlPath),
   m_factor(1.0)
 {
-  invoke(QStringList("open"));
+  invoke_open();
 }
 
 CopterMotor::~CopterMotor()
 {
-  invoke(QStringList("close"));
+  invoke_close();
 }
 
 void CopterMotor::factor(double _factor)
@@ -54,10 +70,7 @@ void CopterMotor::setPower(unsigned _power)
   m_lcd->setPalette(palette);
   m_lcd->display(pwr);
 
-  QStringList args;
-  args.push_back("set");
-  args.push_back(QString::number(pwr));
-  invoke(args);
+  invoke(pwr);
 }
 
 
@@ -148,10 +161,11 @@ MainWindow::MainWindow(QWidget* _parent)
 {
   m_ui->setupUi(this);
 
-  QSharedPointer<CopterMotor> mx1(new CopterMotor("0.0", m_ui->motor_x1));
-  QSharedPointer<CopterMotor> mx2(new CopterMotor("0.1", m_ui->motor_x2));
-  QSharedPointer<CopterMotor> my1(new CopterMotor("1.0", m_ui->motor_y1));
-  QSharedPointer<CopterMotor> my2(new CopterMotor("1.1", m_ui->motor_y2));
+  static const
+  QSharedPointer<CopterMotor> mx1(new CopterMotor(s_ctrl_path+"0.0", m_ui->motor_x1));
+  QSharedPointer<CopterMotor> mx2(new CopterMotor(s_ctrl_path+"0.1", m_ui->motor_x2));
+  QSharedPointer<CopterMotor> my1(new CopterMotor(s_ctrl_path+"1.0", m_ui->motor_y1));
+  QSharedPointer<CopterMotor> my2(new CopterMotor(s_ctrl_path+"1.1", m_ui->motor_y2));
   QSharedPointer<CopterAxis>  m_axisX(new CopterAxis(mx1, mx2));
   QSharedPointer<CopterAxis>  m_axisY(new CopterAxis(my1, my2));
   m_copterCtrl = new CopterCtrl(m_axisX, m_axisY, m_ui->motor_all);
@@ -187,8 +201,6 @@ void MainWindow::onNetworkRead()
   while (m_tcpConnection->isReadable())
   {
     char c;
-    static const double s_tilt_step = 0.02;
-    static const double s_power_step = 1;
     if (!m_tcpConnection->getChar(&c))
       break;
     switch (c)

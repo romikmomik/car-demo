@@ -10,6 +10,7 @@
 #include <QtNetwork/QTcpSocket>
 #include <QLCDNumber>
 #include <QString>
+#include <QFile>
 #include "ui_main_window.h"
 
 
@@ -29,10 +30,12 @@ class CopterMotor : public QObject
 
   protected:
     QLCDNumber* m_lcd;
-    QString     m_ctrlPath;
+    QFile       m_ctrlFile;
     double      m_factor;
 
-    void invoke(const QStringList& _args);
+    void invoke_open();
+    void invoke_close();
+    void invoke(int _power);
 };
 
 class CopterAxis : public QObject
