@@ -10,7 +10,7 @@ CONFIG -=       warn_off
 
 QT +=           network
 
-TARGET =        pwm-ctrl
+TARGET =        copter-pwm-ctrl-qt
 
 SOURCES +=      main.cpp \
                 main_window.cpp
