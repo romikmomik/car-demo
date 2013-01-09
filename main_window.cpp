@@ -197,15 +197,17 @@ void MainWindow::onNetworkRead()
       case '2': m_copterCtrl->adjustTilt(0,            -s_tilt_step); break;
       case '3': m_copterCtrl->adjustTilt(+s_tilt_step, -s_tilt_step); break;
       case '4': m_copterCtrl->adjustTilt(-s_tilt_step, 0); break;
-      case '5': m_copterCtrl->adjustTilt(0,            0); break;
+      case '5': m_copterCtrl->tiltX(0); m_copterCtrl->tiltY(0); break;
       case '6': m_copterCtrl->adjustTilt(+s_tilt_step, 0); break;
       case '7': m_copterCtrl->adjustTilt(-s_tilt_step, +s_tilt_step); break;
       case '8': m_copterCtrl->adjustTilt(0,            +s_tilt_step); break;
       case '9': m_copterCtrl->adjustTilt(+s_tilt_step, +s_tilt_step); break;
+      case 'Z': m_copterCtrl->adjustPower(-10000); break;
       case 'z': m_copterCtrl->adjustPower(-5*s_power_step); break;
       case 'x': m_copterCtrl->adjustPower(-s_power_step); break;
       case 'c': m_copterCtrl->adjustPower(+s_power_step); break;
       case 'v': m_copterCtrl->adjustPower(+5*s_power_step); break;
+      case 'V': m_copterCtrl->adjustPower(+10000); break;
     }
   }
 }
