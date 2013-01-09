@@ -1,26 +1,26 @@
-TEMPLATE =	app
+TEMPLATE =      app
 
-CONFIG +=	debug_and_release \
-		warn_on \
-		copy_dir_files
+CONFIG +=       debug_and_release \
+                warn_on \
+                copy_dir_files
 
-debug:CONFIG +=	console
+debug:CONFIG += console
 
-CONFIG -=	warn_off
+CONFIG -=       warn_off
 
 
-TARGET = pwm-ctrl
+TARGET =        pwm-ctrl
 
-SOURCE +=	main.cpp \
-		main_window.cpp
+SOURCE +=       main.cpp \
+                main_window.cpp
 
-HEADERS +=	main_window.h
+HEADERS +=      main_window.h
 
-FORMS +=	main_window.ui
+FORMS +=        main_window.ui
 
 
 unix {
-	target.path =	$$[INSTALL_ROOT]/bin
-	INSTALLS +=	target
+  target.path = $$[INSTALL_ROOT]/bin
+  INSTALLS +=   target
 }
 
