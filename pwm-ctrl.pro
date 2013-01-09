@@ -8,6 +8,7 @@ debug:CONFIG += console
 
 CONFIG -=       warn_off
 
+QT +=           network
 
 TARGET =        pwm-ctrl
 

@@ -115,7 +115,10 @@ void CopterCtrl::adjustPower(int _incr)
 
 MainWindow::MainWindow(QWidget* _parent)
  :QMainWindow(_parent),
-  m_ui(new Ui::MainWindow)
+  m_ui(new Ui::MainWindow),
+  m_copterCtrl(),
+  m_tcpServer(),
+  m_tcpConnection()
 {
   m_ui->setupUi(this);
 
@@ -125,10 +128,57 @@ MainWindow::MainWindow(QWidget* _parent)
   QSharedPointer<CopterMotor> my2(new CopterMotor("pwm-ctrl-helper", "1.1", m_ui->motor_y2));
   QSharedPointer<CopterAxis>  m_axisX(new CopterAxis(mx1, mx2));
   QSharedPointer<CopterAxis>  m_axisY(new CopterAxis(my1, my2));
-  m_copterCtrl = QSharedPointer<CopterCtrl>(new CopterCtrl(m_axisX, m_axisY, m_ui->motor_all));
+  m_copterCtrl = new CopterCtrl(m_axisX, m_axisY, m_ui->motor_all);
+
+  m_tcpServer.listen(QHostAddress::Any, 4000);
+  connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
 
   m_copterCtrl->adjustPower(0);
 }
 
+void MainWindow::onConnection()
+{
+  if (!m_tcpConnection.isNull())
+    qDebug() << "Replacing existing connection\n";
+  m_tcpConnection = m_tcpServer.nextPendingConnection();
+  qDebug() << "Accepted new connection\n";
+  connect(m_tcpConnection, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
+  connect(m_tcpConnection, SIGNAL(readyRead()), this, SLOT(onNetworkRead()));
+}
 
+void MainWindow::onDisconnected()
+{
+  qDebug() << "Existing connection disconnected\n";
+  m_tcpConnection = 0;
+}
+
+void MainWindow::onNetworkRead()
+{
+  if (m_tcpConnection.isNull())
+    return;
+
+  while (m_tcpConnection->isReadable())
+  {
+    char c;
+    static const double s_tilt_step = 0.05;
+    static const double s_power_step = 1;
+    m_tcpConnection->getChar(&c);
+    switch (c)
+    {
+      case '1': m_copterCtrl->adjustTilt(-s_tilt_step, -s_tilt_step); break;
+      case '2': m_copterCtrl->adjustTilt(0,            -s_tilt_step); break;
+      case '3': m_copterCtrl->adjustTilt(+s_tilt_step, -s_tilt_step); break;
+      case '4': m_copterCtrl->adjustTilt(-s_tilt_step, 0); break;
+      case '5': m_copterCtrl->adjustTilt(0,            0); break;
+      case '6': m_copterCtrl->adjustTilt(+s_tilt_step, 0); break;
+      case '7': m_copterCtrl->adjustTilt(-s_tilt_step, +s_tilt_step); break;
+      case '8': m_copterCtrl->adjustTilt(0,            +s_tilt_step); break;
+      case '9': m_copterCtrl->adjustTilt(+s_tilt_step, +s_tilt_step); break;
+      case 'z': m_copterCtrl->adjustPower(-10*s_power_step); break;
+      case 'x': m_copterCtrl->adjustPower(-s_power_step); break;
+      case 'c': m_copterCtrl->adjustPower(+s_power_step); break;
+      case 'v': m_copterCtrl->adjustPower(+10*s_power_step); break;
+    }
+  }
+}
 

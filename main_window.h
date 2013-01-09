@@ -5,6 +5,9 @@
 #include <QObject>
 #include <QMainWindow>
 #include <QSharedPointer>
+#include <QPointer>
+#include <QtNetwork/QTcpServer>
+#include <QtNetwork/QTcpSocket>
 #include <QLCDNumber>
 #include <QString>
 #include "ui_main_window.h"
@@ -80,14 +83,22 @@ class CopterCtrl : public QObject
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+  private:
+    Ui::MainWindow* m_ui;
+
   public:
     MainWindow(QWidget* _parent = 0);
 
   protected:
-    QSharedPointer<CopterCtrl> m_copterCtrl;
+    QPointer<CopterCtrl> m_copterCtrl;
+    QTcpServer m_tcpServer;
+    QPointer<QTcpSocket> m_tcpConnection;
 
-  private:
-    Ui::MainWindow* m_ui;
+  protected slots:
+    void onConnection();
+    void onDisconnected();
+    void onNetworkRead();
+
 };
 
 
