@@ -276,14 +276,14 @@ void MainWindow::onAccelerometerRead()
 void MainWindow::handleTiltX(double _tilt)
 {
   double adj = s_accel_linear*_tilt + s_accel_derivative*(_tilt - m_lastTiltX);
-  m_copterCtrl->adjustPower(adj, 0);
+  m_copterCtrl->adjustTilt(adj, 0);
   m_lastTiltX = _tilt;
 }
 
 void MainWindow::handleTiltY(double _tilt)
 {
   double adj = s_accel_linear*_tilt + s_accel_derivative*(_tilt - m_lastTiltY);
-  m_copterCtrl->adjustPower(0, adj);
+  m_copterCtrl->adjustTilt(0, adj);
   m_lastTiltY = _tilt;
 }
 
