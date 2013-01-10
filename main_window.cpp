@@ -12,7 +12,7 @@
 
 //static const QString s_ctrl_path("/sys/device/platform/ehrpwm");
 static const QString s_ctrl_path("");
-static const QString s_accel_path("/dev/input/event3");
+static const QString s_accel_path("/dev/input/event0");
 static const double s_tilt_step = 0.02;
 static const double s_power_step = 1;
 static const double s_accel_linear = 0.02;
