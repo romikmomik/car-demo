@@ -180,7 +180,8 @@ MainWindow::MainWindow(QWidget* _parent)
   m_tcpServer.listen(QHostAddress::Any, 4000);
   connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
 
-  m_accelerometerFile.open(QIODevice::ReadOnly|QIODevice::Unbuffered);
+  if (!m_accelerometerFile.open(QIODevice::Read|QIODevice::Unbuffered))
+    qDebug() << "Cannot open accelerometer " << s_accel_path;
   connect(&m_accelerometerFile, SIGNAL(readyRead()), this, SLOT(onAccelerometerRead()));
 
   m_copterCtrl->adjustPower(0);
@@ -241,6 +242,9 @@ void MainWindow::onAccelerometerRead()
 {
   struct input_event evt;
 
+#warning TODO remove me
+  qDebug() << "onAccelerometerRead called";
+
   while (m_accelerometerFile.isReadable())
   {
     if (m_accelerometerFile.read(reinterpret_cast<char*>(&evt), sizeof(evt)) != sizeof(evt))
@@ -255,9 +259,6 @@ void MainWindow::onAccelerometerRead()
       continue;
     }
 
-    if (m_tcpConnection.isNull())
-      continue;
-
     char code = 0;
     switch (evt.code)
     {
@@ -267,6 +268,10 @@ void MainWindow::onAccelerometerRead()
     }
     if (code == 0)
       continue;
+
+    if (m_tcpConnection.isNull())
+      continue;
+
     QString buf;
     buf.sprintf("%c%u ", code, evt.value);
     m_tcpConnection->write(buf.toAscii());
