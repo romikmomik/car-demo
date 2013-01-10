@@ -98,6 +98,11 @@ class MainWindow : public QMainWindow
     QPointer<QTcpSocket> m_tcpConnection;
     QFile                m_accelerometerFile;
 
+    void handleTiltX(double _tilt);
+    void handleTiltY(double _tilt);
+    double m_lastTiltX;
+    double m_lastTiltY;
+
   protected slots:
     void onConnection();
     void onDisconnected();

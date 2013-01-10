@@ -15,6 +15,8 @@ static const QString s_ctrl_path("");
 static const QString s_accel_path("/dev/input/event3");
 static const double s_tilt_step = 0.02;
 static const double s_power_step = 1;
+static const double s_accel_linear = 0.02;
+static const double s_accel_derivative = 0.04;
 
 
 
@@ -161,7 +163,9 @@ MainWindow::MainWindow(QWidget* _parent)
   m_copterCtrl(),
   m_tcpServer(),
   m_tcpConnection(),
-  m_accelerometerFile(s_accel_path)
+  m_accelerometerFile(s_accel_path),
+  m_lastTiltX(0),
+  m_lastTiltY(0)
 {
   m_ui->setupUi(this);
 
@@ -257,8 +261,8 @@ void MainWindow::onAccelerometerRead()
     char code = 0;
     switch (evt.code)
     {
-      case ABS_X: code = 'x'; break;
-      case ABS_Y: code = 'y'; break;
+      case ABS_X: code = 'x'; handleTiltX(evt.value); break;
+      case ABS_Y: code = 'y'; handleTiltY(evt.value); break;
       case ABS_Z: code = 'z'; break;
     }
     if (code == 0)
@@ -268,4 +272,20 @@ void MainWindow::onAccelerometerRead()
     m_tcpConnection->write(buf.toAscii());
   }
 }
+
+void MainWindow::handleTiltX(double _tilt)
+{
+  double adj = s_accel_linear*_tilt + s_accel_derivative*(_tilt - m_lastTiltX);
+  m_copterCtrl->adjustPower(adj, 0);
+  m_lastTiltX = _tilt;
+}
+
+void MainWindow::handleTiltY(double _tilt)
+{
+  double adj = s_accel_linear*_tilt + s_accel_derivative*(_tilt - m_lastTiltY);
+  m_copterCtrl->adjustPower(0, adj);
+  m_lastTiltY = _tilt;
+}
+
+
 
