@@ -6,6 +6,7 @@
 #include <QMainWindow>
 #include <QSharedPointer>
 #include <QPointer>
+#include <QSocketNotifier>
 #include <QtNetwork/QTcpServer>
 #include <QtNetwork/QTcpSocket>
 #include <QLCDNumber>
@@ -96,7 +97,9 @@ class MainWindow : public QMainWindow
     QPointer<CopterCtrl> m_copterCtrl;
     QTcpServer           m_tcpServer;
     QPointer<QTcpSocket> m_tcpConnection;
-    QFile                m_accelerometerFile;
+    int                  m_accelerometerCtrlFd;
+    int                  m_accelerometerInputFd;
+    QPointer<QSocketNotifier> m_accelerometerInputNotifier;
 
     void handleTiltX(double _tilt);
     void handleTiltY(double _tilt);

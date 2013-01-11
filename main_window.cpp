@@ -6,15 +6,31 @@
 #include <QPalette>
 #include <QColor>
 
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <math.h>
+#include <errno.h>
 #include <linux/input.h>
+#include <linux/ioctl.h>
+
+
+#define MMAIO				0xA1
+#define MMA7660FC_IOCTL_S_POLL_DELAY	_IOW(MMAIO, 0x03, int)
 
 
 //static const QString s_ctrl_path("/sys/device/platform/ehrpwm");
 static const QString s_ctrl_path("");
-static const QString s_accel_path("/dev/input/event0");
+static const QString s_accel_input_path("/dev/input/event0");
+static const QString s_accel_ctrl_path("/dev/accel_ctrl");
+static const unsigned s_tcp_port = 4000;
 static const double s_tilt_step = 0.02;
-static const double s_power_step = 1;
+static const double s_power_step1 = 1;
+static const double s_power_step2 = 5;
+static const int s_power_min = 0;
+static const int s_power_max = 100;
 static const double s_accel_linear = 0.02;
 static const double s_accel_derivative = 0.04;
 
@@ -64,11 +80,11 @@ void CopterMotor::setPower(unsigned _power)
 
   QPalette palette = m_lcd->palette();
   QColor bg = palette.color(QPalette::Disabled, m_lcd->backgroundRole());
-  double pwrSat = (100.0-_power)/100.0;
+  double pwrSat = 1.0 - static_cast<double>(_power-s_power_min)/(s_power_max-s_power_min);
   double ftrSat = m_factor;
   bg.setBlue( bg.blue() *pwrSat);
-  bg.setGreen(bg.green()*pwrSat + 200*(1.0-pwrSat)*ftrSat);
-  bg.setRed(  bg.red()  *pwrSat + 200*(1.0-pwrSat)*(1-ftrSat));
+  bg.setGreen(bg.green()*pwrSat + 0xff*(1.0-pwrSat)*ftrSat);
+  bg.setRed(  bg.red()  *pwrSat + 0xff*(1.0-pwrSat)*(1-ftrSat));
   palette.setColor(QPalette::Normal, m_lcd->backgroundRole(), bg);
   palette.setColor(QPalette::Active, m_lcd->backgroundRole(), bg);
   palette.setColor(QPalette::Inactive, m_lcd->backgroundRole(), bg);
@@ -136,13 +152,13 @@ void CopterCtrl::adjustTilt(double _tiltX, double _tiltY) const
 void CopterCtrl::adjustPower(int _incr)
 {
   m_power += _incr;
-  m_power = qMax(qMin(m_power, 100), 0);
+  m_power = qMax(qMin(m_power, s_power_max), s_power_min);
 
   QPalette palette = m_lcd->palette();
   QColor bg = palette.color(QPalette::Disabled, m_lcd->backgroundRole());
-  double pwrSat = (100.0-m_power)/100.0;
+  double pwrSat = 1.0 - static_cast<double>(m_power-s_power_min)/(s_power_max-s_power_min);
   bg.setBlue( bg.blue() *pwrSat);
-  bg.setGreen(bg.green()*pwrSat + 200*(1.0-pwrSat));
+  bg.setGreen(bg.green()*pwrSat + 0xff*(1.0-pwrSat));
   bg.setRed(  bg.red()  *pwrSat);
   palette.setColor(QPalette::Normal, m_lcd->backgroundRole(), bg);
   palette.setColor(QPalette::Active, m_lcd->backgroundRole(), bg);
@@ -163,7 +179,9 @@ MainWindow::MainWindow(QWidget* _parent)
   m_copterCtrl(),
   m_tcpServer(),
   m_tcpConnection(),
-  m_accelerometerFile(s_accel_path),
+  m_accelerometerCtrlFd(-1),
+  m_accelerometerInputFd(-1),
+  m_accelerometerInputNotifier(0),
   m_lastTiltX(0),
   m_lastTiltY(0)
 {
@@ -177,12 +195,23 @@ MainWindow::MainWindow(QWidget* _parent)
   QSharedPointer<CopterAxis>  m_axisY(new CopterAxis(my1, my2));
   m_copterCtrl = new CopterCtrl(m_axisX, m_axisY, m_ui->motor_all);
 
-  m_tcpServer.listen(QHostAddress::Any, 4000);
+  m_tcpServer.listen(QHostAddress::Any, s_tcp_port);
   connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
 
-  if (!m_accelerometerFile.open(QIODevice::Read|QIODevice::Unbuffered))
-    qDebug() << "Cannot open accelerometer " << s_accel_path;
-  connect(&m_accelerometerFile, SIGNAL(readyRead()), this, SLOT(onAccelerometerRead()));
+  m_accelerometerCtrlFd = open(s_accel_ctrl_path.toAscii().data(), O_SYNC, O_RDWR);
+  if (m_accelerometerCtrlFd == -1)
+    qDebug() << "Cannot open accelerometer ctrl file " << s_accel_ctrl_path << ", reason: " << errno;
+
+  if (ioctl(m_accelerometerCtrlFd, MMA7660FC_IOCTL_S_POLL_DELAY, 100) != 0)
+    qDebug() << "Cannot set poll delay to accelerometer ctrl file, reason: " << errno;
+
+  m_accelerometerInputFd = open(s_accel_input_path.toAscii().data(), O_SYNC, O_RDONLY);
+  if (m_accelerometerInputFd == -1)
+    qDebug() << "Cannot open accelerometer input file " << s_accel_input_path << ", reason: " << errno;
+
+  m_accelerometerInputNotifier = new QSocketNotifier(m_accelerometerInputFd, QSocketNotifier::Read, this);
+  connect(m_accelerometerInputNotifier, SIGNAL(activated(int)), this, SLOT(onAccelerometerRead()));
+  m_accelerometerInputNotifier->setEnabled(true);
 
   m_copterCtrl->adjustPower(0);
 
@@ -228,12 +257,12 @@ void MainWindow::onNetworkRead()
       case '7': m_copterCtrl->adjustTilt(-s_tilt_step, +s_tilt_step); break;
       case '8': m_copterCtrl->adjustTilt(0,            +s_tilt_step); break;
       case '9': m_copterCtrl->adjustTilt(+s_tilt_step, +s_tilt_step); break;
-      case 'Z': m_copterCtrl->adjustPower(-10000); break;
-      case 'z': m_copterCtrl->adjustPower(-5*s_power_step); break;
-      case 'x': m_copterCtrl->adjustPower(-s_power_step); break;
-      case 'c': m_copterCtrl->adjustPower(+s_power_step); break;
-      case 'v': m_copterCtrl->adjustPower(+5*s_power_step); break;
-      case 'V': m_copterCtrl->adjustPower(+10000); break;
+      case 'Z': m_copterCtrl->adjustPower(-s_power_max); break;
+      case 'z': m_copterCtrl->adjustPower(-s_power_step2); break;
+      case 'x': m_copterCtrl->adjustPower(-s_power_step1); break;
+      case 'c': m_copterCtrl->adjustPower(+s_power_step1); break;
+      case 'v': m_copterCtrl->adjustPower(+s_power_step2); break;
+      case 'V': m_copterCtrl->adjustPower(+s_power_max); break;
     }
   }
 }
@@ -242,40 +271,31 @@ void MainWindow::onAccelerometerRead()
 {
   struct input_event evt;
 
-#warning TODO remove me
-  qDebug() << "onAccelerometerRead called";
-
-  while (m_accelerometerFile.isReadable())
+  if (read(m_accelerometerInputFd, reinterpret_cast<char*>(&evt), sizeof(evt)) != sizeof(evt))
   {
-    if (m_accelerometerFile.read(reinterpret_cast<char*>(&evt), sizeof(evt)) != sizeof(evt))
-    {
-      qDebug() << "Incomplete accelerometer data read";
-      continue;
-    }
-
-    if (evt.type != EV_ABS)
-    {
-      qDebug() << "Input event type is not ABS";
-      continue;
-    }
-
-    char code = 0;
-    switch (evt.code)
-    {
-      case ABS_X: code = 'x'; handleTiltX(evt.value); break;
-      case ABS_Y: code = 'y'; handleTiltY(evt.value); break;
-      case ABS_Z: code = 'z'; break;
-    }
-    if (code == 0)
-      continue;
-
-    if (m_tcpConnection.isNull())
-      continue;
-
-    QString buf;
-    buf.sprintf("%c%u ", code, evt.value);
-    m_tcpConnection->write(buf.toAscii());
+    qDebug() << "Incomplete accelerometer data read";
+    return;
   }
+
+  if (evt.type != EV_ABS)
+  {
+    qDebug() << "Input event type is not ABS";
+    return;
+  }
+
+  char code = 0;
+  switch (evt.code)
+  {
+    case ABS_X: code = 'x'; handleTiltX(evt.value); break;
+    case ABS_Y: code = 'y'; handleTiltY(evt.value); break;
+    case ABS_Z: code = 'z'; break;
+  }
+  if (code == 0 || m_tcpConnection.isNull())
+    return;
+
+  QString buf;
+  buf.sprintf("%c%u ", code, evt.value);
+  m_tcpConnection->write(buf.toAscii());
 }
 
 void MainWindow::handleTiltX(double _tilt)
