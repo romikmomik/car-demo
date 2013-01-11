@@ -31,8 +31,8 @@ static const double s_power_step1 = 1;
 static const double s_power_step2 = 5;
 static const int s_power_min = 0;
 static const int s_power_max = 100;
-static const double s_accel_linear = -0.005;
-static const double s_accel_derivative = -0.01;
+static const double s_accel_linear = -0.02;
+static const double s_accel_derivative = -0.005;
 
 
 
@@ -296,7 +296,7 @@ void MainWindow::onAccelerometerRead()
     return;
 
   QString buf;
-  buf.sprintf("%c%u ", code, evt.value);
+  buf.sprintf("%c%i ", code, static_cast<int>(evt.value));
   m_tcpConnection->write(buf.toAscii());
 }
 
