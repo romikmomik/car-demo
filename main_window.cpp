@@ -202,7 +202,8 @@ MainWindow::MainWindow(QWidget* _parent)
   if (m_accelerometerCtrlFd == -1)
     qDebug() << "Cannot open accelerometer ctrl file " << s_accel_ctrl_path << ", reason: " << errno;
 
-  if (ioctl(m_accelerometerCtrlFd, MMA7660FC_IOCTL_S_POLL_DELAY, 100) != 0)
+  int delay_ms = 20;
+  if (ioctl(m_accelerometerCtrlFd, MMA7660FC_IOCTL_S_POLL_DELAY, &delay_ms) != 0)
     qDebug() << "Cannot set poll delay to accelerometer ctrl file, reason: " << errno;
 
   m_accelerometerInputFd = open(s_accel_input_path.toAscii().data(), O_SYNC, O_RDONLY);
