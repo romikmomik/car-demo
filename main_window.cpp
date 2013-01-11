@@ -21,18 +21,18 @@
 #define MMA7660FC_IOCTL_S_POLL_DELAY	_IOW(MMAIO, 0x03, int)
 
 
-//static const QString s_ctrl_path("/sys/device/platform/ehrpwm");
-static const QString s_ctrl_path("");
+static const QString s_ctrl_path("/sys/devices/platform/");
 static const QString s_accel_input_path("/dev/input/event0");
 static const QString s_accel_ctrl_path("/dev/accel_ctrl");
 static const unsigned s_tcp_port = 4000;
+
 static const double s_tilt_step = 0.02;
 static const double s_power_step1 = 1;
 static const double s_power_step2 = 5;
 static const int s_power_min = 0;
 static const int s_power_max = 100;
-static const double s_accel_linear = 0.02;
-static const double s_accel_derivative = 0.04;
+static const double s_accel_linear = -0.005;
+static const double s_accel_derivative = -0.01;
 
 
 
@@ -187,10 +187,10 @@ MainWindow::MainWindow(QWidget* _parent)
 {
   m_ui->setupUi(this);
 
-  QSharedPointer<CopterMotor> mx1(new CopterMotor(s_ctrl_path+"0.0", m_ui->motor_x1));
-  QSharedPointer<CopterMotor> mx2(new CopterMotor(s_ctrl_path+"0.1", m_ui->motor_x2));
-  QSharedPointer<CopterMotor> my1(new CopterMotor(s_ctrl_path+"1.0", m_ui->motor_y1));
-  QSharedPointer<CopterMotor> my2(new CopterMotor(s_ctrl_path+"1.1", m_ui->motor_y2));
+  QSharedPointer<CopterMotor> mx1(new CopterMotor(s_ctrl_path+"ehrpwm.0/pwm/ehrpwm.0:0/duty_percent", m_ui->motor_x1));
+  QSharedPointer<CopterMotor> mx2(new CopterMotor(s_ctrl_path+"ehrpwm.0/pwm/ehrpwm.0:1/duty_percent", m_ui->motor_x2));
+  QSharedPointer<CopterMotor> my1(new CopterMotor(s_ctrl_path+"ehrpwm.1/pwm/ehrpwm.1:0/duty_percent", m_ui->motor_y1));
+  QSharedPointer<CopterMotor> my2(new CopterMotor(s_ctrl_path+"ehrpwm.1/pwm/ehrpwm.1:1/duty_percent", m_ui->motor_y2));
   QSharedPointer<CopterAxis>  m_axisX(new CopterAxis(mx1, mx2));
   QSharedPointer<CopterAxis>  m_axisY(new CopterAxis(my1, my2));
   m_copterCtrl = new CopterCtrl(m_axisX, m_axisY, m_ui->motor_all);
@@ -280,7 +280,8 @@ void MainWindow::onAccelerometerRead()
 
   if (evt.type != EV_ABS)
   {
-    qDebug() << "Input event type is not ABS";
+    if (evt.type != EV_SYN)
+      qDebug() << "Input event type is not EV_ABS or EV_SYN: " << evt.type;
     return;
   }
 
