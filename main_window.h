@@ -1,8 +1,14 @@
 #ifndef MAIN_WINDOW_H_
 #define MAIN_WINDOW_H_
 
-#include <QtGui/QApplication>
+
 #include <QObject>
+
+#if QT_VERSION >= 0x050000
+    #include <QApplication>
+#else
+    #include <QtGui/QApplication>
+#endif
 #include <QMainWindow>
 #include <QSharedPointer>
 #include <QPointer>

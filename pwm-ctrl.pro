@@ -1,3 +1,5 @@
+#message(Qt version: $$[QT_VERSION_MAJOR])
+
 TEMPLATE =      app
 
 CONFIG +=       debug_and_release \
@@ -8,7 +10,7 @@ debug:CONFIG += console
 
 CONFIG -=       warn_off
 
-QT +=           network
+QT +=           network widgets
 
 TARGET =        copter-pwm-ctrl-qt
 

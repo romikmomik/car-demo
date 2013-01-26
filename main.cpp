@@ -1,10 +1,7 @@
-#include <QtGui/QApplication>
-
+#include "main_window.h"
 #include <QStyleFactory>
 #include <QDebug>
 #include <QStringList>
-
-#include "main_window.h"
 
 int main(int argc, char *argv[])
 {

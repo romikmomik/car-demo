@@ -52,7 +52,7 @@ void CopterMotor::invoke(int _power)
   QString s;
   m_ctrlFile.open(QIODevice::WriteOnly|QIODevice::Truncate|QIODevice::Unbuffered|QIODevice::Text);
   s.sprintf("%d\n", _power);
-  m_ctrlFile.write(s.toAscii().data());
+  m_ctrlFile.write(s.toLatin1());
   m_ctrlFile.close();
 }
 
@@ -76,7 +76,7 @@ void CopterMotor::factor(double _factor)
 
 void CopterMotor::setPower(unsigned _power)
 {
-  int pwr = round(m_factor * (double)_power);
+  int pwr =  floor(m_factor * _power + 0.5);
 
   QPalette palette = m_lcd->palette();
   QColor bg = palette.color(QPalette::Disabled, m_lcd->backgroundRole());
@@ -198,7 +198,7 @@ MainWindow::MainWindow(QWidget* _parent)
   m_tcpServer.listen(QHostAddress::Any, s_tcp_port);
   connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
 
-  m_accelerometerCtrlFd = open(s_accel_ctrl_path.toAscii().data(), O_SYNC, O_RDWR);
+  m_accelerometerCtrlFd = ::open(s_accel_ctrl_path.toLatin1().data(), O_SYNC, O_RDWR);
   if (m_accelerometerCtrlFd == -1)
     qDebug() << "Cannot open accelerometer ctrl file " << s_accel_ctrl_path << ", reason: " << errno;
 
@@ -206,7 +206,7 @@ MainWindow::MainWindow(QWidget* _parent)
   if (ioctl(m_accelerometerCtrlFd, MMA7660FC_IOCTL_S_POLL_DELAY, &delay_ms) != 0)
     qDebug() << "Cannot set poll delay to accelerometer ctrl file, reason: " << errno;
 
-  m_accelerometerInputFd = open(s_accel_input_path.toAscii().data(), O_SYNC, O_RDONLY);
+  m_accelerometerInputFd = ::open(s_accel_input_path.toLatin1().data(), O_SYNC, O_RDONLY);
   if (m_accelerometerInputFd == -1)
     qDebug() << "Cannot open accelerometer input file " << s_accel_input_path << ", reason: " << errno;
 
