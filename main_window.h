@@ -19,15 +19,16 @@
 #include <QString>
 #include <QFile>
 #include "ui_main_window.h"
-
+#include "settings.h"
 
 
 
 class CopterMotor : public QObject
 {
     Q_OBJECT
+    Settings::sptr m_settings;
   public:
-    CopterMotor(const QString& _ctrlPath, QLCDNumber* _lcd);
+    CopterMotor(Settings::sptr settings, const QString& _ctrlPath, QLCDNumber* _lcd);
     ~CopterMotor();
 
     double factor() const { return m_factor; }
@@ -39,7 +40,6 @@ class CopterMotor : public QObject
     QLCDNumber* m_lcd;
     QFile       m_ctrlFile;
     double      m_factor;
-
     void invoke_open();
     void invoke_close();
     void invoke(int _power);
@@ -65,8 +65,10 @@ class CopterAxis : public QObject
 class CopterCtrl : public QObject
 {
     Q_OBJECT
+    Settings::sptr m_settings;
   public:
-    CopterCtrl(const QSharedPointer<CopterAxis>& _axisX,
+    CopterCtrl(Settings::sptr const & settings,
+               const QSharedPointer<CopterAxis>& _axisX,
                const QSharedPointer<CopterAxis>& _axisY,
                QLCDNumber* _lcd);
 
@@ -95,6 +97,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
   private:
     Ui::MainWindow* m_ui;
+    Settings::sptr m_settings;
 
   public:
     MainWindow(QWidget* _parent = 0);

@@ -15,15 +15,19 @@ QT +=           network widgets
 TARGET =        copter-pwm-ctrl-qt
 
 SOURCES +=      main.cpp \
-                main_window.cpp
+                main_window.cpp \
+    settings.cpp
 
-HEADERS +=      main_window.h
+HEADERS +=      main_window.h \
+    settings.h \
+    settings_config.inc
 
 FORMS +=        main_window.ui
 
+QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS_WARN_ON = -Wno-reorder
 
 unix {
   target.path = $$[INSTALL_ROOT]/bin
   INSTALLS +=   target
 }
-

@@ -1,0 +1,17 @@
+//#ifdef __BUILD_DESKTOP__
+//PWMCTRL_CONFIG_OPTION(ROOT_PATH, "root_path", "./")
+//#else
+//PWMCTRL_CONFIG_OPTION(ROOT_PATH, "root_path", "/")
+//#endif
+
+PWMCTRL_CONFIG_OPTION(ControlPath, "/sys/devices/platform/")
+PWMCTRL_CONFIG_OPTION(AccelInputPath, "/dev/input/event0")
+PWMCTRL_CONFIG_OPTION(AccelControlPath, "/dev/accel_ctrl")
+PWMCTRL_CONFIG_OPTION(TcpPort, 4000)
+PWMCTRL_CONFIG_OPTION(TiltStep, 0.02d)
+PWMCTRL_CONFIG_OPTION(PowerStep1, 1)
+PWMCTRL_CONFIG_OPTION(PowerStep2, 5)
+PWMCTRL_CONFIG_OPTION(PowerMin, 0)
+PWMCTRL_CONFIG_OPTION(PowerMax, 100)
+PWMCTRL_CONFIG_OPTION(AccelLinear, -0.02d)
+PWMCTRL_CONFIG_OPTION(AccelDerivative, -0.005d)
