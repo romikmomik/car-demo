@@ -172,7 +172,6 @@ MainWindow::MainWindow(QWidget* _parent)
     m_copterCtrl(),
     m_tcpServer(),
     m_tcpConnection(),
-    m_accelerometerCtrlFd(-1),
     m_accelerometerInputFd(-1),
     m_accelerometerInputNotifier(0),
     m_lastTiltX(0),
@@ -190,15 +189,6 @@ MainWindow::MainWindow(QWidget* _parent)
 
   m_tcpServer.listen(QHostAddress::Any, m_settings->getTcpPort());
   connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
-
-  auto const s_accel_ctrl_path = m_settings->getAccelControlPath();
-  m_accelerometerCtrlFd = ::open(s_accel_ctrl_path.toLatin1().data(), O_SYNC, O_RDWR);
-  if (m_accelerometerCtrlFd == -1)
-    qDebug() << "Cannot open accelerometer ctrl file " << s_accel_ctrl_path << ", reason: " << errno;
-
-  int delay_ms = 20;
-  if (ioctl(m_accelerometerCtrlFd, MMA7660FC_IOCTL_S_POLL_DELAY, &delay_ms) != 0)
-    qDebug() << "Cannot set poll delay to accelerometer ctrl file, reason: " << errno;
 
   auto const s_accel_input_path = m_settings->getAccelInputPath();
   m_accelerometerInputFd = ::open(s_accel_input_path.toLatin1().data(), O_SYNC, O_RDONLY);

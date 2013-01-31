@@ -106,7 +106,6 @@ class MainWindow : public QMainWindow
     QPointer<CopterCtrl> m_copterCtrl;
     QTcpServer           m_tcpServer;
     QPointer<QTcpSocket> m_tcpConnection;
-    int                  m_accelerometerCtrlFd;
     int                  m_accelerometerInputFd;
     QPointer<QSocketNotifier> m_accelerometerInputNotifier;
 

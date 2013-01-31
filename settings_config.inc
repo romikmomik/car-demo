@@ -6,7 +6,6 @@
 
 PWMCTRL_CONFIG_OPTION(ControlPath, "/sys/devices/platform/")
 PWMCTRL_CONFIG_OPTION(AccelInputPath, "/dev/input/event0")
-PWMCTRL_CONFIG_OPTION(AccelControlPath, "/dev/accel_ctrl")
 PWMCTRL_CONFIG_OPTION(TcpPort, 4000)
 PWMCTRL_CONFIG_OPTION(TiltStep, 0.02d)
 PWMCTRL_CONFIG_OPTION(PowerStep1, 1)
