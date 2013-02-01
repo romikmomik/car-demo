@@ -1,4 +1,4 @@
-#include "main_window.h"
+#include "MainWindow.hpp"
 #include <QStyleFactory>
 #include <QDebug>
 #include <QStringList>

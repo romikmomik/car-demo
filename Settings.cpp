@@ -1,5 +1,5 @@
-#include "settings.h"
-#include <QApplication>
+#include "Common.hpp"
+#include "Settings.hpp"
 #define PWMCTRL_CONFIG_OPTION(id, default) const QString Settings::K_##id = #id;
 #include "./settings_config.inc"
 #undef PWMCTRL_CONFIG_OPTION
