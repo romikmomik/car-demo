@@ -55,7 +55,6 @@ MainWindow::MainWindow(QWidget* _parent)
 
 	m_copterCtrl->adjustPower(0);
 
-	setCursor(Qt::BlankCursor);
 	showFullScreen();
 }
 
