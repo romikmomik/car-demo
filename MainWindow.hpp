@@ -8,12 +8,23 @@
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
-private:
-	Ui::MainWindow* m_ui;
-	Settings::sptr m_settings;
-
 public:
 	MainWindow(QWidget* _parent = 0);
+	enum BoardButton {
+		Button1 = 0,
+		Button2,
+		Button3,
+		Button4,
+		Button5,
+		Button6,
+		Button7,
+		Button8,
+		NUM_BUTTONS
+	};
+
+signals:
+	void buttonPressed(BoardButton button);
+	void buttonReleased(BoardButton button);
 
 protected:
 	QPointer<CopterCtrl> m_copterCtrl;
@@ -21,6 +32,8 @@ protected:
 	QPointer<QTcpSocket> m_tcpConnection;
 	int                  m_accelerometerInputFd;
 	QPointer<QSocketNotifier> m_accelerometerInputNotifier;
+	int                  m_buttonsInputFd;
+	QPointer<QSocketNotifier> m_buttonsInputNotifier;
 
 	void handleTiltX(double _tilt);
 	void handleTiltY(double _tilt);
@@ -32,6 +45,11 @@ protected slots:
 	void onDisconnected();
 	void onNetworkRead();
 	void onAccelerometerRead();
+	void onButtonRead();
+
+private:
+	Ui::MainWindow* m_ui;
+	Settings::sptr m_settings;
 
 };
 

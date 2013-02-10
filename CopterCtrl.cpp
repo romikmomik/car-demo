@@ -10,8 +10,10 @@ CopterCtrl::CopterCtrl(Settings::sptr const & settings,
 		m_power(0),
 		m_axisX(_axisX),
 		m_axisY(_axisY),
-		m_settings(settings)
+		m_settings(settings),
+		m_state(IDLE)
 {
+	m_accelAxis[X] = m_accelAxis[Y] = m_accelAxis[Z] = 0;
 }
 
 void CopterCtrl::adjustTilt(double _tiltX, double _tiltY) const

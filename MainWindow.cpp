@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget* _parent)
 	m_tcpServer.listen(QHostAddress::Any, m_settings->getTcpPort());
 	connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
 
+	// accel reading
 	auto const s_accel_input_path = m_settings->getAccelInputPath();
 	m_accelerometerInputFd = ::open(s_accel_input_path.toLatin1().data(), O_SYNC, O_RDONLY);
 	if (m_accelerometerInputFd == -1)
@@ -38,6 +39,16 @@ MainWindow::MainWindow(QWidget* _parent)
 	m_accelerometerInputNotifier = new QSocketNotifier(m_accelerometerInputFd, QSocketNotifier::Read, this);
 	connect(m_accelerometerInputNotifier, SIGNAL(activated(int)), this, SLOT(onAccelerometerRead()));
 	m_accelerometerInputNotifier->setEnabled(true);
+
+	// buttons reading
+	auto const s_buttons_input_path = m_settings->getButtonsInputPath();
+	m_buttonsInputFd = ::open(s_buttons_input_path.toLatin1().data(), O_SYNC, O_RDONLY);
+	if (m_buttonsInputFd == -1)
+		qDebug() << "Cannot open buttons input file " << s_buttons_input_path << ", reason: " << errno;
+
+	m_buttonsInputNotifier = new QSocketNotifier(m_buttonsInputFd, QSocketNotifier::Read, this);
+	connect(m_buttonsInputNotifier, SIGNAL(activated(int)), this, SLOT(onButtonRead()));
+	m_buttonsInputNotifier->setEnabled(true);
 
 	m_copterCtrl->adjustPower(0);
 
@@ -128,6 +139,43 @@ void MainWindow::onAccelerometerRead()
 	QString buf;
 	buf.sprintf("%c%i ", code, static_cast<int>(evt.value));
 	m_tcpConnection->write(buf.toAscii());
+}
+
+void MainWindow::onButtonRead()
+{
+	struct input_event evt;
+
+	if (read(m_buttonsInputFd, reinterpret_cast<char*>(&evt), sizeof(evt)) != sizeof(evt))
+	{
+		qDebug() << "Incomplete buttons data read";
+		return;
+	}
+
+	if (evt.type != EV_KEY)
+	{
+		if (evt.type != EV_SYN)
+			qDebug() << "Input event type is not EV_KEY or EV_SYN: " << evt.type;
+		return;
+	}
+
+	BoardButton button;
+
+	switch (evt.code) {
+		case KEY_F1: button = Button1; break;
+		case KEY_F2: button = Button2; break;
+		case KEY_F3: button = Button3; break;
+		case KEY_F4: button = Button4; break;
+		case KEY_F5: button = Button5; break;
+		case KEY_F6: button = Button6; break;
+		case KEY_F7: button = Button7; break;
+	}
+
+	if (static_cast<bool>(evt.value)) {
+		emit buttonPressed(button);
+	}
+	else {
+		emit buttonReleased(button);
+	}
 }
 
 void MainWindow::handleTiltX(double _tilt)
