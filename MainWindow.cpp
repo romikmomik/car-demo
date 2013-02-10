@@ -42,7 +42,6 @@ MainWindow::MainWindow(QWidget* _parent)
   m_copterCtrl->adjustPower(0);
 
   showFullScreen();
-  showMaximized();
 }
 
 void MainWindow::onConnection()
