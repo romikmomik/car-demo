@@ -28,10 +28,10 @@ public:
 										 ADJUSTING_ACCEL,
 										 NUM_STATES };
 	const CopterState state() { return m_state; }
-	void state(CopterState _state) { m_state = _state; emit stateChanged(m_state); }
 
 public slots:
-	void adjustAccelAxis(double _val, AxisDimension _dim) { m_accelAxis[_dim] = _val; }
+	void accelAxis(double _val, AxisDimension _dim) { m_accelAxis[_dim] = _val; }
+	void state(CopterState _state) { m_state = _state; emit stateChanged(m_state); }
 
 signals:
 	void lcdUpdate(int);

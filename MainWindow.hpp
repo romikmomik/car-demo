@@ -27,7 +27,7 @@ signals:
 	void buttonReleased(BoardButton button);
 
 protected:
-	QPointer<CopterCtrl> m_copterCtrl;
+	CopterCtrl* m_copterCtrl;
 	QTcpServer           m_tcpServer;
 	QPointer<QTcpSocket> m_tcpConnection;
 	int                  m_accelerometerInputFd;
@@ -46,11 +46,12 @@ protected slots:
 	void onNetworkRead();
 	void onAccelerometerRead();
 	void onButtonRead();
+	void adjustAccelAxis();
 
 private:
 	Ui::MainWindow* m_ui;
 	Settings::sptr m_settings;
-
+	int m_adjustCounter;
 };
 
 

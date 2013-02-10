@@ -1,5 +1,8 @@
+#include <QTimer>
+
 #include "Common.hpp"
 #include "MainWindow.hpp"
+
 #include <fcntl.h>
 #include <unistd.h>
 //#include <sys/ioctl.h>
@@ -129,10 +132,29 @@ void MainWindow::onAccelerometerRead()
 	char code = 0;
 	switch (evt.code)
 	{
-		case ABS_X: code = 'x'; handleTiltX(evt.value); break;
-		case ABS_Y: code = 'y'; handleTiltY(evt.value); break;
-		case ABS_Z: code = 'z'; break;
+		case ABS_X:
+			code = 'x';
+			handleTiltX(evt.value);
+			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL)
+				m_copterCtrl->accelAxis((m_adjustCounter * m_copterCtrl->accelAxis(CopterCtrl::X) + evt.value) / (++m_adjustCounter), CopterCtrl::X);
+			break;
+		case ABS_Y:
+			code = 'y';
+			handleTiltY(evt.value);
+			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL)
+				m_copterCtrl->accelAxis((m_adjustCounter * m_copterCtrl->accelAxis(CopterCtrl::Y) + evt.value) / (++m_adjustCounter), CopterCtrl::Y);
+			break;
+		case ABS_Z:
+			code = 'z';
+			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL)
+				m_copterCtrl->accelAxis((m_adjustCounter * m_copterCtrl->accelAxis(CopterCtrl::Z) + evt.value) / (++m_adjustCounter), CopterCtrl::Z);
+			break;
 	}
+	m_ui->accel_label_x->setText(QString::number(m_copterCtrl->accelAxis(CopterCtrl::X)));
+	m_ui->accel_label_y->setText(QString::number(m_copterCtrl->accelAxis(CopterCtrl::Y)));
+	m_ui->accel_label_z->setText(QString::number(m_copterCtrl->accelAxis(CopterCtrl::Z)));
+
+
 	if (code == 0 || m_tcpConnection.isNull())
 		return;
 
@@ -170,12 +192,27 @@ void MainWindow::onButtonRead()
 		case KEY_F7: button = Button7; break;
 	}
 
+	if (button == Button3) {
+		adjustAccelAxis();
+	}
+
 	if (static_cast<bool>(evt.value)) {
 		emit buttonPressed(button);
 	}
 	else {
 		emit buttonReleased(button);
 	}
+}
+
+void MainWindow::adjustAccelAxis()
+{
+	if (m_copterCtrl->state() != CopterCtrl::IDLE)
+		return;
+
+	m_copterCtrl->state(CopterCtrl::ADJUSTING_ACCEL);
+	m_adjustCounter = 0;
+
+	QTimer::singleShot(5000, m_copterCtrl, SLOT(state(CopterCtrl::IDLE)));
 }
 
 void MainWindow::handleTiltX(double _tilt)
