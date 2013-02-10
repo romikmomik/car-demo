@@ -5,12 +5,12 @@
 #undef PWMCTRL_CONFIG_OPTION
 
 Settings::Settings(QObject *parent) :
-    QObject(parent),
-    m_settings(QApplication::applicationDirPath() + "/config.ini", QSettings::IniFormat)
+	QObject(parent),
+	m_settings(QApplication::applicationDirPath() + "/config.ini", QSettings::IniFormat)
 {
-    m_settings.setFallbacksEnabled(false);
-		m_settings.sync();
-//#define PWMCTRL_CONFIG_OPTION(id, def) this->m_settings.setValue(K_##id, def);
-//#include "./settings_config.inc"
-//#undef PWMCTRL_CONFIG_OPTION
+	m_settings.setFallbacksEnabled(false);
+	m_settings.sync();
+	//#define PWMCTRL_CONFIG_OPTION(id, def) this->m_settings.setValue(K_##id, def);
+	//#include "./settings_config.inc"
+	//#undef PWMCTRL_CONFIG_OPTION
 }

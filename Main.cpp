@@ -5,12 +5,12 @@
 
 int main(int argc, char *argv[])
 {
-  QApplication a(argc, argv);
+	QApplication a(argc, argv);
 
-  a.setStyle(QStyleFactory::create("Cleanlooks"));
+	a.setStyle(QStyleFactory::create("Cleanlooks"));
 
-  MainWindow w;
-  w.show();
-  return a.exec();
+	MainWindow w;
+	w.show();
+	return a.exec();
 }
 
