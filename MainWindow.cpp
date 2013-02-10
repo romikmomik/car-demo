@@ -126,6 +126,10 @@ void MainWindow::onAccelerometerRead()
 	{
 		if (evt.type != EV_SYN)
 			qDebug() << "Input event type is not EV_ABS or EV_SYN: " << evt.type;
+		else {
+			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL)
+				++m_adjustCounter;
+		}
 		return;
 	}
 
@@ -136,18 +140,18 @@ void MainWindow::onAccelerometerRead()
 			code = 'x';
 			handleTiltX(evt.value);
 			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL)
-				m_copterCtrl->accelAxis((m_adjustCounter * m_copterCtrl->accelAxis(CopterCtrl::X) + evt.value) / (++m_adjustCounter), CopterCtrl::X);
+				m_copterCtrl->accelAxis((m_adjustCounter * m_copterCtrl->accelAxis(CopterCtrl::X) + evt.value) / (m_adjustCounter + 1), CopterCtrl::X);
 			break;
 		case ABS_Y:
 			code = 'y';
 			handleTiltY(evt.value);
 			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL)
-				m_copterCtrl->accelAxis((m_adjustCounter * m_copterCtrl->accelAxis(CopterCtrl::Y) + evt.value) / (++m_adjustCounter), CopterCtrl::Y);
+				m_copterCtrl->accelAxis((m_adjustCounter * m_copterCtrl->accelAxis(CopterCtrl::Y) + evt.value) / (m_adjustCounter + 1), CopterCtrl::Y);
 			break;
 		case ABS_Z:
 			code = 'z';
 			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL)
-				m_copterCtrl->accelAxis((m_adjustCounter * m_copterCtrl->accelAxis(CopterCtrl::Z) + evt.value) / (++m_adjustCounter), CopterCtrl::Z);
+				m_copterCtrl->accelAxis((m_adjustCounter * m_copterCtrl->accelAxis(CopterCtrl::Z) + evt.value) / (m_adjustCounter + 1), CopterCtrl::Z);
 			break;
 	}
 	m_ui->accel_label_x->setText(QString::number(m_copterCtrl->accelAxis(CopterCtrl::X)));
@@ -212,7 +216,7 @@ void MainWindow::adjustAccelAxis()
 	m_copterCtrl->state(CopterCtrl::ADJUSTING_ACCEL);
 	m_adjustCounter = 0;
 
-	QTimer::singleShot(5000, m_copterCtrl, SLOT(state(CopterCtrl::IDLE)));
+	QTimer::singleShot(5000, m_copterCtrl, SLOT(state()));
 }
 
 void MainWindow::handleTiltX(double _tilt)
