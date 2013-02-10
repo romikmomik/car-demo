@@ -213,10 +213,10 @@ void MainWindow::adjustAccelAxis()
 	if (m_copterCtrl->state() != CopterCtrl::IDLE)
 		return;
 
-	m_copterCtrl->state(CopterCtrl::ADJUSTING_ACCEL);
+	m_copterCtrl->setState(CopterCtrl::ADJUSTING_ACCEL);
 	m_adjustCounter = 0;
 
-	QTimer::singleShot(5000, m_copterCtrl, SLOT(state()));
+	QTimer::singleShot(5000, m_copterCtrl, SLOT(setState()));
 }
 
 void MainWindow::handleTiltX(double _tilt)

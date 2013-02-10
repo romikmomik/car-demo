@@ -31,7 +31,7 @@ public:
 
 public slots:
 	void accelAxis(double _val, AxisDimension _dim) { m_accelAxis[_dim] = _val; }
-	void state(CopterState _state = IDLE) { m_state = _state; emit stateChanged(m_state); }
+	void setState(CopterState _state = IDLE) { m_state = _state; emit stateChanged(m_state); }
 
 signals:
 	void lcdUpdate(int);
