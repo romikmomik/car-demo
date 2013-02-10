@@ -55,6 +55,7 @@ MainWindow::MainWindow(QWidget* _parent)
 
 	m_copterCtrl->adjustPower(0);
 
+	setCursor(Qt::BlankCursor);
 	showFullScreen();
 }
 
@@ -216,7 +217,7 @@ void MainWindow::adjustAccelAxis()
 	m_copterCtrl->setState(CopterCtrl::ADJUSTING_ACCEL);
 	m_adjustCounter = 0;
 
-	QTimer::singleShot(5000, m_copterCtrl, SLOT(setState()));
+	QTimer::singleShot(m_settings->getAccelAdjustingTime(), m_copterCtrl, SLOT(setState()));
 }
 
 void MainWindow::handleTiltX(double _tilt)
