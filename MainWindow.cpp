@@ -1,4 +1,5 @@
 #include <QTimer>
+#include <QStatusBar>
 
 #include "Common.hpp"
 #include "MainWindow.hpp"
@@ -53,9 +54,17 @@ MainWindow::MainWindow(QWidget* _parent)
 	connect(m_buttonsInputNotifier, SIGNAL(activated(int)), this, SLOT(onButtonRead()));
 	m_buttonsInputNotifier->setEnabled(true);
 
+	connect(m_copterCtrl, SIGNAL(stateChanged(CopterState)), this, SLOT(stateChanged()));
+
+	m_copterCtrl->setState(CopterCtrl::IDLE);
 	m_copterCtrl->adjustPower(0);
 
 	showFullScreen();
+}
+
+void MainWindow::stateChanged()
+{
+	statusBar()->showMessage(m_copterCtrl->stateString());
 }
 
 void MainWindow::onConnection()

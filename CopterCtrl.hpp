@@ -28,6 +28,13 @@ public:
 										 ADJUSTING_ACCEL,
 										 NUM_STATES };
 	const CopterState state() { return m_state; }
+	const QString stateString() {
+		switch (m_state) {
+			case IDLE: return QString("Idling..."); break;
+			case ADJUSTING_ACCEL: return QString("Adjusting accelerometer axis..."); break;
+			default: return QString("Unknown status"); break;
+		}
+	}
 
 public slots:
 	void accelAxis(double _val, AxisDimension _dim) { m_accelAxis[_dim] = _val; }

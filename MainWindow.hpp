@@ -22,6 +22,9 @@ public:
 		NUM_BUTTONS
 	};
 
+public slots:
+	void stateChanged();
+
 signals:
 	void buttonPressed(BoardButton button);
 	void buttonReleased(BoardButton button);
