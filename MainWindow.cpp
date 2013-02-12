@@ -56,6 +56,9 @@ MainWindow::MainWindow(QWidget* _parent)
 
 	connect(m_copterCtrl, SIGNAL(stateChanged(CopterState)), this, SLOT(stateChanged()));
 
+	QFont statusBarFont = statusBar()->font();
+	statusBarFont.setPointSize(5);
+	statusBar()->setFont(statusBarFont);
 	m_copterCtrl->setState(CopterCtrl::IDLE);
 	m_copterCtrl->adjustPower(0);
 
