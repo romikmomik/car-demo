@@ -14,7 +14,7 @@ CopterCtrl::CopterCtrl(Settings::sptr const & settings,
 		m_settings(settings),
 		m_state(IDLE)
 {
-	m_accel = new Accelerometer(m_settings->getAccelInputPath, this);
+	m_accel = new Accelerometer(m_settings->getAccelInputPath(), this);
 	connect(m_accel, SIGNAL(accelerometerRead(double,CopterCtrl::AxisDimension)),
 					this, SIGNAL(accelerometerRead(double,CopterCtrl::AxisDimension)));
 }
