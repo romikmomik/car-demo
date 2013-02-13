@@ -74,6 +74,6 @@ void Accelerometer::adjustZeroAxis()
 	m_adjustCounter = 0;
 
 	// TODO: move timer to ctrl class
-	QTimer::singleShot(m_settings->getAccelAdjustingTime(), m_copterCtrl, SLOT(setState()));
+	QTimer::singleShot(m_copterCtrl->m_settings->getAccelAdjustingTime(), m_copterCtrl, SLOT(setState()));
 }
 
