@@ -1,5 +1,7 @@
 #include "accelerometer.hpp"
 
+#include <fcntl.h>
+#include <unistd.h>
 #include <linux/input.h>
 
 Accelerometer::Accelerometer(const QString inputPath, QObject *parent) :
