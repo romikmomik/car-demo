@@ -1,3 +1,5 @@
+#include <QTimer>
+
 #include "Common.hpp"
 #include <cmath>
 #include "CopterCtrl.hpp"

@@ -1,5 +1,3 @@
-#include <QTimer>
-
 #include "accelerometer.hpp"
 
 #include <fcntl.h>
