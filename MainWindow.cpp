@@ -141,9 +141,9 @@ void MainWindow::onButtonRead()
 		case KEY_F7: button = Button7; break;
 	}
 
-//	if (button == Button3) {
-//		adjustAccelAxis();
-//	}
+	if (button == Button3) {
+		m_copterCtrl->adjustAccel();
+	}
 
 	if (static_cast<bool>(evt.value)) {
 		emit buttonPressed(button);
