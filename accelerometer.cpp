@@ -1,5 +1,7 @@
 #include "accelerometer.hpp"
 
+#include <linux/input.h>
+
 Accelerometer::Accelerometer(const QString inputPath, QObject *parent) :
 	QObject(parent),
 	m_inputFd(-1),
@@ -40,19 +42,19 @@ void Accelerometer::onRead()
 	{
 		case ABS_X:
 			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL) {
-				zeroAxis[CopterCtrl::X] = ((m_adjustCounter * zeroAxis[CopterCtrl::X] + evt.value) / (m_adjustCounter + 1));
+				m_zeroAxis[CopterCtrl::X] = ((m_adjustCounter * m_zeroAxis[CopterCtrl::X] + evt.value) / (m_adjustCounter + 1));
 			}
 			emit accelerometerRead(evt.val, CopterCtrl::X);
 			break;
 		case ABS_Y:
 			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL) {
-				zeroAxis[CopterCtrl::Y] = ((m_adjustCounter * zeroAxis[CopterCtrl::Y] + evt.value) / (m_adjustCounter + 1));
+				m_zeroAxis[CopterCtrl::Y] = ((m_adjustCounter * m_zeroAxis[CopterCtrl::Y] + evt.value) / (m_adjustCounter + 1));
 			}
 			emit accelerometerRead(evt.val, CopterCtrl::Y);
 			break;
 		case ABS_Z:
 			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL) {
-				zeroAxis[CopterCtrl::Z] = ((m_adjustCounter * zeroAxis[CopterCtrl::Z] + evt.value) / (m_adjustCounter + 1));
+				m_zeroAxis[CopterCtrl::Z] = ((m_adjustCounter * m_zeroAxis[CopterCtrl::Z] + evt.value) / (m_adjustCounter + 1));
 			}
 			emit accelerometerRead(evt.val, CopterCtrl::Z);
 			break;
