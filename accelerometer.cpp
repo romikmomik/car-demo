@@ -1,3 +1,5 @@
+#include <QTimer>
+
 #include "accelerometer.hpp"
 
 #include <fcntl.h>
@@ -46,19 +48,19 @@ void Accelerometer::onRead()
 			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL) {
 				m_zeroAxis[CopterCtrl::X] = ((m_adjustCounter * m_zeroAxis[CopterCtrl::X] + evt.value) / (m_adjustCounter + 1));
 			}
-			emit accelerometerRead(evt.val, CopterCtrl::X);
+			emit accelerometerRead(evt.value, CopterCtrl::X);
 			break;
 		case ABS_Y:
 			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL) {
 				m_zeroAxis[CopterCtrl::Y] = ((m_adjustCounter * m_zeroAxis[CopterCtrl::Y] + evt.value) / (m_adjustCounter + 1));
 			}
-			emit accelerometerRead(evt.val, CopterCtrl::Y);
+			emit accelerometerRead(evt.value, CopterCtrl::Y);
 			break;
 		case ABS_Z:
 			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL) {
 				m_zeroAxis[CopterCtrl::Z] = ((m_adjustCounter * m_zeroAxis[CopterCtrl::Z] + evt.value) / (m_adjustCounter + 1));
 			}
-			emit accelerometerRead(evt.val, CopterCtrl::Z);
+			emit accelerometerRead(evt.value, CopterCtrl::Z);
 			break;
 	}
 }
