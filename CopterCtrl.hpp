@@ -4,7 +4,9 @@
 #include "Common.hpp"
 #include "Settings.hpp"
 #include "CopterAxis.hpp"
-#include "accelerometer.hpp"
+//#include "accelerometer.hpp"
+
+QT_FORWARD_DECLARE_CLASS("Accelerometer")
 
 class CopterCtrl : public QObject
 {

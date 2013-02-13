@@ -1,6 +1,7 @@
 #include "Common.hpp"
 #include <cmath>
 #include "CopterCtrl.hpp"
+#include "accelerometer.hpp"
 
 CopterCtrl::CopterCtrl(Settings::sptr const & settings,
 											 const QSharedPointer<CopterAxis>& _axisX,
