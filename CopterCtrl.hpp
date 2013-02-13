@@ -1,4 +1,6 @@
-#pragma once
+#ifndef COPTERCTRL_HPP
+#define COPTERCTRL_HPP
+
 #include "Common.hpp"
 #include "Settings.hpp"
 #include "CopterAxis.hpp"
@@ -53,3 +55,5 @@ protected:
 	Accelerometer* m_accel;
 	CopterState m_state;
 };
+
+#endif // COPTERCTRL_HPP

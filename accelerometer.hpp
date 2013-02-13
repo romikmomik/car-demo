@@ -1,8 +1,10 @@
-#ifndef ACCELEROMETER_H
-#define ACCELEROMETER_H
+#ifndef ACCELEROMETER_HPP
+#define ACCELEROMETER_HPP
 
 #include <QObject>
 #include "CopterCtrl.hpp"
+
+class CopterCtrl;
 
 class Accelerometer : public QObject
 {
@@ -22,9 +24,9 @@ private:
 	double minVal, maxVal;
 	int m_adjustCounter;
 	int m_inputFd;
-	double m_zeroAxis[NUM_DIMENSIONS];
+	double m_zeroAxis[CopterCtrl::NUM_DIMENSIONS];
 	CopterCtrl* m_copterCtrl;
 	QSocketNotifier* m_inputNotifier;
 };
 
-#endif // ACCELEROMETER_H
+#endif // ACCELEROMETER_HPP
