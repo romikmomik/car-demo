@@ -22,7 +22,8 @@ SOURCES +=      \
     CopterAxis.cpp \
     Settings.cpp \
     MainWindow.cpp \
-    Main.cpp
+    Main.cpp \
+    accelerometer.cpp
 
 HEADERS +=      \
     settings_config.inc \
@@ -31,7 +32,8 @@ HEADERS +=      \
     CopterAxis.hpp \
     Common.hpp \
     Settings.hpp \
-    MainWindow.hpp
+    MainWindow.hpp \
+    accelerometer.hpp
 
 FORMS += \       
     MainWindow.ui

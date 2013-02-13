@@ -2,6 +2,7 @@
 #include "Common.hpp"
 #include "Settings.hpp"
 #include "CopterAxis.hpp"
+#include "accelerometer.hpp"
 
 class CopterCtrl : public QObject
 {
@@ -23,7 +24,6 @@ public:
 											 Y,
 											 Z,
 											 NUM_DIMENSIONS };
-	const double accelAxis(AxisDimension _dim) { return m_accelAxis[_dim]; }
 	enum CopterState { IDLE = 0,
 										 ADJUSTING_ACCEL,
 										 NUM_STATES };
@@ -37,12 +37,12 @@ public:
 	}
 
 public slots:
-	void accelAxis(double _val, AxisDimension _dim) { m_accelAxis[_dim] = _val; }
 	void setState(CopterState _state = IDLE) { m_state = _state; emit stateChanged(m_state); }
 
 signals:
 	void lcdUpdate(int);
 	void stateChanged(CopterState state);
+	void accelerometerRead(double val, CopterCtrl::AxisDimension dim);
 
 protected:
 	QLCDNumber* m_lcd;
@@ -50,6 +50,6 @@ protected:
 	QSharedPointer<CopterAxis> m_axisX;
 	QSharedPointer<CopterAxis> m_axisY;
 
-	double m_accelAxis[NUM_DIMENSIONS];
+	Accelerometer* m_accel;
 	CopterState m_state;
 };

@@ -6,7 +6,6 @@
 
 #include <fcntl.h>
 #include <unistd.h>
-//#include <sys/ioctl.h>
 #include <linux/input.h>
 
 MainWindow::MainWindow(QWidget* _parent)
@@ -33,16 +32,6 @@ MainWindow::MainWindow(QWidget* _parent)
 
 	m_tcpServer.listen(QHostAddress::Any, m_settings->getTcpPort());
 	connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
-
-	// accel reading
-	auto const s_accel_input_path = m_settings->getAccelInputPath();
-	m_accelerometerInputFd = ::open(s_accel_input_path.toLatin1().data(), O_SYNC, O_RDONLY);
-	if (m_accelerometerInputFd == -1)
-		qDebug() << "Cannot open accelerometer input file " << s_accel_input_path << ", reason: " << errno;
-
-	m_accelerometerInputNotifier = new QSocketNotifier(m_accelerometerInputFd, QSocketNotifier::Read, this);
-	connect(m_accelerometerInputNotifier, SIGNAL(activated(int)), this, SLOT(onAccelerometerRead()));
-	m_accelerometerInputNotifier->setEnabled(true);
 
 	// buttons reading
 	auto const s_buttons_input_path = m_settings->getButtonsInputPath();
@@ -124,60 +113,6 @@ void MainWindow::onNetworkRead()
 	}
 }
 
-void MainWindow::onAccelerometerRead()
-{
-	struct input_event evt;
-
-	if (read(m_accelerometerInputFd, reinterpret_cast<char*>(&evt), sizeof(evt)) != sizeof(evt))
-	{
-		qDebug() << "Incomplete accelerometer data read";
-		return;
-	}
-
-	if (evt.type != EV_ABS)
-	{
-		if (evt.type != EV_SYN)
-			qDebug() << "Input event type is not EV_ABS or EV_SYN: " << evt.type;
-		else {
-			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL)
-				++m_adjustCounter;
-		}
-		return;
-	}
-
-	char code = 0;
-	switch (evt.code)
-	{
-		case ABS_X:
-			code = 'x';
-			handleTiltX(evt.value);
-			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL)
-				m_copterCtrl->accelAxis((m_adjustCounter * m_copterCtrl->accelAxis(CopterCtrl::X) + evt.value) / (m_adjustCounter + 1), CopterCtrl::X);
-			break;
-		case ABS_Y:
-			code = 'y';
-			handleTiltY(evt.value);
-			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL)
-				m_copterCtrl->accelAxis((m_adjustCounter * m_copterCtrl->accelAxis(CopterCtrl::Y) + evt.value) / (m_adjustCounter + 1), CopterCtrl::Y);
-			break;
-		case ABS_Z:
-			code = 'z';
-			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL)
-				m_copterCtrl->accelAxis((m_adjustCounter * m_copterCtrl->accelAxis(CopterCtrl::Z) + evt.value) / (m_adjustCounter + 1), CopterCtrl::Z);
-			break;
-	}
-	m_ui->accel_label_x->setText(QString::number(m_copterCtrl->accelAxis(CopterCtrl::X)));
-	m_ui->accel_label_y->setText(QString::number(m_copterCtrl->accelAxis(CopterCtrl::Y)));
-	m_ui->accel_label_z->setText(QString::number(m_copterCtrl->accelAxis(CopterCtrl::Z)));
-
-
-	if (code == 0 || m_tcpConnection.isNull())
-		return;
-
-	QString buf;
-	buf.sprintf("%c%i ", code, static_cast<int>(evt.value));
-	m_tcpConnection->write(buf.toAscii());
-}
 
 void MainWindow::onButtonRead()
 {
@@ -220,17 +155,6 @@ void MainWindow::onButtonRead()
 	}
 }
 
-void MainWindow::adjustAccelAxis()
-{
-	if (m_copterCtrl->state() != CopterCtrl::IDLE)
-		return;
-
-	m_copterCtrl->setState(CopterCtrl::ADJUSTING_ACCEL);
-	m_adjustCounter = 0;
-
-	QTimer::singleShot(m_settings->getAccelAdjustingTime(), m_copterCtrl, SLOT(setState()));
-}
-
 void MainWindow::handleTiltX(double _tilt)
 {
 	static const auto s_accel_linear = m_settings->getAccelLinear();
@@ -250,5 +174,20 @@ void MainWindow::handleTiltY(double _tilt)
 	m_lastTiltY = _tilt;
 }
 
+
+void MainWindow::onAccelerometerRead(double val, CopterCtrl::AxisDimension dim)
+{
+	switch (dim) {
+		case CopterCtrl::X:
+			m_ui->cur_accel_x->setText(QString::number(val));
+			break;
+		case CopterCtrl::Y:
+			m_ui->cur_accel_y->setText(QString::number(val));
+			break;
+		case CopterCtrl::Z:
+			m_ui->cur_accel_z->setText(QString::number(val));
+			break;
+	}
+}
 
 
