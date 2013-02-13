@@ -15,8 +15,6 @@ MainWindow::MainWindow(QWidget* _parent)
 		m_copterCtrl(),
 		m_tcpServer(),
 		m_tcpConnection(),
-		m_accelerometerInputFd(-1),
-		m_accelerometerInputNotifier(0),
 		m_lastTiltX(0),
 		m_lastTiltY(0)
 {
@@ -143,9 +141,9 @@ void MainWindow::onButtonRead()
 		case KEY_F7: button = Button7; break;
 	}
 
-	if (button == Button3) {
-		adjustAccelAxis();
-	}
+//	if (button == Button3) {
+//		adjustAccelAxis();
+//	}
 
 	if (static_cast<bool>(evt.value)) {
 		emit buttonPressed(button);
