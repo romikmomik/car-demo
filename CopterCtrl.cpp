@@ -57,7 +57,7 @@ void CopterCtrl::adjustAccel()
 {
 	if (m_state != CopterCtrl::IDLE)
 		return;
-	m_state = CopterCtrl::ADJUSTING_ACCEL;
+	setState(CopterCtrl::ADJUSTING_ACCEL;);
 
 	QTimer::singleShot(m_settings->getAccelAdjustingTime(), this, SLOT(setState()));
 }
