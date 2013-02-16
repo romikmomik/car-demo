@@ -10,7 +10,7 @@ class Accelerometer : public QObject
 {
 	Q_OBJECT
 public:
-	explicit Accelerometer(const QString inputPath, QObject *parent = 0);
+	explicit Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QObject *parent = 0);
 	
 	void adjustZeroAxis();
 

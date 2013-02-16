@@ -139,6 +139,7 @@ void MainWindow::onButtonRead()
 		case KEY_F5: button = Button5; break;
 		case KEY_F6: button = Button6; break;
 		case KEY_F7: button = Button7; break;
+		case KEY_F8: buttom = Button8; break;
 	}
 
 	if (button == Button3) {

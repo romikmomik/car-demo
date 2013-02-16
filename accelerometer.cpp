@@ -4,11 +4,12 @@
 #include <unistd.h>
 #include <linux/input.h>
 
-Accelerometer::Accelerometer(const QString inputPath, QObject *parent) :
+Accelerometer::Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QObject *parent) :
 	QObject(parent),
 	m_inputFd(-1),
 	m_inputNotifier(0),
-	m_adjustCounter(0)
+	m_adjustCounter(0),
+	m_copterCtrl(copterCtrl)
 {
 	m_inputFd = ::open(inputPath.toLatin1().data(), O_SYNC, O_RDONLY);
 	if (m_inputFd == -1)
