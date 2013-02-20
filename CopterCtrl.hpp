@@ -66,6 +66,7 @@ public:
 public slots:
 	void setState(CopterState _state = IDLE) { m_state = _state; emit stateChanged(m_state); }
 	void adjustAccel();
+	void handleTilt(Axis accelAxis);
 
 protected slots:
 	void onAccelerometerRead(Axis val);

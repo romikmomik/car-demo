@@ -156,26 +156,6 @@ void MainWindow::onButtonRead()
 	}
 }
 
-void MainWindow::handleTiltX(double _tilt)
-{
-	static const auto s_accel_linear = m_settings->getAccelLinear();
-	static const auto s_accel_derivative = m_settings->getAccelDerivative();
-	double adj = s_accel_linear*_tilt + s_accel_derivative*(_tilt - m_lastTiltX);
-	m_copterCtrl->adjustTilt(adj, 0);
-	m_lastTiltX = _tilt;
-}
-
-void MainWindow::handleTiltY(double _tilt)
-{
-	static const auto s_accel_linear = m_settings->getAccelLinear();
-	static const auto s_accel_derivative = m_settings->getAccelDerivative();
-
-	double adj = s_accel_linear*_tilt + s_accel_derivative*(_tilt - m_lastTiltY);
-	m_copterCtrl->adjustTilt(0, adj);
-	m_lastTiltY = _tilt;
-}
-
-
 void MainWindow::onAccelerometerRead(Axis val)
 {
 	m_ui->cur_accel_x->setText(QString::number(val.x));

@@ -39,8 +39,6 @@ protected:
 	int                  m_buttonsInputFd;
 	QPointer<QSocketNotifier> m_buttonsInputNotifier;
 
-	void handleTiltX(double _tilt);
-	void handleTiltY(double _tilt);
 	double m_lastTiltX;
 	double m_lastTiltY;
 
