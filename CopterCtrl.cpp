@@ -68,12 +68,13 @@ void CopterCtrl::onAccelerometerRead(Axis val)
 
 void CopterCtrl::handleTilt(Axis accelAxis)
 {
+	static const auto s_accel_linear = m_settings->getAccelLinear();
+	static const auto s_accel_derivative = m_settings->getAccelDerivative();
 	Axis tilt = accelAxis - m_accel;
 	Axis adj = tilt * s_accel_linear + (tilt - m_lastTilt) * s_accel_derivative;
 	adjustTilt(adj);
 	m_lastTilt = tilt;
-//	static const auto s_accel_linear = m_settings->getAccelLinear();
-//	static const auto s_accel_derivative = m_settings->getAccelDerivative();
+
 //	double adj = s_accel_linear*_tilt + s_accel_derivative*(_tilt - m_lastTiltX);
 //	m_copterCtrl->adjustTilt(adj, 0);
 //	m_lastTiltX = _tilt;

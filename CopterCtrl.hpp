@@ -49,6 +49,7 @@ public:
 	double tiltY() const { return m_axisY->tilt(); }
 	void tiltX(double _tilt) const { m_axisX->tilt(_tilt); m_axisX->setPower(m_power); }
 	void tiltY(double _tilt) const { m_axisY->tilt(_tilt); m_axisY->setPower(m_power); }
+	void adjustTilt(double tiltX, double tiltY) const { Axis tilt(tiltX, tiltY); adjustTilt(tilt); }
 	void adjustTilt(Axis tilt) const;
 	void adjustPower(int _incr);
 	enum CopterState { IDLE = 0,
