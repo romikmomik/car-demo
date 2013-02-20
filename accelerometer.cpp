@@ -64,5 +64,6 @@ void Accelerometer::onRead()
 void Accelerometer::adjustZeroAxis()
 {
 	m_adjustCounter = 0;
+	m_zeroAxis.x = m_zeroAxis.y = m_zeroAxis.z = 0;
 }
 
