@@ -70,7 +70,7 @@ void CopterCtrl::handleTilt(Axis accelAxis)
 {
 	static const auto s_accel_linear = m_settings->getAccelLinear();
 	static const auto s_accel_derivative = m_settings->getAccelDerivative();
-	Axis tilt = accelAxis - m_accel;
+	Axis tilt = accelAxis - m_accel->zeroAxis();
 	Axis adj = tilt * s_accel_linear + (tilt - m_lastTilt) * s_accel_derivative;
 	adjustTilt(adj);
 	m_lastTilt = tilt;
