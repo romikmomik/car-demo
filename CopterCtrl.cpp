@@ -19,6 +19,7 @@ CopterCtrl::CopterCtrl(Settings::sptr const & settings,
 	m_accel = new Accelerometer(m_settings->getAccelInputPath(), this);
 	connect(m_accel, SIGNAL(accelerometerRead(Axis)),
 					this, SIGNAL(accelerometerRead(Axis)));
+	connect(m_accel, SIGNAL(accelerometerRead(Axis)), this, SLOT(handleTilt(Axis)));
 }
 
 void CopterCtrl::adjustTilt(Axis tilt) const
