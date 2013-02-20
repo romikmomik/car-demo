@@ -14,9 +14,7 @@ MainWindow::MainWindow(QWidget* _parent)
 		m_ui(new Ui::MainWindow()),
 		m_copterCtrl(),
 		m_tcpServer(),
-		m_tcpConnection(),
-		m_lastTiltX(0),
-		m_lastTiltY(0)
+		m_tcpConnection()
 {
 	m_ui->setupUi(this);
 	const auto s_ctrl_path = m_settings->getControlPath();

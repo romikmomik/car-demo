@@ -39,9 +39,6 @@ protected:
 	int                  m_buttonsInputFd;
 	QPointer<QSocketNotifier> m_buttonsInputNotifier;
 
-	double m_lastTiltX;
-	double m_lastTiltY;
-
 protected slots:
 	void onConnection();
 	void onDisconnected();
