@@ -17,8 +17,8 @@ CopterCtrl::CopterCtrl(Settings::sptr const & settings,
 		m_state(IDLE)
 {
 	m_accel = new Accelerometer(m_settings->getAccelInputPath(), this);
-	connect(m_accel, SIGNAL(accelerometerRead(double,CopterCtrl::AxisDimension)),
-					this, SIGNAL(accelerometerRead(double,CopterCtrl::AxisDimension)));
+	connect(m_accel, SIGNAL(accelerometerRead(Axis val)),
+					this, SIGNAL(accelerometerRead(Axis val)));
 }
 
 void CopterCtrl::adjustTilt(double _tiltX, double _tiltY) const
@@ -60,6 +60,10 @@ void CopterCtrl::adjustAccel()
 	setState(CopterCtrl::ADJUSTING_ACCEL);
 
 	QTimer::singleShot(m_settings->getAccelAdjustingTime(), this, SLOT(setState()));
+}
+
+void CopterCtrl::onAccelerometerRead(Axis val)
+{
 }
 
 

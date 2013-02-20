@@ -9,7 +9,9 @@ Accelerometer::Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QO
 	m_inputFd(-1),
 	m_inputNotifier(0),
 	m_adjustCounter(0),
-	m_copterCtrl(copterCtrl)
+	m_copterCtrl(copterCtrl),
+	m_zeroAxis(),
+	m_curAxis()
 {
 	m_inputFd = ::open(inputPath.toLatin1().data(), O_SYNC, O_RDONLY);
 	if (m_inputFd == -1)
@@ -36,8 +38,11 @@ void Accelerometer::onRead()
 		if (evt.type != EV_SYN)
 			qDebug() << "Input event type is not EV_ABS or EV_SYN: " << evt.type;
 		else {
-			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL)
+			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL) {
+				m_zeroAxis = (m_zeroAxis * m_adjustCounter + m_curAxis) / (m_adjustCounter + 1);
 				++m_adjustCounter;
+			}
+			emit accelerometerRead(m_curAxis);
 		}
 		return;
 	}
@@ -45,22 +50,13 @@ void Accelerometer::onRead()
 	switch (evt.code)
 	{
 		case ABS_X:
-			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL) {
-				m_zeroAxis[CopterCtrl::X] = ((m_adjustCounter * m_zeroAxis[CopterCtrl::X] + evt.value) / (m_adjustCounter + 1));
-			}
-			emit accelerometerRead(evt.value, CopterCtrl::X);
+			m_curAxis.x = evt.value;
 			break;
 		case ABS_Y:
-			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL) {
-				m_zeroAxis[CopterCtrl::Y] = ((m_adjustCounter * m_zeroAxis[CopterCtrl::Y] + evt.value) / (m_adjustCounter + 1));
-			}
-			emit accelerometerRead(evt.value, CopterCtrl::Y);
+			m_curAxis.y = evt.value;
 			break;
 		case ABS_Z:
-			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL) {
-				m_zeroAxis[CopterCtrl::Z] = ((m_adjustCounter * m_zeroAxis[CopterCtrl::Z] + evt.value) / (m_adjustCounter + 1));
-			}
-			emit accelerometerRead(evt.value, CopterCtrl::Z);
+			m_curAxis.z = evt.value;
 			break;
 	}
 }

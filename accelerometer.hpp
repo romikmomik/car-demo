@@ -13,9 +13,10 @@ public:
 	explicit Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QObject *parent = 0);
 	
 	void adjustZeroAxis();
+	Axis zeroAxis() { return m_zeroAxis; }
 
 signals:
-	void accelerometerRead(double val, CopterCtrl::AxisDimension dim);
+	void accelerometerRead(Axis val);
 	
 public slots:
 	void onRead();
@@ -24,7 +25,8 @@ private:
 	double minVal, maxVal;
 	int m_adjustCounter;
 	int m_inputFd;
-	double m_zeroAxis[CopterCtrl::NUM_DIMENSIONS];
+	Axis m_zeroAxis;
+	Axis m_curAxis;
 	CopterCtrl* m_copterCtrl;
 	QSocketNotifier* m_inputNotifier;
 };

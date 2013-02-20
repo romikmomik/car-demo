@@ -8,6 +8,33 @@
 
 QT_FORWARD_DECLARE_CLASS(Accelerometer)
 
+struct Axis {
+	Axis(double _x = 0, double _y = 0, double _z = 0) :
+		x(_x), y(_y), z(_z) {}
+
+	Axis operator +(const Axis& other) {
+		return Axis(x + other.x, y + other.y, z + other.z);
+	}
+	Axis operator -(const Axis& other) {
+		return Axis(x - other.x, y - other.y, z - other.z);
+	}
+	Axis operator *(const double scalar) {
+		return Axis (x * scalar, y * scalar, z * scalar);
+	}
+	Axis operator /(const double scalar) {
+		return Axis (x / scalar, y / scalar, z / scalar);
+	}
+
+	Axis& operator =(const Axis & other) {
+		x = other.x;
+		y = other.y;
+		z = other.z;
+		return *this;
+	}
+
+	double x, y, z;
+};
+
 class CopterCtrl : public QObject
 {
 	Q_OBJECT
@@ -24,10 +51,6 @@ public:
 	void tiltY(double _tilt) const { m_axisY->tilt(_tilt); m_axisY->setPower(m_power); }
 	void adjustTilt(double _tiltX, double _tiltY) const;
 	void adjustPower(int _incr);
-	enum AxisDimension { X = 0,
-											 Y,
-											 Z,
-											 NUM_DIMENSIONS };
 	enum CopterState { IDLE = 0,
 										 ADJUSTING_ACCEL,
 										 NUM_STATES };
@@ -44,10 +67,13 @@ public slots:
 	void setState(CopterState _state = IDLE) { m_state = _state; emit stateChanged(m_state); }
 	void adjustAccel();
 
+protected slots:
+	void onAccelerometerRead(Axis val);
+
 signals:
 	void lcdUpdate(int);
 	void stateChanged(CopterState state);
-	void accelerometerRead(double val, CopterCtrl::AxisDimension dim);
+	void accelerometerRead(Axis val);
 
 protected:
 	QLCDNumber* m_lcd;

@@ -30,7 +30,7 @@ signals:
 	void buttonReleased(BoardButton button);
 
 public slots:
-	void onAccelerometerRead(double val, CopterCtrl::AxisDimension dim);
+	void onAccelerometerRead(Axis val);
 
 protected:
 	CopterCtrl* m_copterCtrl;

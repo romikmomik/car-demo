@@ -42,8 +42,8 @@ MainWindow::MainWindow(QWidget* _parent)
 	m_buttonsInputNotifier->setEnabled(true);
 
 	connect(m_copterCtrl, SIGNAL(stateChanged(CopterState)), this, SLOT(stateChanged()));
-	connect(m_copterCtrl, SIGNAL(accelerometerRead(double,CopterCtrl::AxisDimension)),
-					this, SLOT(onAccelerometerRead(double,CopterCtrl::AxisDimension)));
+	connect(m_copterCtrl, SIGNAL(accelerometerRead(Axis)),
+					this, SLOT(onAccelerometerRead(Axis)));
 
 	QFont statusBarFont = statusBar()->font();
 	statusBarFont.setPointSize(5);
@@ -176,19 +176,11 @@ void MainWindow::handleTiltY(double _tilt)
 }
 
 
-void MainWindow::onAccelerometerRead(double val, CopterCtrl::AxisDimension dim)
+void MainWindow::onAccelerometerRead(Axis val)
 {
-	switch (dim) {
-		case CopterCtrl::X:
-			m_ui->cur_accel_x->setText(QString::number(val));
-			break;
-		case CopterCtrl::Y:
-			m_ui->cur_accel_y->setText(QString::number(val));
-			break;
-		case CopterCtrl::Z:
-			m_ui->cur_accel_z->setText(QString::number(val));
-			break;
-	}
+	m_ui->cur_accel_x->setText(QString::number(val.x));
+	m_ui->cur_accel_y->setText(QString::number(val.y));
+	m_ui->cur_accel_z->setText(QString::number(val.z));
 }
 
 
