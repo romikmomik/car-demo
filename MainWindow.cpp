@@ -42,6 +42,8 @@ MainWindow::MainWindow(QWidget* _parent)
 	m_buttonsInputNotifier->setEnabled(true);
 
 	connect(m_copterCtrl, SIGNAL(stateChanged(CopterState)), this, SLOT(stateChanged()));
+	connect(m_copterCtrl, SIGNAL(accelerometerRead(double,CopterCtrl::AxisDimension)),
+					this, SLOT(onAccelerometerRead(double,CopterCtrl::AxisDimension)));
 
 	QFont statusBarFont = statusBar()->font();
 	statusBarFont.setPointSize(5);
