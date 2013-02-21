@@ -23,6 +23,9 @@ public slots:
 	void onRead();
 
 private:
+	Axis filterAxis(Axis axis);
+	Axis filterMean(Axis axis);
+
 	double minVal, maxVal;
 	int m_adjustCounter;
 	int m_inputFd;

@@ -45,11 +45,7 @@ void Accelerometer::onRead()
 				++m_adjustCounter;
 				emit zeroAxisChanged(m_zeroAxis);
 			}
-			Axis countedAxis;
-			m_prevAxis[m_counter] = m_curAxis - m_zeroAxis;
-			m_counter = (m_counter + 1) % 5;
-			for (int i = 0; i < 5; ++i) countedAxis = countedAxis + m_prevAxis[i] / 5;
-			emit accelerometerRead(countedAxis);
+			emit accelerometerRead(filterAxis(m_curAxis));
 		}
 		return;
 	}
@@ -66,6 +62,20 @@ void Accelerometer::onRead()
 			m_curAxis.z = evt.value;
 			break;
 	}
+}
+
+Axis Accelerometer::filterAxis(Axis axis)
+{
+	return filterMean(axis);
+}
+
+Axis Accelerometer::filterMean(Axis axis)
+{
+	Axis countedAxis;
+	m_prevAxis[m_counter] = axis - m_zeroAxis;
+	m_counter = (m_counter + 1) % 5;
+	for (int i = 0; i < 5; ++i) countedAxis = countedAxis + m_prevAxis[i] / 5;
+	return countedAxis;
 }
 
 void Accelerometer::adjustZeroAxis()
