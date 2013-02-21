@@ -25,6 +25,8 @@ public slots:
 private:
 	Axis filterAxis(Axis axis);
 	Axis filterMean(Axis axis);
+	Axis filterKalman(Axis axis);
+
 
 	double minVal, maxVal;
 	int m_adjustCounter;
