@@ -17,7 +17,8 @@ public:
 
 signals:
 	void accelerometerRead(Axis val);
-	
+	void zeroAxisChanged(Axis val);
+
 public slots:
 	void onRead();
 
@@ -27,6 +28,8 @@ private:
 	int m_inputFd;
 	Axis m_zeroAxis;
 	Axis m_curAxis;
+	Axis m_prevAxis[5];
+	int m_counter;
 	CopterCtrl* m_copterCtrl;
 	QSocketNotifier* m_inputNotifier;
 };
