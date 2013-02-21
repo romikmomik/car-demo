@@ -63,6 +63,7 @@ public:
 			default: return QString("Unknown status"); break;
 		}
 	}
+	Settings getSettings() { return *m_settings; }
 
 public slots:
 	void setState(CopterState _state = IDLE) { m_state = _state; emit stateChanged(m_state); }
