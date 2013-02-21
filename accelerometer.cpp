@@ -11,8 +11,10 @@ Accelerometer::Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QO
 	m_adjustCounter(0),
 	m_copterCtrl(copterCtrl),
 	m_zeroAxis(),
-	m_curAxis()
+	m_curAxis(),
+	m_counter(0)
 {
+	for (int i = 0; i < 5; ++i) m_prevAxis[i] = Axis();
 	m_inputFd = ::open(inputPath.toLatin1().data(), O_SYNC, O_RDONLY);
 	if (m_inputFd == -1)
 		qDebug() << "Cannot open accelerometer input file " << inputPath << ", reason: " << errno;
@@ -41,8 +43,13 @@ void Accelerometer::onRead()
 			if (m_copterCtrl->state() == CopterCtrl::ADJUSTING_ACCEL) {
 				m_zeroAxis = (m_zeroAxis * m_adjustCounter + m_curAxis) / (m_adjustCounter + 1);
 				++m_adjustCounter;
+				emit zeroAxisChanged(m_zeroAxis);
 			}
-			emit accelerometerRead(m_curAxis);
+			Axis countedAxis;
+			m_prevAxis[m_counter] = m_curAxis - m_zeroAxis;
+			m_counter = (m_counter + 1) % 5;
+			for (int i = 0; i < 5; ++i) countedAxis = countedAxis + m_prevAxis[i] / 5;
+			emit accelerometerRead(countedAxis);
 		}
 		return;
 	}

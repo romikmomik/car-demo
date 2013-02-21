@@ -67,7 +67,7 @@ public:
 public slots:
 	void setState(CopterState _state = IDLE) { m_state = _state; emit stateChanged(m_state); }
 	void adjustAccel();
-	void handleTilt(Axis accelAxis);
+	void handleTilt(Axis tilt);
 
 protected slots:
 	void onAccelerometerRead(Axis val);
@@ -76,6 +76,7 @@ signals:
 	void lcdUpdate(int);
 	void stateChanged(CopterState state);
 	void accelerometerRead(Axis val);
+	void zeroAxisChanged(Axis val);
 
 protected:
 	QLCDNumber* m_lcd;

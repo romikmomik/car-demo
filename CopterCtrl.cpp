@@ -20,6 +20,7 @@ CopterCtrl::CopterCtrl(Settings::sptr const & settings,
 	connect(m_accel, SIGNAL(accelerometerRead(Axis)),
 					this, SIGNAL(accelerometerRead(Axis)));
 	connect(m_accel, SIGNAL(accelerometerRead(Axis)), this, SLOT(handleTilt(Axis)));
+	connect(m_accel, SIGNAL(zeroAxisChanged(Axis)), this, SIGNAL(zeroAxisChanged(Axis)));
 }
 
 void CopterCtrl::adjustTilt(Axis tilt) const
@@ -67,11 +68,10 @@ void CopterCtrl::onAccelerometerRead(Axis val)
 {
 }
 
-void CopterCtrl::handleTilt(Axis accelAxis)
+void CopterCtrl::handleTilt(Axis tilt)
 {
 	static const auto s_accel_linear = m_settings->getAccelLinear();
 	static const auto s_accel_derivative = m_settings->getAccelDerivative();
-	Axis tilt = accelAxis - m_accel->zeroAxis();
 	Axis adj = tilt * s_accel_linear + (tilt - m_lastTilt) * s_accel_derivative;
 	adjustTilt(adj);
 	m_lastTilt = tilt;
