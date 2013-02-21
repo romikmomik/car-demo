@@ -19,6 +19,7 @@ protected:
 	QLCDNumber* m_lcd;
 	QFile       m_ctrlFile;
 	double      m_factor;
+	double m_powerMax, m_powerMin; // real power, to write to ctrlFile
 	void invoke_open();
 	void invoke_close();
 	void invoke(int _power);

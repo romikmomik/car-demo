@@ -15,7 +15,8 @@ void CopterMotor::invoke(int _power)
 {
 	QString s;
 	m_ctrlFile.open(QIODevice::WriteOnly|QIODevice::Truncate|QIODevice::Unbuffered|QIODevice::Text);
-	s.sprintf("%d\n", _power);
+	double powerFactor = (double)(m_powerMax - m_powerMin) / 100;
+	s.sprintf("%d\n", _power * powerFactor + m_powerMin);
 	m_ctrlFile.write(s.toLatin1());
 	m_ctrlFile.close();
 }
@@ -26,6 +27,9 @@ CopterMotor::CopterMotor(Settings::sptr settings, const QString& _ctrlPath, QLCD
 		m_ctrlFile(_ctrlPath),
 		m_factor(1.0)
 {
+	m_powerMin = settings->getMotorMin();
+	m_powerMax = settings->getMotorMax();
+
 	invoke_open();
 }
 
