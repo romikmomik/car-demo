@@ -67,7 +67,8 @@ void Accelerometer::onRead()
 
 Axis Accelerometer::filterAxis(Axis axis)
 {
-	return filterMean(axis);
+//	return filterMean(axis);
+	return filterKalman(axis);
 }
 
 Axis Accelerometer::filterMean(Axis axis)
@@ -92,8 +93,9 @@ Axis Accelerometer::filterKalman(Axis axis)
 
 	s_e_opt = sqrt(pow(s_sigma_eta, 2) * (pow(s_e_opt, 2) + pow(s_sigma_psi, 2)) /
 								 (pow(s_sigma_eta, 2) + pow(s_e_opt, 2) + pow(s_sigma_psi, 2)));
+	// Kalman coeff
 	double k = pow(s_e_opt, 2) / pow(s_sigma_eta, 2);
-	s_axis_opt = a_axis_opt * (1 - k) + axis * K;
+	s_axis_opt = s_axis_opt * (1 - k) + axis * k;
 	return s_axis_opt;
 }
 
