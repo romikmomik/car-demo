@@ -47,7 +47,7 @@ void Accelerometer::onRead()
 				++m_adjustCounter;
 				emit zeroAxisChanged(m_zeroAxis);
 			}
-			emit accelerometerRead(filterAxis(m_curAxis));
+			emit accelerometerRead(filterAxis(m_curAxis - m_zeroAxis));
 		}
 		return;
 	}
@@ -75,7 +75,7 @@ Axis Accelerometer::filterAxis(Axis axis)
 Axis Accelerometer::filterMean(Axis axis)
 {
 	Axis countedAxis;
-	m_prevAxis[m_counter] = axis - m_zeroAxis;
+	m_prevAxis[m_counter] = axis;
 	m_counter = (m_counter + 1) % 5;
 	for (int i = 0; i < 5; ++i) countedAxis = countedAxis + m_prevAxis[i] / 5;
 	return countedAxis;
@@ -88,9 +88,6 @@ Axis Accelerometer::filterKalman(Axis axis)
 
 	static double s_e_opt = s_sigma_eta;
 	static Axis s_axis_opt = axis;
-	static bool s_first_time = true;
-	if (s_first_time) return s_axis_opt;
-	s_first_time = false;
 
 	s_e_opt = sqrt(pow(s_sigma_eta, 2) * (pow(s_e_opt, 2) + pow(s_sigma_psi, 2)) /
 								 (pow(s_sigma_eta, 2) + pow(s_e_opt, 2) + pow(s_sigma_psi, 2)));
