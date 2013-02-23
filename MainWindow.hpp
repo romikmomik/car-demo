@@ -10,42 +10,15 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 public:
 	MainWindow(QWidget* _parent = 0);
-	enum BoardButton {
-		Button1 = 0,
-		Button2,
-		Button3,
-		Button4,
-		Button5,
-		Button6,
-		Button7,
-		Button8,
-		NUM_BUTTONS
-	};
 
 public slots:
-	void stateChanged();
-
-signals:
-	void buttonPressed(BoardButton button);
-	void buttonReleased(BoardButton button);
+	void onStateChange();
 
 public slots:
 	void onAccelerometerRead(Axis val);
 
-protected:
-	CopterCtrl* m_copterCtrl;
-	QTcpServer           m_tcpServer;
-	QPointer<QTcpSocket> m_tcpConnection;
-	int                  m_buttonsInputFd;
-	QPointer<QSocketNotifier> m_buttonsInputNotifier;
-
-protected slots:
-	void onConnection();
-	void onDisconnected();
-	void onNetworkRead();
-	void onButtonRead();
-
 private:
+	CopterCtrl* m_copterCtrl;
 	Ui::MainWindow* m_ui;
 	Settings::sptr m_settings;
 };

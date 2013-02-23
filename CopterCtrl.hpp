@@ -64,6 +64,17 @@ public:
 		}
 	}
 	Settings::sptr getSettings() { return m_settings; }
+	enum BoardButton {
+		Button1 = 0,
+		Button2,
+		Button3,
+		Button4,
+		Button5,
+		Button6,
+		Button7,
+		Button8,
+		NUM_BUTTONS
+	};
 
 public slots:
 	void setState(CopterState _state = IDLE) { m_state = _state; emit stateChanged(m_state); }
@@ -72,18 +83,29 @@ public slots:
 
 protected slots:
 	void onAccelerometerRead(Axis val);
+	void onConnection();
+	void onDisconnected();
+	void onNetworkRead();
+	void onButtonRead();
 
 signals:
 	void lcdUpdate(int);
 	void stateChanged(CopterState state);
 	void accelerometerRead(Axis val);
 	void zeroAxisChanged(Axis val);
+	void buttonPressed(BoardButton button);
+	void buttonReleased(BoardButton button);
 
 protected:
 	QLCDNumber* m_lcd;
 	int m_power;
 	QSharedPointer<CopterAxis> m_axisX;
 	QSharedPointer<CopterAxis> m_axisY;
+
+	QTcpServer           m_tcpServer;
+	QPointer<QTcpSocket> m_tcpConnection;
+	int                  m_buttonsInputFd;
+	QPointer<QSocketNotifier> m_buttonsInputNotifier;
 
 	Axis m_lastTilt;
 
