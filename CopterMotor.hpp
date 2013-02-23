@@ -1,5 +1,8 @@
 #pragma once
-#include "Common.hpp"
+
+#include <QLCDNumber>
+#include <QFile>
+
 #include "Settings.hpp"
 
 class CopterMotor : public QObject

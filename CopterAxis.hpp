@@ -1,5 +1,4 @@
 #pragma once
-#include "Common.hpp"
 #include "CopterMotor.hpp"
 
 class CopterAxis : public QObject

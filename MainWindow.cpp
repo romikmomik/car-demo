@@ -1,11 +1,6 @@
 #include <QStatusBar>
 
-#include "Common.hpp"
 #include "MainWindow.hpp"
-
-#include <fcntl.h>
-#include <unistd.h>
-#include <linux/input.h>
 
 MainWindow::MainWindow(QWidget* _parent)
 	:QMainWindow(_parent),

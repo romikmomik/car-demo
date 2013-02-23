@@ -30,7 +30,6 @@ HEADERS +=      \
     CopterMotor.hpp \
     CopterCtrl.hpp \
     CopterAxis.hpp \
-    Common.hpp \
     Settings.hpp \
     MainWindow.hpp \
     accelerometer.hpp

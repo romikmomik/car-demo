@@ -1,6 +1,5 @@
 #ifndef MAIN_WINDOW_H_
 #define MAIN_WINDOW_H_
-#include "Common.hpp"
 #include "Settings.hpp"
 #include "ui_MainWindow.h"
 #include "CopterCtrl.hpp"

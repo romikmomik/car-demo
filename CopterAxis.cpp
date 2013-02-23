@@ -1,4 +1,3 @@
-#include "Common.hpp"
 #include "CopterAxis.hpp"
 
 CopterAxis::CopterAxis(const QSharedPointer<CopterMotor>& _motor1,

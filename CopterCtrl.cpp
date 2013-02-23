@@ -1,6 +1,6 @@
 #include <QTimer>
+#include <QTcpSocket>
 
-#include "Common.hpp"
 #include <cmath>
 #include "CopterCtrl.hpp"
 #include "accelerometer.hpp"

@@ -1,10 +1,12 @@
 #ifndef COPTERCTRL_HPP
 #define COPTERCTRL_HPP
 
-#include "Common.hpp"
+#include <QTcpServer>
+#include <QPointer>
+#include <QSocketNotifier>
+
 #include "Settings.hpp"
 #include "CopterAxis.hpp"
-//#include "accelerometer.hpp"
 
 QT_FORWARD_DECLARE_CLASS(Accelerometer)
 
