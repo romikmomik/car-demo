@@ -1,8 +1,10 @@
-#include "MainWindow.hpp"
 #include <QStyleFactory>
 #include <QDebug>
 #include <QStringList>
 #include <QWSServer>
+
+#include "MainWindow.hpp"
+#include "CopterCtrl.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -13,9 +15,10 @@ int main(int argc, char *argv[])
 #endif
 
 	a.setStyle(QStyleFactory::create("Cleanlooks"));
+	CopterCtrl* ctrl = new CopterCtrl();
 
-	MainWindow w;
-	w.show();
+	MainWindow* w = new MainWindow(ctrl);
+	w->show();
 	return a.exec();
 }
 

@@ -10,7 +10,7 @@ class CopterMotor : public QObject
 	Q_OBJECT
 	Settings::sptr m_settings;
 public:
-	CopterMotor(Settings::sptr settings, const QString& _ctrlPath, QLCDNumber* _lcd);
+	CopterMotor(Settings::sptr settings, const QString& _ctrlPath);
 	~CopterMotor();
 
 	double factor() const { return m_factor; }
@@ -18,8 +18,10 @@ public:
 
 	void setPower(unsigned _power);
 
+signals:
+	void powerChanged(double power);
+
 protected:
-	QLCDNumber* m_lcd;
 	QFile       m_ctrlFile;
 	double      m_factor;
 	double m_powerMax, m_powerMin; // real power, to write to ctrlFile

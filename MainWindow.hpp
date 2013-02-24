@@ -8,13 +8,12 @@ class MainWindow : public QMainWindow
 {
 	Q_OBJECT
 public:
-	MainWindow(QWidget* _parent = 0);
+	MainWindow(CopterCtrl* copterCtrl, QWidget* _parent = 0);
 
 public slots:
 	void onStateChange();
-
-public slots:
 	void onAccelerometerRead(Axis val);
+	void onMotorPowerChange(CopterCtrl::Motor motor, double power);
 
 private:
 	CopterCtrl* m_copterCtrl;

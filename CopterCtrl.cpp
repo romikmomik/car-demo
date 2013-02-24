@@ -8,19 +8,15 @@
 #include <unistd.h>
 #include <linux/input.h>
 
-CopterCtrl::CopterCtrl(Settings::sptr const & settings,
-											 const QSharedPointer<CopterAxis>& _axisX,
-											 const QSharedPointer<CopterAxis>& _axisY,
-											 QLCDNumber* _lcd)
-	:m_lcd(_lcd),
-		m_power(0),
-		m_axisX(_axisX),
-		m_axisY(_axisY),
-		m_settings(settings),
-		m_state(IDLE),
-		m_tcpServer(),
-		m_tcpConnection()
+CopterCtrl::CopterCtrl() :
+	m_power(0),
+	m_settings(new Settings),
+	m_state(IDLE),
+	m_tcpServer(),
+	m_tcpConnection()
 {
+	initMotors(m_settings->getControlPath());
+
 	m_tcpServer.listen(QHostAddress::Any, m_settings->getTcpPort());
 	connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
 
@@ -41,6 +37,30 @@ CopterCtrl::CopterCtrl(Settings::sptr const & settings,
 	connect(m_accel, SIGNAL(zeroAxisChanged(Axis)), this, SIGNAL(zeroAxisChanged(Axis)));
 }
 
+void CopterCtrl::initMotors(const QString& motorControlPath)
+{
+	CopterMotor* mx1 = new CopterMotor(m_settings, motorControlPath + "ehrpwm.0/pwm/ehrpwm.0:0/duty_percent");
+	CopterMotor* mx2 = new CopterMotor(m_settings, motorControlPath + "ehrpwm.0/pwm/ehrpwm.0:1/duty_percent");
+	CopterMotor* my1 = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/duty_percent");
+	CopterMotor* my2 = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:1/duty_percent");
+	m_motorIds.insert(mx1, MotorX1);
+	m_motorIds.insert(mx2, MotorX2);
+	m_motorIds.insert(my1, MotorY1);
+	m_motorIds.insert(my2, MotorY2);
+	connect(mx1, SIGNAL(powerChanged(double)), this, SLOT(onMotorPowerChange(double)));
+	connect(mx2, SIGNAL(powerChanged(double)), this, SLOT(onMotorPowerChange(double)));
+	connect(my1, SIGNAL(powerChanged(double)), this, SLOT(onMotorPowerChange(double)));
+	connect(my2, SIGNAL(powerChanged(double)), this, SLOT(onMotorPowerChange(double)));
+
+	m_axisX = new CopterAxis(mx1, mx2);
+	m_axisY = new CopterAxis(my1, my2);
+}
+
+void CopterCtrl::onMotorPowerChange(double power)
+{
+	emit motorPowerChanged(m_motorIds[dynamic_cast<CopterMotor*>(sender())], power);
+}
+
 void CopterCtrl::adjustTilt(Axis tilt) const
 {
 	m_axisX->tilt(m_axisX->tilt() + tilt.x);
@@ -56,18 +76,7 @@ void CopterCtrl::adjustPower(int _incr)
 
 	m_power += _incr;
 	m_power = qMax(qMin(m_power, s_power_max), s_power_min);
-
-	QPalette palette = m_lcd->palette();
-	QColor bg = palette.color(QPalette::Disabled, m_lcd->backgroundRole());
-	double pwrSat = 1.0 - static_cast<double>(m_power-s_power_min)/(s_power_max-s_power_min);
-	bg.setBlue( bg.blue() *pwrSat);
-	bg.setGreen(bg.green()*pwrSat + 0xff*(1.0-pwrSat));
-	bg.setRed(  bg.red()  *pwrSat);
-	palette.setColor(QPalette::Normal, m_lcd->backgroundRole(), bg);
-	palette.setColor(QPalette::Active, m_lcd->backgroundRole(), bg);
-	palette.setColor(QPalette::Inactive, m_lcd->backgroundRole(), bg);
-	m_lcd->setPalette(palette);
-	m_lcd->display(m_power);
+	emit motorPowerChanged(MotorAll, m_power);
 
 	m_axisX->setPower(m_power);
 	m_axisY->setPower(m_power);

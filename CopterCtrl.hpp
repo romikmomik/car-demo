@@ -42,10 +42,7 @@ class CopterCtrl : public QObject
 	Q_OBJECT
 	Settings::sptr m_settings;
 public:
-	CopterCtrl(Settings::sptr const & settings,
-						 const QSharedPointer<CopterAxis>& _axisX,
-						 const QSharedPointer<CopterAxis>& _axisY,
-						 QLCDNumber* _lcd);
+	CopterCtrl();
 
 	double tiltX() const { return m_axisX->tilt(); }
 	double tiltY() const { return m_axisY->tilt(); }
@@ -77,6 +74,13 @@ public:
 		Button8,
 		NUM_BUTTONS
 	};
+	enum Motor {
+		MotorX1,
+		MotorX2,
+		MotorY1,
+		MotorY2,
+		MotorAll
+	};
 
 public slots:
 	void setState(CopterState _state = IDLE) { m_state = _state; emit stateChanged(m_state); }
@@ -89,6 +93,8 @@ protected slots:
 	void onDisconnected();
 	void onNetworkRead();
 	void onButtonRead();
+	void initMotors(const QString& motorControlPath);
+	void onMotorPowerChange(double power);
 
 signals:
 	void lcdUpdate(int);
@@ -97,12 +103,14 @@ signals:
 	void zeroAxisChanged(Axis val);
 	void buttonPressed(BoardButton button);
 	void buttonReleased(BoardButton button);
+	void motorPowerChanged(Motor motor, double power);
 
 protected:
-	QLCDNumber* m_lcd;
 	int m_power;
-	QSharedPointer<CopterAxis> m_axisX;
-	QSharedPointer<CopterAxis> m_axisY;
+	CopterAxis* m_axisX;
+	CopterAxis* m_axisY;
+
+	QMap<CopterMotor*, Motor> m_motorIds;
 
 	QTcpServer           m_tcpServer;
 	QPointer<QTcpSocket> m_tcpConnection;

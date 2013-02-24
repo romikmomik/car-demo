@@ -2,21 +2,13 @@
 
 #include "MainWindow.hpp"
 
-MainWindow::MainWindow(QWidget* _parent)
-	:QMainWindow(_parent),
-		m_settings(new Settings()),
-		m_ui(new Ui::MainWindow()),
-		m_copterCtrl()
+MainWindow::MainWindow(CopterCtrl *copterCtrl, QWidget* _parent) :
+	QMainWindow(_parent),
+	m_copterCtrl(copterCtrl),
+	m_ui(new Ui::MainWindow())
 {
+	m_settings = m_copterCtrl->getSettings();
 	m_ui->setupUi(this);
-	const auto s_ctrl_path = m_settings->getControlPath();
-	QSharedPointer<CopterMotor> mx1(new CopterMotor(m_settings, s_ctrl_path+"ehrpwm.0/pwm/ehrpwm.0:0/duty_percent", m_ui->motor_x1));
-	QSharedPointer<CopterMotor> mx2(new CopterMotor(m_settings, s_ctrl_path+"ehrpwm.0/pwm/ehrpwm.0:1/duty_percent", m_ui->motor_x2));
-	QSharedPointer<CopterMotor> my1(new CopterMotor(m_settings, s_ctrl_path+"ehrpwm.1/pwm/ehrpwm.1:0/duty_percent", m_ui->motor_y1));
-	QSharedPointer<CopterMotor> my2(new CopterMotor(m_settings, s_ctrl_path+"ehrpwm.1/pwm/ehrpwm.1:1/duty_percent", m_ui->motor_y2));
-	QSharedPointer<CopterAxis>  m_axisX(new CopterAxis(mx1, mx2));
-	QSharedPointer<CopterAxis>  m_axisY(new CopterAxis(my1, my2));
-	m_copterCtrl = new CopterCtrl(m_settings, m_axisX, m_axisY, m_ui->motor_all);
 
 	connect(m_copterCtrl, SIGNAL(stateChanged(CopterState)), this, SLOT(onStateChange()));
 	connect(m_copterCtrl, SIGNAL(accelerometerRead(Axis)), this, SLOT(onAccelerometerRead(Axis)));
@@ -43,6 +35,29 @@ void MainWindow::onAccelerometerRead(Axis val)
 	m_ui->cur_accel_x->setText(QString::number(val.x));
 	m_ui->cur_accel_y->setText(QString::number(val.y));
 	m_ui->cur_accel_z->setText(QString::number(val.z));
+}
+
+void MainWindow::onMotorPowerChange(CopterCtrl::Motor motor, double power)
+{
+	QLCDNumber* lcd;
+	switch (motor) {
+		case CopterCtrl::MotorX1: lcd = m_ui->motor_x1; break;
+		case CopterCtrl::MotorX2: lcd = m_ui->motor_x2; break;
+		case CopterCtrl::MotorY1: lcd = m_ui->motor_y1; break;
+		case CopterCtrl::MotorY2: lcd = m_ui->motor_y2; break;
+		case CopterCtrl::MotorAll: lcd = m_ui->motor_all; break;
+	}
+
+	QPalette palette = lcd->palette();
+	QColor bg = palette.color(QPalette::Disabled, lcd->backgroundRole());
+	// FIXME: magic number 100
+	double pwrSat = 1.0 - static_cast<double>(power / 100);
+	bg.setBlue(bg.blue()   * pwrSat);
+	bg.setGreen(bg.green() * pwrSat + 0xff * (1.0 - pwrSat));
+	bg.setRed(bg.red()     * pwrSat);
+	palette.setColor(QPalette::Inactive, lcd->backgroundRole(), bg);
+	lcd->setPalette(palette);
+	lcd->display(power);
 }
 
 

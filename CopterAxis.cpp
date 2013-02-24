@@ -1,9 +1,8 @@
 #include "CopterAxis.hpp"
 
-CopterAxis::CopterAxis(const QSharedPointer<CopterMotor>& _motor1,
-											 const QSharedPointer<CopterMotor>& _motor2)
-	:m_motor1(_motor1),
-		m_motor2(_motor2)
+CopterAxis::CopterAxis(CopterMotor *_motor1, CopterMotor *_motor2) :
+	m_motor1(_motor1),
+	m_motor2(_motor2)
 {
 }
 
@@ -30,4 +29,3 @@ void CopterAxis::tilt(double _tilt) const
 		m_motor2->factor(1.0-_tilt);
 	}
 }
-
