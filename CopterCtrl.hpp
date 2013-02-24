@@ -103,7 +103,7 @@ signals:
 	void zeroAxisChanged(Axis val);
 	void buttonPressed(BoardButton button);
 	void buttonReleased(BoardButton button);
-	void motorPowerChanged(Motor motor, double power);
+	void motorPowerChanged(CopterCtrl::Motor motor, double power);
 
 protected:
 	int m_power;
