@@ -15,7 +15,7 @@ void CopterMotor::invoke(int _power)
 	QString s;
 	m_ctrlFile.open(QIODevice::WriteOnly|QIODevice::Truncate|QIODevice::Unbuffered|QIODevice::Text);
 	double powerFactor = (double)(m_powerMax - m_powerMin) / 100;
-	s.sprintf("%lf\n", _power * powerFactor + m_powerMin);
+	s.sprintf("%d\n", static_cast<int>(_power * powerFactor + m_powerMin));
 	m_ctrlFile.write(s.toLatin1());
 	m_ctrlFile.close();
 }
