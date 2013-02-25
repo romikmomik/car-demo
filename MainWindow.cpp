@@ -58,6 +58,8 @@ void MainWindow::onMotorPowerChange(CopterCtrl::Motor motor, double power)
 	bg.setBlue(bg.blue()   * pwrSat);
 	bg.setGreen(bg.green() * pwrSat + 0xff * (1.0 - pwrSat));
 	bg.setRed(bg.red()     * pwrSat);
+	palette.setColor(QPalette::Normal, lcd->backgroundRole(), bg);
+	palette.setColor(QPalette::Active, lcd->backgroundRole(), bg);
 	palette.setColor(QPalette::Inactive, lcd->backgroundRole(), bg);
 	lcd->setPalette(palette);
 	lcd->display(power);
