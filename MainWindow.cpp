@@ -52,8 +52,8 @@ void MainWindow::onMotorPowerChange(CopterCtrl::Motor motor, double power)
 
 	QPalette palette = lcd->palette();
 	QColor bg = palette.color(QPalette::Disabled, lcd->backgroundRole());
-	double powerMax = m_settings->getPowerMax();
-	double powerMin = m_settings->getPowerMin();
+	double powerMax = m_settings->value("PowerMax").toDouble();
+	double powerMin = m_settings->value("PowerMin").toDouble();
 	double pwrSat = 1.0 - static_cast<double>((power - powerMin) / (powerMax - powerMin));
 	bg.setBlue(bg.blue()   * pwrSat);
 	bg.setGreen(bg.green() * pwrSat + 0xff * (1.0 - pwrSat));

@@ -1,6 +1,6 @@
 #ifndef MAIN_WINDOW_H_
 #define MAIN_WINDOW_H_
-#include "Settings.hpp"
+
 #include "ui_MainWindow.h"
 #include "CopterCtrl.hpp"
 
@@ -18,7 +18,7 @@ public slots:
 private:
 	CopterCtrl* m_copterCtrl;
 	Ui::MainWindow* m_ui;
-	Settings::sptr m_settings;
+	QSettings* m_settings;
 };
 
 

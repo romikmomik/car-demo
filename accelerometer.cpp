@@ -1,5 +1,4 @@
 #include "accelerometer.hpp"
-#include "Settings.hpp"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -83,8 +82,8 @@ Axis Accelerometer::filterMean(Axis axis)
 
 Axis Accelerometer::filterKalman(Axis axis)
 {
-	static double s_sigma_psi = m_copterCtrl->getSettings()->getKalmanSigmaPsi();
-	static double s_sigma_eta = m_copterCtrl->getSettings()->getKalmanSigmaEta();
+	static double s_sigma_psi = m_copterCtrl->getSettings()->value("KalmanSigmaPsi").toDouble();
+	static double s_sigma_eta = m_copterCtrl->getSettings()->value("KalmanSigmaEta").toDouble();
 
 	static double s_e_opt = s_sigma_eta;
 	static Axis s_axis_opt = axis;

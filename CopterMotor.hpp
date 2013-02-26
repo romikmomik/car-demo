@@ -2,15 +2,13 @@
 
 #include <QLCDNumber>
 #include <QFile>
-
-#include "Settings.hpp"
+#include <QSettings>
 
 class CopterMotor : public QObject
 {
 	Q_OBJECT
-	Settings::sptr m_settings;
 public:
-	CopterMotor(Settings::sptr settings, const QString& _ctrlPath);
+	CopterMotor(QSettings* settings, const QString& _ctrlPath);
 	~CopterMotor();
 
 	double factor() const { return m_factor; }
@@ -22,6 +20,7 @@ signals:
 	void powerChanged(double power);
 
 protected:
+	QSettings* m_settings;
 	QFile       m_ctrlFile;
 	double      m_factor;
 	double m_powerMax, m_powerMin; // real power, to write to ctrlFile

@@ -10,18 +10,18 @@
 
 CopterCtrl::CopterCtrl() :
 	m_power(0),
-	m_settings(new Settings),
 	m_state(IDLE),
 	m_tcpServer(),
 	m_tcpConnection()
 {
-	initMotors(m_settings->getControlPath());
+	initSettings();
+	initMotors(m_settings->value("ControlPath").toString());
 
-	m_tcpServer.listen(QHostAddress::Any, m_settings->getTcpPort());
+	m_tcpServer.listen(QHostAddress::Any, m_settings->value("TcpPort").toInt());
 	connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
 
 	// buttons reading
-	auto const s_buttons_input_path = m_settings->getButtonsInputPath();
+	const QString s_buttons_input_path = m_settings->value("ButtonsInputPath").toString();
 	m_buttonsInputFd = ::open(s_buttons_input_path.toLatin1().data(), O_SYNC, O_RDONLY);
 	if (m_buttonsInputFd == -1)
 		qDebug() << "Cannot open buttons input file " << s_buttons_input_path << ", reason: " << errno;
@@ -30,7 +30,7 @@ CopterCtrl::CopterCtrl() :
 	connect(m_buttonsInputNotifier, SIGNAL(activated(int)), this, SLOT(onButtonRead()));
 	m_buttonsInputNotifier->setEnabled(true);
 
-	m_accel = new Accelerometer(m_settings->getAccelInputPath(), this);
+	m_accel = new Accelerometer(m_settings->value("AccelInputPath").toString(), this);
 	connect(m_accel, SIGNAL(accelerometerRead(Axis)),
 					this, SIGNAL(accelerometerRead(Axis)));
 	connect(m_accel, SIGNAL(accelerometerRead(Axis)), this, SLOT(handleTilt(Axis)));
@@ -56,6 +56,32 @@ void CopterCtrl::initMotors(const QString& motorControlPath)
 	m_axisY = new CopterAxis(my1, my2);
 }
 
+void CopterCtrl::initSettings()
+{
+	m_settings = new QSettings(QApplication::applicationDirPath() + "/config.ini", QSettings::IniFormat);
+
+	// TODO: move to conf file
+	m_settings->setValue("ControlPath", QVariant("/sys/devices/platform/"));
+	m_settings->setValue("AccelInputPath", QVariant("/dev/input/event1"));
+	m_settings->setValue("ButtonsInputPath", QVariant("/dev/input/event0"));
+	m_settings->setValue("AccelAdjustingTime", QVariant(10000));
+	m_settings->setValue("TcpPort", QVariant(4000));
+	m_settings->setValue("TiltStep", QVariant(0.02d));
+	m_settings->setValue("PowerStep1", QVariant(1));
+	m_settings->setValue("PowerStep2", QVariant(5));
+	m_settings->setValue("PowerMin", QVariant(0));
+	m_settings->setValue("PowerMax", QVariant(100));
+	m_settings->setValue("MotorMax", QVariant(72));
+	m_settings->setValue("MotorMin", QVariant(48));
+	m_settings->setValue("KalmanSigmaPsi", QVariant(1));
+	m_settings->setValue("KalmanSigmaEta", QVariant(5));
+	m_settings->setValue("AccelLinear", QVariant(-0.02d));
+	m_settings->setValue("AccelDerivative", QVariant(-0.005d));
+
+	m_settings->setFallbacksEnabled(false);
+	m_settings->sync();
+}
+
 void CopterCtrl::onMotorPowerChange(double power)
 {
 	emit motorPowerChanged(m_motorIds[dynamic_cast<CopterMotor*>(sender())], power);
@@ -71,8 +97,8 @@ void CopterCtrl::adjustTilt(Axis tilt) const
 
 void CopterCtrl::adjustPower(int _incr)
 {
-	static const auto s_power_min = m_settings->getPowerMin();
-	static const auto s_power_max = m_settings->getPowerMax();
+	static const int s_power_min = m_settings->value("PowerMin").toInt();
+	static const int s_power_max = m_settings->value("PowerMax").toInt();
 
 	m_power += _incr;
 	m_power = qMax(qMin(m_power, s_power_max), s_power_min);
@@ -88,7 +114,7 @@ void CopterCtrl::adjustAccel()
 		return;
 	setState(CopterCtrl::ADJUSTING_ACCEL);
 
-	QTimer::singleShot(m_settings->getAccelAdjustingTime(), this, SLOT(setState()));
+	QTimer::singleShot(m_settings->value("AccelAdjustingTime").toInt(), this, SLOT(setState()));
 }
 
 void CopterCtrl::onAccelerometerRead(Axis val)
@@ -97,15 +123,11 @@ void CopterCtrl::onAccelerometerRead(Axis val)
 
 void CopterCtrl::handleTilt(Axis tilt)
 {
-	static const auto s_accel_linear = m_settings->getAccelLinear();
-	static const auto s_accel_derivative = m_settings->getAccelDerivative();
+	static const double s_accel_linear = m_settings->value("AccelLinear").toDouble();
+	static const double s_accel_derivative = m_settings->value("AccelDerivative").toDouble();
 	Axis adj = tilt * s_accel_linear + (tilt - m_lastTilt) * s_accel_derivative;
 	adjustTilt(adj);
 	m_lastTilt = tilt;
-
-//	double adj = s_accel_linear*_tilt + s_accel_derivative*(_tilt - m_lastTiltX);
-//	m_copterCtrl->adjustTilt(adj, 0);
-//	m_lastTiltX = _tilt;
 }
 
 void CopterCtrl::onConnection()
@@ -130,11 +152,11 @@ void CopterCtrl::onNetworkRead()
 	if (m_tcpConnection.isNull())
 		return;
 
-	static const auto s_tilt_step = m_settings->getTiltStep();
-	static const auto s_power_max = m_settings->getPowerMax();
-	//static const auto s_power_min = m_settings->getPowerMin();
-	static const auto s_power_step1 = m_settings->getPowerStep1();
-	static const auto s_power_step2 = m_settings->getPowerStep2();
+	static const double s_tilt_step = m_settings->value("TiltStep").toDouble();
+	static const int s_power_max = m_settings->value("PowerMax").toInt();
+	//static const int s_power_min = m_settings->value("PowerMin").toInt();
+	static const int s_power_step1 = m_settings->value("PowerStep1").toInt();
+	static const int s_power_step2 = m_settings->value("PowerStep2").toInt();
 
 	while (m_tcpConnection->isReadable())
 	{

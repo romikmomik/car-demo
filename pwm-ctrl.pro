@@ -20,17 +20,14 @@ SOURCES +=      \
     CopterMotor.cpp \
     CopterCtrl.cpp \
     CopterAxis.cpp \
-    Settings.cpp \
     MainWindow.cpp \
     Main.cpp \
     accelerometer.cpp
 
 HEADERS +=      \
-    settings_config.inc \
     CopterMotor.hpp \
     CopterCtrl.hpp \
     CopterAxis.hpp \
-    Settings.hpp \
     MainWindow.hpp \
     accelerometer.hpp
 

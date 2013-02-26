@@ -4,9 +4,14 @@
 #include <QTcpServer>
 #include <QPointer>
 #include <QSocketNotifier>
+#include <QSettings>
 
-#include "Settings.hpp"
 #include "CopterAxis.hpp"
+#if QT_VERSION >= 0x050000
+#include <QApplication>
+#else
+#include <QtGui/QApplication>
+#endif
 
 QT_FORWARD_DECLARE_CLASS(Accelerometer)
 
@@ -40,7 +45,6 @@ struct Axis {
 class CopterCtrl : public QObject
 {
 	Q_OBJECT
-	Settings::sptr m_settings;
 public:
 	CopterCtrl();
 
@@ -62,7 +66,7 @@ public:
 			default: return QString("Unknown status"); break;
 		}
 	}
-	Settings::sptr getSettings() { return m_settings; }
+	QSettings* getSettings() { return m_settings; }
 	enum BoardButton {
 		Button1 = 0,
 		Button2,
@@ -94,6 +98,7 @@ protected slots:
 	void onNetworkRead();
 	void onButtonRead();
 	void initMotors(const QString& motorControlPath);
+	void initSettings();
 	void onMotorPowerChange(double power);
 
 signals:
@@ -109,6 +114,7 @@ protected:
 	int m_power;
 	CopterAxis* m_axisX;
 	CopterAxis* m_axisY;
+	QSettings* m_settings;
 
 	QMap<CopterMotor*, Motor> m_motorIds;
 

@@ -20,13 +20,13 @@ void CopterMotor::invoke(int _power)
 	m_ctrlFile.close();
 }
 
-CopterMotor::CopterMotor(Settings::sptr settings, const QString& _ctrlPath) :
+CopterMotor::CopterMotor(QSettings* settings, const QString& _ctrlPath) :
 	m_settings(settings),
 	m_ctrlFile(_ctrlPath),
 	m_factor(1.0)
 {
-	m_powerMin = settings->getMotorMin();
-	m_powerMax = settings->getMotorMax();
+	m_powerMin = m_settings->value("MotorMin").toDouble();
+	m_powerMax = m_settings->value("MotorMax").toDouble();
 
 	invoke_open();
 }
