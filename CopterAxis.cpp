@@ -18,14 +18,8 @@ void CopterAxis::tilt(double _tilt) const
 		m_motor1->factor(1.0);
 		m_motor2->factor(1.0);
 	}
-	else if (_tilt < 0)
-	{
-		m_motor1->factor(1.0+_tilt);
-		m_motor2->factor(1.0);
-	}
-	else if (_tilt > 0)
-	{
-		m_motor1->factor(1.0);
-		m_motor2->factor(1.0-_tilt);
+	else {
+		m_motor1->factor(1.0 + _tilt / 2);
+		m_motor2->factor(1.0 - _tilt / 2);
 	}
 }

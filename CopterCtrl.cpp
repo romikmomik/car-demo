@@ -130,6 +130,11 @@ void CopterCtrl::handleTilt(Axis tilt)
 	m_lastTilt = tilt;
 }
 
+void CopterCtrl::tcpLog(const QString &message)
+{
+	m_tcpConnection->write(message.toAscii());
+}
+
 void CopterCtrl::onConnection()
 {
 	if (!m_tcpConnection.isNull())
