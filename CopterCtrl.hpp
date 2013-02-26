@@ -88,7 +88,7 @@ public:
 
 public slots:
 	void setState(CopterState _state = IDLE) { m_state = _state; emit stateChanged(m_state); }
-	void adjustAccel();
+	void setupAccelZeroAxis();
 	void handleTilt(Axis tilt);
 	void tcpLog(const QString& message);
 

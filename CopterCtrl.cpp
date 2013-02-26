@@ -108,10 +108,11 @@ void CopterCtrl::adjustPower(int _incr)
 	m_axisY->setPower(m_power);
 }
 
-void CopterCtrl::adjustAccel()
+void CopterCtrl::setupAccelZeroAxis()
 {
 	if (m_state != CopterCtrl::IDLE)
 		return;
+	tcpLog("Start zero axis setup");
 	setState(CopterCtrl::ADJUSTING_ACCEL);
 
 	QTimer::singleShot(m_settings->value("AccelAdjustingTime").toInt(), this, SLOT(setState()));
@@ -123,9 +124,9 @@ void CopterCtrl::onAccelerometerRead(Axis val)
 
 void CopterCtrl::handleTilt(Axis tilt)
 {
-	static const double s_accel_linear = m_settings->value("AccelLinear").toDouble();
-	static const double s_accel_derivative = m_settings->value("AccelDerivative").toDouble();
-	Axis adj = tilt * s_accel_linear + (tilt - m_lastTilt) * s_accel_derivative;
+	double accelLinear = m_settings->value("AccelLinear").toDouble();
+	double accelDerivative = m_settings->value("AccelDerivative").toDouble();
+	Axis adj = tilt * accelLinear + (tilt - m_lastTilt) * accelDerivative;
 	adjustTilt(adj);
 	m_lastTilt = tilt;
 }
@@ -185,6 +186,39 @@ void CopterCtrl::onNetworkRead()
 			case 'c': adjustPower(+s_power_step1); break;
 			case 'v': adjustPower(+s_power_step2); break;
 			case 'V': adjustPower(+s_power_max); break;
+			case '0': setupAccelZeroAxis(); break;
+			case '[':
+				m_settings->setValue("MotorMax", QVariant(m_settings->value("MotorMax").toInt() - 1));
+				tcpLog("MotorMax changed: " + QString::number(m_settings->value("MotorMax").toInt()));
+				break;
+			case ']':
+				m_settings->setValue("MotorMax", QVariant(m_settings->value("MotorMax").toInt() + 1));
+				tcpLog("MotorMax changed: " + QString::number(m_settings->value("MotorMax").toInt()));
+				break;
+			case '{':
+				m_settings->setValue("MotorMin", QVariant(m_settings->value("MotorMin").toInt() - 1));
+				tcpLog("MotorMin changed: " + QString::number(m_settings->value("MotorMin").toInt()));
+				break;
+			case '}':
+				m_settings->setValue("MotorMin", QVariant(m_settings->value("MotorMin").toInt() + 1));
+				tcpLog("MotorMin changed: " + QString::number(m_settings->value("MotorMin").toInt()));
+				break;
+			case ',':
+				m_settings->setValue("AccelLinear", QVariant(m_settings->value("AccelLinear").toDouble() * 0.9));
+				tcpLog("AccelLinear changed: " + QString::number(m_settings->value("AccelLinear").toDouble()));
+				break;
+			case '.':
+				m_settings->setValue("AccelLinear", QVariant(m_settings->value("AccelLinear").toDouble() / 0.9));
+				tcpLog("AccelLinear changed: " + QString::number(m_settings->value("AccelLinear").toDouble()));
+				break;
+			case '<':
+				m_settings->setValue("AccelDerivative", QVariant(m_settings->value("AccelDerivative").toDouble() * 0.9));
+				tcpLog("AccelDerivative changed: " + QString::number(m_settings->value("AccelDerivative").toDouble()));
+				break;
+			case '>':
+				m_settings->setValue("AccelDerivative", QVariant(m_settings->value("AccelDerivative").toDouble() / 0.9));
+				tcpLog("AccelDerivative changed: " + QString::number(m_settings->value("AccelDerivative").toDouble()));
+				break;
 		}
 	}
 }
@@ -220,9 +254,7 @@ void CopterCtrl::onButtonRead()
 		case KEY_F8: button = Button8; break;
 	}
 
-	if (button == Button3) {
-		adjustAccel();
-	}
+	tcpLog("Button pressed: " + QString::number(button));
 
 	if (static_cast<bool>(evt.value)) {
 		emit buttonPressed(button);
