@@ -38,7 +38,8 @@ CopterMotor::~CopterMotor()
 
 void CopterMotor::factor(double _factor)
 {
-	m_factor = qMax(qMin(_factor, 1.0), 0.0);
+	m_factor = qMax(_factor, 0.0);
+//	m_factor = qMax(qMin(_factor, 1.0), 0.0);
 }
 
 void CopterMotor::setPower(unsigned _power)
