@@ -85,7 +85,7 @@ Axis Accelerometer::filterMean(Axis axis)
 
 Axis Accelerometer::filterKalman(Axis axis)
 {
-	double k = m_copterCtrl->getSettings()->value("KalmanK");
+	double k = m_copterCtrl->getSettings()->value("KalmanK").toDouble();
 	m_kalmanOpt = m_kalmanOpt * k + axis * (1 - k);
 	return m_kalmanOpt;
 }
