@@ -76,6 +76,7 @@ void CopterCtrl::initSettings()
 	m_settings->setValue("KalmanK", QVariant(0.95));
 	m_settings->setValue("AccelLinear", QVariant(-0.02d));
 	m_settings->setValue("AccelDerivative", QVariant(-0.005d));
+	m_settings->setValue("FilterMethod", QVariant(0));
 
 	m_settings->setFallbacksEnabled(false);
 	m_settings->sync();

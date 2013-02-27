@@ -70,7 +70,7 @@ void Accelerometer::onRead()
 
 Axis Accelerometer::filterAxis(Axis axis)
 {
-	switch (m_copterCtrl->getSettings()->value("FilterMethod")) {
+	switch (m_copterCtrl->getSettings()->value("FilterMethod").toInt()) {
 		case 0: filterMean(axis); break;
 		case 1: filterKalman(axis); break;
 		case 2: filterLinear(axis); break;
