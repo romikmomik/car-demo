@@ -60,23 +60,26 @@ void CopterCtrl::initSettings()
 {
 	m_settings = new QSettings(QApplication::applicationDirPath() + "/config.ini", QSettings::IniFormat);
 
-	// TODO: move to conf file
-	m_settings->setValue("ControlPath", QVariant("/sys/devices/platform/"));
-	m_settings->setValue("AccelInputPath", QVariant("/dev/input/event1"));
-	m_settings->setValue("ButtonsInputPath", QVariant("/dev/input/event0"));
-	m_settings->setValue("AccelAdjustingTime", QVariant(10000));
-	m_settings->setValue("TcpPort", QVariant(4000));
-	m_settings->setValue("TiltStep", QVariant(0.02d));
-	m_settings->setValue("PowerStep1", QVariant(1));
-	m_settings->setValue("PowerStep2", QVariant(5));
-	m_settings->setValue("PowerMin", QVariant(0));
-	m_settings->setValue("PowerMax", QVariant(100));
-	m_settings->setValue("MotorMax", QVariant(72));
-	m_settings->setValue("MotorMin", QVariant(48));
-	m_settings->setValue("KalmanK", QVariant(0.95));
-	m_settings->setValue("AccelLinear", QVariant(-0.02d));
-	m_settings->setValue("AccelDerivative", QVariant(-0.005d));
-	m_settings->setValue("FilterMethod", QVariant(0));
+	// TODO: write proper checker
+	if (m_settings->allKeys().count() == 0) {
+		// TODO: move to conf file
+		m_settings->setValue("ControlPath", QVariant("/sys/devices/platform/"));
+		m_settings->setValue("AccelInputPath", QVariant("/dev/input/event1"));
+		m_settings->setValue("ButtonsInputPath", QVariant("/dev/input/event0"));
+		m_settings->setValue("AccelAdjustingTime", QVariant(10000));
+		m_settings->setValue("TcpPort", QVariant(4000));
+		m_settings->setValue("TiltStep", QVariant(0.02d));
+		m_settings->setValue("PowerStep1", QVariant(1));
+		m_settings->setValue("PowerStep2", QVariant(5));
+		m_settings->setValue("PowerMin", QVariant(0));
+		m_settings->setValue("PowerMax", QVariant(100));
+		m_settings->setValue("MotorMax", QVariant(72));
+		m_settings->setValue("MotorMin", QVariant(48));
+		m_settings->setValue("KalmanK", QVariant(0.95));
+		m_settings->setValue("AccelLinear", QVariant(-0.02d));
+		m_settings->setValue("AccelDerivative", QVariant(-0.005d));
+		m_settings->setValue("FilterMethod", QVariant(0));
+	}
 
 	m_settings->setFallbacksEnabled(false);
 	m_settings->sync();
