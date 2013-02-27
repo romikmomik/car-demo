@@ -73,8 +73,7 @@ void CopterCtrl::initSettings()
 	m_settings->setValue("PowerMax", QVariant(100));
 	m_settings->setValue("MotorMax", QVariant(72));
 	m_settings->setValue("MotorMin", QVariant(48));
-	m_settings->setValue("KalmanSigmaPsi", QVariant(1));
-	m_settings->setValue("KalmanSigmaEta", QVariant(5));
+	m_settings->setValue("KalmanK", QVariant(0.95));
 	m_settings->setValue("AccelLinear", QVariant(-0.02d));
 	m_settings->setValue("AccelDerivative", QVariant(-0.005d));
 

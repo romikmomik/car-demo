@@ -26,7 +26,10 @@ private:
 	Axis filterAxis(Axis axis);
 	Axis filterMean(Axis axis);
 	Axis filterKalman(Axis axis);
+	Axis filterLinear(Axis axis);
 
+	Axis m_kalmanOpt;
+	Axis m_linearOpt[3];
 
 	double minVal, maxVal;
 	int m_adjustCounter;
@@ -34,7 +37,8 @@ private:
 	Axis m_zeroAxis;
 	Axis m_curAxis;
 	Axis m_prevAxis[5];
-	int m_counter;
+	int m_meanCounter;
+	int m_linearCounter;
 	CopterCtrl* m_copterCtrl;
 	QSocketNotifier* m_inputNotifier;
 };

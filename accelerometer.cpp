@@ -13,9 +13,12 @@ Accelerometer::Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QO
 	m_copterCtrl(copterCtrl),
 	m_zeroAxis(),
 	m_curAxis(),
-	m_counter(0)
+	m_meanCounter(0),
+	m_linearCounter(0),
+	m_kalmanOpt()
 {
 	for (int i = 0; i < 5; ++i) m_prevAxis[i] = Axis();
+	for (int i = 0; i < 3; ++i) m_linearOpt[i] = Axis();
 	m_inputFd = ::open(inputPath.toLatin1().data(), O_SYNC, O_RDONLY);
 	if (m_inputFd == -1)
 		qDebug() << "Cannot open accelerometer input file " << inputPath << ", reason: " << errno;
@@ -68,32 +71,33 @@ void Accelerometer::onRead()
 Axis Accelerometer::filterAxis(Axis axis)
 {
 //	return filterMean(axis);
-	return filterKalman(axis);
+	return filterKalman(filterLinear(axis));
 }
 
 Axis Accelerometer::filterMean(Axis axis)
 {
 	Axis countedAxis;
-	m_prevAxis[m_counter] = axis;
-	m_counter = (m_counter + 1) % 5;
+	m_prevAxis[m_meanCounter] = axis;
+	m_meanCounter = (m_meanCounter + 1) % 5;
 	for (int i = 0; i < 5; ++i) countedAxis = countedAxis + m_prevAxis[i] / 5;
 	return countedAxis;
 }
 
 Axis Accelerometer::filterKalman(Axis axis)
 {
-	static double s_sigma_psi = m_copterCtrl->getSettings()->value("KalmanSigmaPsi").toDouble();
-	static double s_sigma_eta = m_copterCtrl->getSettings()->value("KalmanSigmaEta").toDouble();
+	double k = m_copterCtrl->getSettings()->value("KalmanK");
+	m_kalmanOpt = m_kalmanOpt * k + axis * (1 - k);
+	return m_kalmanOpt;
+}
 
-	static double s_e_opt = s_sigma_eta;
-	static Axis s_axis_opt = axis;
-
-	s_e_opt = sqrt(pow(s_sigma_eta, 2) * (pow(s_e_opt, 2) + pow(s_sigma_psi, 2)) /
-								 (pow(s_sigma_eta, 2) + pow(s_e_opt, 2) + pow(s_sigma_psi, 2)));
-	// Kalman coeff
-	double k = pow(s_e_opt, 2) / pow(s_sigma_eta, 2);
-	s_axis_opt = s_axis_opt * (1 - k) + axis * k;
-	return s_axis_opt;
+Axis Accelerometer::filterLinear(Axis axis)
+{
+	m_linearCounter = (m_linearCounter + 1) % 3;
+	m_linearOpt[m_linearCounter] = (axis +
+																	m_linearOpt[(m_linearCounter + 1) % 3] * 3 +
+																 m_linearOpt[(m_linearCounter + 2) % 3] * 3 +
+																 m_linearOpt[m_linearCounter] * 3) / 8;
+	return m_linearOpt[m_linearCounter];
 }
 
 void Accelerometer::adjustZeroAxis()
