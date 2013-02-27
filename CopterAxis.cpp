@@ -19,7 +19,7 @@ void CopterAxis::tilt(double _tilt) const
 		m_motor2->factor(1.0);
 	}
 	else {
-		m_motor1->factor(1.0 + _tilt / 2);
-		m_motor2->factor(1.0 - _tilt / 2);
+		m_motor1->factor(1.0 - _tilt / 2);
+		m_motor2->factor(1.0 + _tilt / 2);
 	}
 }
