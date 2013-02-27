@@ -34,9 +34,9 @@ void MainWindow::onStateChange()
 
 void MainWindow::onAccelerometerRead(Axis val)
 {
-	m_ui->cur_accel_x->setText(QString::number(val.x));
-	m_ui->cur_accel_y->setText(QString::number(val.y));
-	m_ui->cur_accel_z->setText(QString::number(val.z));
+	m_ui->cur_accel_x->setText(QString::number(static_cast<int>(val.x)));
+	m_ui->cur_accel_y->setText(QString::number(static_cast<int>(val.y)));
+	m_ui->cur_accel_z->setText(QString::number(static_cast<int>(val.z)));
 }
 
 void MainWindow::onMotorPowerChange(CopterCtrl::Motor motor, double power)
