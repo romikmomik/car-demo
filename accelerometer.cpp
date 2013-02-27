@@ -96,7 +96,7 @@ Axis Accelerometer::filterLinear(Axis axis)
 	m_linearOpt[m_linearCounter] = (axis +
 																	m_linearOpt[(m_linearCounter + 1) % 3] * 3 +
 																 m_linearOpt[(m_linearCounter + 2) % 3] * 3 +
-																 m_linearOpt[m_linearCounter] * 3) / 8;
+																 m_linearOpt[m_linearCounter]) / 8;
 	return m_linearOpt[m_linearCounter];
 }
 
