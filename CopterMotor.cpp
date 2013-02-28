@@ -23,7 +23,7 @@ void CopterMotor::invoke(int _power)
 CopterMotor::CopterMotor(QSettings* settings, const QString& _ctrlPath) :
 	m_settings(settings),
 	m_ctrlFile(_ctrlPath),
-	m_factor(1.0)
+	m_delta(1.0)
 {
 	m_powerMin = m_settings->value("MotorMin").toDouble();
 	m_powerMax = m_settings->value("MotorMax").toDouble();
@@ -36,14 +36,15 @@ CopterMotor::~CopterMotor()
 	invoke_close();
 }
 
-void CopterMotor::factor(double _factor)
+void CopterMotor::delta(double _delta)
 {
-	m_factor = qMax(qMin(_factor, 2.0), 0.0);
+	m_delta = qMax(qMin(_delta, 100), -100);
 }
 
 void CopterMotor::setPower(unsigned _power)
 {
-	int pwr =  floor(m_factor * _power + 0.5);
+	m_delta = qMax(m_delta, -_power);
+	int pwr =  floor(m_delta + _power + 0.5);
 	invoke(pwr);
 	emit powerChanged(static_cast<double>(pwr));
 }
