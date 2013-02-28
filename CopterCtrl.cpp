@@ -76,8 +76,9 @@ void CopterCtrl::initSettings()
 		m_settings->setValue("MotorMax", QVariant(72));
 		m_settings->setValue("MotorMin", QVariant(48));
 		m_settings->setValue("KalmanK", QVariant(0.95));
-		m_settings->setValue("AccelLinear", QVariant(-0.02d));
-		m_settings->setValue("AccelDerivative", QVariant(-0.005d));
+		m_settings->setValue("PidP", QVariant(-0.02d));
+		m_settings->setValue("PidI", QVariant(0.0));
+		m_settings->setValue("PidD", QVariant(-0.005d));
 		m_settings->setValue("FilterMethod", QVariant(0));
 	}
 
@@ -127,9 +128,9 @@ void CopterCtrl::onAccelerometerRead(Axis val)
 
 void CopterCtrl::handleTilt(Axis tilt)
 {
-	double accelLinear = m_settings->value("AccelLinear").toDouble();
-	double accelDerivative = m_settings->value("AccelDerivative").toDouble();
-	Axis adj = tilt * accelLinear + (tilt - m_lastTilt) * accelDerivative;
+	double pidP = m_settings->value("PidP").toDouble();
+	double pidD = m_settings->value("PidD").toDouble();
+	Axis adj = tilt * pidP + (tilt - m_lastTilt) * pidD;
 	adjustTilt(adj);
 	m_lastTilt = tilt;
 }
@@ -210,20 +211,20 @@ void CopterCtrl::onNetworkRead()
 				tcpLog("MotorMin changed: " + QString::number(m_settings->value("MotorMin").toInt()));
 				break;
 			case ',':
-				m_settings->setValue("AccelLinear", QVariant(m_settings->value("AccelLinear").toDouble() * 0.9));
-				tcpLog("AccelLinear changed: " + QString::number(m_settings->value("AccelLinear").toDouble()));
+				m_settings->setValue("PidP", QVariant(m_settings->value("PidP").toDouble() * 0.9));
+				tcpLog("PidP changed: " + QString::number(m_settings->value("PidP").toDouble()));
 				break;
 			case '.':
-				m_settings->setValue("AccelLinear", QVariant(m_settings->value("AccelLinear").toDouble() / 0.9));
-				tcpLog("AccelLinear changed: " + QString::number(m_settings->value("AccelLinear").toDouble()));
+				m_settings->setValue("PidP", QVariant(m_settings->value("PidP").toDouble() / 0.9));
+				tcpLog("PidP changed: " + QString::number(m_settings->value("PidP").toDouble()));
 				break;
 			case '<':
-				m_settings->setValue("AccelDerivative", QVariant(m_settings->value("AccelDerivative").toDouble() * 0.9));
-				tcpLog("AccelDerivative changed: " + QString::number(m_settings->value("AccelDerivative").toDouble()));
+				m_settings->setValue("PidD", QVariant(m_settings->value("PidD").toDouble() * 0.9));
+				tcpLog("PidD changed: " + QString::number(m_settings->value("PidD").toDouble()));
 				break;
 			case '>':
-				m_settings->setValue("AccelDerivative", QVariant(m_settings->value("AccelDerivative").toDouble() / 0.9));
-				tcpLog("AccelDerivative changed: " + QString::number(m_settings->value("AccelDerivative").toDouble()));
+				m_settings->setValue("PidD", QVariant(m_settings->value("PidD").toDouble() / 0.9));
+				tcpLog("PidD changed: " + QString::number(m_settings->value("PidD").toDouble()));
 				break;
 		}
 	}
