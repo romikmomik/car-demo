@@ -38,7 +38,7 @@ CopterMotor::~CopterMotor()
 
 void CopterMotor::delta(double _delta)
 {
-	m_delta = qMax(qMin(_delta, 100), -100);
+	m_delta = qMax(qMin(_delta, 100.0), -100.0);
 }
 
 void CopterMotor::setPower(unsigned _power)
