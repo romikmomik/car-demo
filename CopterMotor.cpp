@@ -43,7 +43,7 @@ void CopterMotor::delta(double _delta)
 
 void CopterMotor::setPower(unsigned _power)
 {
-	m_delta = qMax(m_delta, -_power);
+	m_delta = qMax(m_delta, - static_cast<double>(_power));
 	int pwr =  floor(m_delta + _power + 0.5);
 	invoke(pwr);
 	emit powerChanged(static_cast<double>(pwr));
