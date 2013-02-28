@@ -132,7 +132,7 @@ void CopterCtrl::handleTilt(Axis tilt)
 	double pidP = m_settings->value("PidP").toDouble();
 	double pidI = m_settings->value("PidI").toDouble();
 	double pidD = m_settings->value("PidD").toDouble();
-	Axis adj = tilt * pidP + m_pidIntegal * pidI (tilt - m_lastTilt) * pidD;
+	Axis adj = tilt * pidP + m_pidIntegal * pidI + (tilt - m_lastTilt) * pidD;
 
 	m_pidIntegal = m_pidIntegal + adj;
 
