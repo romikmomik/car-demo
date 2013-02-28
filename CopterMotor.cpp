@@ -50,3 +50,8 @@ void CopterMotor::setPower(unsigned _power)
 }
 
 
+void CopterMotor::emergencyStop()
+{
+	invoke(0);
+}
+

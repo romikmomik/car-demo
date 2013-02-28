@@ -134,13 +134,7 @@ void CopterCtrl::handleTilt(Axis tilt)
 	double pidD = m_settings->value("PidD").toDouble();
 	Axis adj = tilt * pidP + m_pidIntegal * pidI + (tilt - m_lastTilt) * pidD;
 
-	m_pidIntegal = m_pidIntegal + adj;
-
-	// debugging print
-	if (m_pidIntegal.x > 10000 || m_pidIntegal.y > 10000 || m_pidIntegal.z > 10000) {
-		tcpLog("PID integral part is quite large (" + QString::number(m_pidIntegal.x) + ", " +
-					 QString::number(m_pidIntegal.y) + ", " + QString::number(m_pidIntegal.z) + ")");
-	}
+//	m_pidIntegal = m_pidIntegal + adj;
 
 	adjustTilt(adj);
 	m_lastTilt = tilt;
@@ -152,6 +146,13 @@ void CopterCtrl::tcpLog(const QString &message)
 		m_tcpConnection->write(message.toAscii());
 		m_tcpConnection->write("\n");
 	}
+}
+
+void CopterCtrl::emergencyStop()
+{
+	m_axisX->emergencyStop();
+	m_axisY->emergencyStop();
+	QApplication::quit();
 }
 
 void CopterCtrl::onConnection()
@@ -205,6 +206,7 @@ void CopterCtrl::onNetworkRead()
 			case 'v': adjustPower(+s_power_step2); break;
 			case 'V': adjustPower(+s_power_max); break;
 			case '0': setupAccelZeroAxis(); break;
+			case 'a': emergencyStop(); break;
 			case '[':
 				m_settings->setValue("MotorMax", QVariant(m_settings->value("MotorMax").toInt() - 1));
 				tcpLog("MotorMax changed: " + QString::number(m_settings->value("MotorMax").toInt()));

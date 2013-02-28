@@ -19,6 +19,9 @@ public:
 signals:
 	void powerChanged(double power);
 
+public slots:
+	void emergencyStop();
+
 protected:
 	QSettings* m_settings;
 	QFile       m_ctrlFile;

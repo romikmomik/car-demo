@@ -34,7 +34,7 @@ HEADERS +=      \
 FORMS += \       
     MainWindow.ui
 
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++0x
 QMAKE_CXXFLAGS_WARN_ON = -Wno-reorder
 
 unix {

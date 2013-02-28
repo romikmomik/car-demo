@@ -91,6 +91,7 @@ public slots:
 	void setupAccelZeroAxis();
 	void handleTilt(Axis tilt);
 	void tcpLog(const QString& message);
+	void emergencyStop();
 
 protected slots:
 	void onAccelerometerRead(Axis val);

@@ -12,6 +12,9 @@ public:
 
 	void setPower(unsigned _power) { m_motor1->setPower(_power); m_motor2->setPower(_power); }
 
+public slots:
+	void emergencyStop();
+
 protected:
 	CopterMotor* m_motor1;
 	CopterMotor* m_motor2;
