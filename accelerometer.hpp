@@ -27,6 +27,7 @@ private:
 	Axis filterMean(Axis axis);
 	Axis filterKalman(Axis axis);
 	Axis filterLinear(Axis axis);
+	Axis filterLinearAlt(Axis axis);
 
 	Axis m_kalmanOpt;
 	Axis m_linearOpt[3];

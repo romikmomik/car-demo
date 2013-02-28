@@ -74,8 +74,11 @@ Axis Accelerometer::filterAxis(Axis axis)
 		case 0: filterMean(axis); break;
 		case 1: filterKalman(axis); break;
 		case 2: filterLinear(axis); break;
-		case 3: filterKalman(filterLinear(axis)); break;
-		case 4: filterLinear(filterKalman(axis)); break;
+		case 3: filterLinearAlt(axis); break;
+		case 4: filterKalman(filterLinear(axis)); break;
+		case 5: filterLinear(filterKalman(axis)); break;
+		case 6: filterKalman(filterLinearAlt(axis)); break;
+		case 7: filterLinearAlt(filterKalman(axis)); break;
 	}
 
 //	return filterMean(axis);
@@ -105,6 +108,15 @@ Axis Accelerometer::filterLinear(Axis axis)
 																	m_linearOpt[(m_linearCounter + 1) % 3] * 3 +
 																 m_linearOpt[(m_linearCounter + 2) % 3] * 3 +
 																 m_linearOpt[m_linearCounter]) / 8;
+	return m_linearOpt[m_linearCounter];
+}
+
+Axis Accelerometer::filterLinearAlt(Axis axis)
+{
+	m_linearCounter = (m_linearCounter + 1) % 2;
+	m_linearOpt[m_linearCounter] = (axis +
+																	m_linearOpt[(m_linearCounter + 1) % 2] * 2 +
+																 m_linearOpt[m_linearCounter]) / 4;
 	return m_linearOpt[m_linearCounter];
 }
 
