@@ -12,7 +12,8 @@ CopterCtrl::CopterCtrl() :
 	m_power(0),
 	m_state(IDLE),
 	m_tcpServer(),
-	m_tcpConnection()
+	m_tcpConnection(),
+	m_pidIntegal()
 {
 	initSettings();
 	initMotors(m_settings->value("ControlPath").toString());
@@ -129,8 +130,18 @@ void CopterCtrl::onAccelerometerRead(Axis val)
 void CopterCtrl::handleTilt(Axis tilt)
 {
 	double pidP = m_settings->value("PidP").toDouble();
+	double pidI = m_settings->value("PidI").toDouble();
 	double pidD = m_settings->value("PidD").toDouble();
-	Axis adj = tilt * pidP + (tilt - m_lastTilt) * pidD;
+	Axis adj = tilt * pidP + m_pidIntegal * pidI (tilt - m_lastTilt) * pidD;
+
+	m_pidIntegal = m_pidIntegal + adj;
+
+	// debugging print
+	if (m_pidIntegal.x > 10000 || m_pidIntegal.y > 10000 || m_pidIntegal.z > 10000) {
+		tcpLog("PID integral part is quite large (" + QString::number(m_pidIntegal.x) + ", " +
+					 QString::number(m_pidIntegal.y) + ", " + QString::number(m_pidIntegal.z) + ")");
+	}
+
 	adjustTilt(adj);
 	m_lastTilt = tilt;
 }
