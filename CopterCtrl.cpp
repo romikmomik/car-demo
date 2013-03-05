@@ -43,10 +43,11 @@ CopterCtrl::CopterCtrl() :
 
 void CopterCtrl::initMotors(const QString& motorControlPath)
 {
-	CopterMotor* mx1 = new CopterMotor(m_settings, motorControlPath + "ehrpwm.0/pwm/ehrpwm.0:0/duty_percent");
-	CopterMotor* mx2 = new CopterMotor(m_settings, motorControlPath + "ehrpwm.0/pwm/ehrpwm.0:1/duty_percent");
-	CopterMotor* my1 = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/duty_percent");
-	CopterMotor* my2 = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:1/duty_percent");
+	QString motorControlFile = m_settings->value("MotorControlFile").toString();
+	CopterMotor* mx1 = new CopterMotor(m_settings, motorControlPath + "ehrpwm.0/pwm/ehrpwm.0:0/" + motorControlFile);
+	CopterMotor* mx2 = new CopterMotor(m_settings, motorControlPath + "ehrpwm.0/pwm/ehrpwm.0:1/" + motorControlFile);
+	CopterMotor* my1 = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
+	CopterMotor* my2 = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:1/" + motorControlFile);
 	m_motorIds.insert(mx1, MotorX1);
 	m_motorIds.insert(mx2, MotorX2);
 	m_motorIds.insert(my1, MotorY1);
@@ -77,14 +78,15 @@ void CopterCtrl::initSettings()
 		m_settings->setValue("PowerStep2", QVariant(5));
 		m_settings->setValue("PowerMin", QVariant(0));
 		m_settings->setValue("PowerMax", QVariant(100));
-		m_settings->setValue("MotorMax", QVariant(72));
-		m_settings->setValue("MotorMin", QVariant(48));
+		m_settings->setValue("MotorMax", QVariant(1740000));
+		m_settings->setValue("MotorMin", QVariant(1250000));
 		m_settings->setValue("KalmanK", QVariant(0.95));
 		m_settings->setValue("PidP", QVariant(-0.02d));
 		m_settings->setValue("PidI", QVariant(0.0));
 		m_settings->setValue("PidD", QVariant(-0.005d));
 		m_settings->setValue("PidIWindow", QVariant(10));
 		m_settings->setValue("FilterMethod", QVariant(0));
+		m_settings->setValue("MotorControlFile", QVariant("duty_ns"));
 	}
 
 	m_settings->setFallbacksEnabled(false);
