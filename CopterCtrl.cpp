@@ -13,10 +13,13 @@ CopterCtrl::CopterCtrl() :
 	m_state(IDLE),
 	m_tcpServer(),
 	m_tcpConnection(),
-	m_pidIntegal()
+	m_pidCounter(0),
+	m_pidIntegral()
 {
 	initSettings();
 	initMotors(m_settings->value("ControlPath").toString());
+
+	m_pidIntegralVector = QVector<Axis>(m_settings->value("PidIWindow").toInt(), Axis());
 
 	m_tcpServer.listen(QHostAddress::Any, m_settings->value("TcpPort").toInt());
 	connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
@@ -80,6 +83,7 @@ void CopterCtrl::initSettings()
 		m_settings->setValue("PidP", QVariant(-0.02d));
 		m_settings->setValue("PidI", QVariant(0.0));
 		m_settings->setValue("PidD", QVariant(-0.005d));
+		m_settings->setValue("PidIWindow", QVariant(10));
 		m_settings->setValue("FilterMethod", QVariant(0));
 	}
 
@@ -108,6 +112,7 @@ void CopterCtrl::adjustPower(int _incr)
 	m_power += _incr;
 	m_power = qMax(qMin(m_power, s_power_max), s_power_min);
 	emit motorPowerChanged(MotorAll, m_power);
+	tcpLog("Motor power changed: " + QString::number(m_power));
 
 	m_axisX->setPower(m_power);
 	m_axisY->setPower(m_power);
@@ -132,8 +137,10 @@ void CopterCtrl::handleTilt(Axis tilt)
 	double pidP = m_settings->value("PidP").toDouble();
 	double pidI = m_settings->value("PidI").toDouble();
 	double pidD = m_settings->value("PidD").toDouble();
-	m_pidIntegal = m_pidIntegal + tilt * pidI;
-	Axis adj = tilt * pidP + m_pidIntegal + (tilt - m_lastTilt) * pidD;
+
+	m_pidIntegral = m_pidIntegral + tilt - m_pidIntegralVector[m_pidCounter];
+	m_pidIntegralVector[m_pidCounter] = tilt;
+	Axis adj = tilt * pidP + m_pidIntegral * pidI + (tilt - m_lastTilt) * pidD;
 
 	adjustTilt(adj);
 	m_lastTilt = tilt;

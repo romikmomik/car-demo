@@ -126,7 +126,9 @@ protected:
 	QPointer<QSocketNotifier> m_buttonsInputNotifier;
 
 	Axis m_lastTilt;
-	Axis m_pidIntegal;
+	QVector<Axis> m_pidIntegralVector;
+	Axis m_pidIntegral;
+	unsigned int m_pidCounter;
 
 	Accelerometer* m_accel;
 	CopterState m_state;
