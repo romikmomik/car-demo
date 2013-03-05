@@ -138,8 +138,10 @@ void CopterCtrl::handleTilt(Axis tilt)
 	double pidI = m_settings->value("PidI").toDouble();
 	double pidD = m_settings->value("PidD").toDouble();
 
+	// TODO: handle case when window or coeff = 0
 	m_pidIntegral = m_pidIntegral + tilt - m_pidIntegralVector[m_pidCounter];
 	m_pidIntegralVector[m_pidCounter] = tilt;
+	m_pidCounter = (m_pidCounter + 1) % (m_settings->value("PidIWindow").toInt());
 	Axis adj = tilt * pidP + m_pidIntegral * pidI + (tilt - m_lastTilt) * pidD;
 
 	adjustTilt(adj);
