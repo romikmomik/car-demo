@@ -5,6 +5,8 @@
 #include <linux/input.h>
 #include <cmath>
 
+#include <QTime>
+
 Accelerometer::Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QObject *parent) :
 	QObject(parent),
 	m_inputFd(-1),
@@ -17,6 +19,7 @@ Accelerometer::Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QO
 	m_linearCounter(0),
 	m_kalmanOpt()
 {
+	// TODO: write with vectors
 	for (int i = 0; i < 5; ++i) m_prevAxis[i] = Axis();
 	for (int i = 0; i < 3; ++i) m_linearOpt[i] = Axis();
 	m_inputFd = ::open(inputPath.toLatin1().data(), O_SYNC, O_RDONLY);
@@ -26,6 +29,7 @@ Accelerometer::Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QO
 	m_inputNotifier = new QSocketNotifier(m_inputFd, QSocketNotifier::Read, this);
 	connect(m_inputNotifier, SIGNAL(activated(int)), this, SLOT(onRead()));
 	m_inputNotifier->setEnabled(true);
+	initLogFile();
 }
 
 
@@ -68,19 +72,45 @@ void Accelerometer::onRead()
 	}
 }
 
+void Accelerometer::initLogFile()
+{
+	m_logFile = new QFile("./accel-log-" + QTime::currentTime().toString() + ".csv");
+	if (!m_logFile->open(QFile::WriteOnly)) {
+		qDebug() << "Can't open log file" << endl;
+	}
+	else {
+		m_logStream = new QTextStream(m_logFile);
+		*m_logStream << "time,x_unfiltered,y_unfiltered,z_unfiltered,x_filtered,y_filtered,z_filtered" << endl;
+	}
+	m_logCounter = 0;
+}
+
+void Accelerometer::writeToLog(QStringList values)
+{
+	if (m_logStream->status() == QTextStream::Ok) {
+		++m_logCounter;
+		*m_logStream << m_logCounter << "," << values.join(",") << endl;
+	}
+}
+
 Axis Accelerometer::filterAxis(Axis axis)
 {
+	Axis res;
 	switch (m_copterCtrl->getSettings()->value("FilterMethod").toInt()) {
-		case 0: return filterMean(axis); break;
-		case 1: return filterKalman(axis); break;
-		case 2: return filterLinear(axis); break;
-		case 3: return filterLinearAlt(axis); break;
-		case 4: return filterKalman(filterLinear(axis)); break;
-		case 5: return filterLinear(filterKalman(axis)); break;
-		case 6: return filterKalman(filterLinearAlt(axis)); break;
-		case 7: return filterLinearAlt(filterKalman(axis)); break;
+		case 0: res = filterMean(axis); break;
+		case 1: res = filterKalman(axis); break;
+		case 2: res = filterLinear(axis); break;
+		case 3: res = filterLinearAlt(axis); break;
+		case 4: res = filterKalman(filterLinear(axis)); break;
+		case 5: res = filterLinear(filterKalman(axis)); break;
+		case 6: res = filterKalman(filterLinearAlt(axis)); break;
+		case 7: res = filterLinearAlt(filterKalman(axis)); break;
+		default: res = filterKalman(axis); break;
 	}
-
+	QStringList vals;
+	vals << QString::number(axis.x) << QString::number(axis.y) << QString::number(axis.z)
+			 << QString::number(res.x) << QString::number(res.y) << QString::number(res.z);
+	writeToLog(vals);
 //	return filterMean(axis);
 	return filterKalman(filterLinear(axis));
 }

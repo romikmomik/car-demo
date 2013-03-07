@@ -21,6 +21,8 @@ signals:
 
 public slots:
 	void onRead();
+	void initLogFile();
+	void writeToLog(QStringList values);
 
 private:
 	Axis filterAxis(Axis axis);
@@ -31,6 +33,10 @@ private:
 
 	Axis m_kalmanOpt;
 	Axis m_linearOpt[3];
+
+	QFile* m_logFile;
+	QTextStream* m_logStream;
+	unsigned int m_logCounter;
 
 	double minVal, maxVal;
 	int m_adjustCounter;
