@@ -32,6 +32,7 @@ Accelerometer::Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QO
 	initLogFile();
 }
 
+// TODO: write destructor
 
 void Accelerometer::onRead()
 {
@@ -117,7 +118,6 @@ Axis Accelerometer::filterAxis(Axis axis)
 	vals << QString::number(axis.x) << QString::number(axis.y) << QString::number(axis.z)
 			 << QString::number(res.x) << QString::number(res.y) << QString::number(res.z);
 	writeToLog(vals);
-//	return filterMean(axis);
 	return res;
 }
 
@@ -132,7 +132,7 @@ Axis Accelerometer::filterMean(Axis axis)
 
 Axis Accelerometer::filterKalman(Axis axis)
 {
-	double k = m_copterCtrl->getSettings()->value("KalmanK").toDouble();
+	float k = m_copterCtrl->getSettings()->value("KalmanK").toFloat();
 	m_kalmanOpt = m_kalmanOpt * k + axis * (1 - k);
 	return m_kalmanOpt;
 }

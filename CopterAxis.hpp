@@ -7,8 +7,8 @@ class CopterAxis : public QObject
 public:
 	CopterAxis(CopterMotor* _motor1, CopterMotor* _motor2);
 
-	double tilt() const; // -1.0 .. +1.0
-	void tilt(double _tilt) const;
+	float tilt() const; // -1.0 .. +1.0
+	void tilt(float _tilt) const;
 
 	void setPower(unsigned _power) { m_motor1->setPower(_power); m_motor2->setPower(_power); }
 

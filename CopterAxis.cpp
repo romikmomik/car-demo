@@ -6,12 +6,12 @@ CopterAxis::CopterAxis(CopterMotor *_motor1, CopterMotor *_motor2) :
 {
 }
 
-double CopterAxis::tilt() const
+float CopterAxis::tilt() const
 {
 	return m_motor1->delta() - m_motor2->delta();
 }
 
-void CopterAxis::tilt(double _tilt) const
+void CopterAxis::tilt(float _tilt) const
 {
 	m_motor1->delta(- _tilt / 2);
 	m_motor2->delta(  _tilt / 2);

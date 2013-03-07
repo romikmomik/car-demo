@@ -13,7 +13,7 @@ public:
 public slots:
 	void onStateChange();
 	void onAccelerometerRead(Axis val);
-	void onMotorPowerChange(CopterCtrl::Motor motor, double power);
+	void onMotorPowerChange(CopterCtrl::Motor motor, float power);
 
 private:
 	CopterCtrl* m_copterCtrl;

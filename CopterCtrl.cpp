@@ -52,10 +52,10 @@ void CopterCtrl::initMotors(const QString& motorControlPath)
 	m_motorIds.insert(mx2, MotorX2);
 	m_motorIds.insert(my1, MotorY1);
 	m_motorIds.insert(my2, MotorY2);
-	connect(mx1, SIGNAL(powerChanged(double)), this, SLOT(onMotorPowerChange(double)));
-	connect(mx2, SIGNAL(powerChanged(double)), this, SLOT(onMotorPowerChange(double)));
-	connect(my1, SIGNAL(powerChanged(double)), this, SLOT(onMotorPowerChange(double)));
-	connect(my2, SIGNAL(powerChanged(double)), this, SLOT(onMotorPowerChange(double)));
+	connect(mx1, SIGNAL(powerChanged(float)), this, SLOT(onMotorPowerChange(float)));
+	connect(mx2, SIGNAL(powerChanged(float)), this, SLOT(onMotorPowerChange(float)));
+	connect(my1, SIGNAL(powerChanged(float)), this, SLOT(onMotorPowerChange(float)));
+	connect(my2, SIGNAL(powerChanged(float)), this, SLOT(onMotorPowerChange(float)));
 
 	m_axisX = new CopterAxis(mx1, mx2);
 	m_axisY = new CopterAxis(my1, my2);
@@ -94,7 +94,7 @@ void CopterCtrl::initSettings()
 	m_settings->sync();
 }
 
-void CopterCtrl::onMotorPowerChange(double power)
+void CopterCtrl::onMotorPowerChange(float power)
 {
 	emit motorPowerChanged(m_motorIds[dynamic_cast<CopterMotor*>(sender())], power);
 }
@@ -137,9 +137,9 @@ void CopterCtrl::onAccelerometerRead(Axis val)
 
 void CopterCtrl::handleTilt(Axis tilt)
 {
-	double pidP = m_settings->value("PidP").toDouble();
-	double pidI = m_settings->value("PidI").toDouble();
-	double pidD = m_settings->value("PidD").toDouble();
+	float pidP = m_settings->value("PidP").toFloat();
+	float pidI = m_settings->value("PidI").toFloat();
+	float pidD = m_settings->value("PidD").toFloat();
 
 	// TODO: handle case when window or coeff = 0
 	m_pidIntegral = m_pidIntegral + tilt - m_pidIntegralVector[m_pidCounter];
@@ -188,7 +188,7 @@ void CopterCtrl::onNetworkRead()
 	if (m_tcpConnection.isNull())
 		return;
 
-	static const double s_tilt_step = m_settings->value("TiltStep").toDouble();
+	static const float s_tilt_step = m_settings->value("TiltStep").toFloat();
 	static const int s_power_max = m_settings->value("PowerMax").toInt();
 	//static const int s_power_min = m_settings->value("PowerMin").toInt();
 	static const int s_power_step1 = m_settings->value("PowerStep1").toInt();
@@ -235,20 +235,20 @@ void CopterCtrl::onNetworkRead()
 				tcpLog("MotorMin changed: " + QString::number(m_settings->value("MotorMin").toInt()));
 				break;
 			case ',':
-				m_settings->setValue("PidP", QVariant(m_settings->value("PidP").toDouble() * 0.9));
-				tcpLog("PidP changed: " + QString::number(m_settings->value("PidP").toDouble()));
+				m_settings->setValue("PidP", QVariant(m_settings->value("PidP").toFloat() * 0.9));
+				tcpLog("PidP changed: " + QString::number(m_settings->value("PidP").toFloat()));
 				break;
 			case '.':
-				m_settings->setValue("PidP", QVariant(m_settings->value("PidP").toDouble() / 0.9));
-				tcpLog("PidP changed: " + QString::number(m_settings->value("PidP").toDouble()));
+				m_settings->setValue("PidP", QVariant(m_settings->value("PidP").toFloat() / 0.9));
+				tcpLog("PidP changed: " + QString::number(m_settings->value("PidP").toFloat()));
 				break;
 			case '<':
-				m_settings->setValue("PidD", QVariant(m_settings->value("PidD").toDouble() * 0.9));
-				tcpLog("PidD changed: " + QString::number(m_settings->value("PidD").toDouble()));
+				m_settings->setValue("PidD", QVariant(m_settings->value("PidD").toFloat() * 0.9));
+				tcpLog("PidD changed: " + QString::number(m_settings->value("PidD").toFloat()));
 				break;
 			case '>':
-				m_settings->setValue("PidD", QVariant(m_settings->value("PidD").toDouble() / 0.9));
-				tcpLog("PidD changed: " + QString::number(m_settings->value("PidD").toDouble()));
+				m_settings->setValue("PidD", QVariant(m_settings->value("PidD").toFloat() / 0.9));
+				tcpLog("PidD changed: " + QString::number(m_settings->value("PidD").toFloat()));
 				break;
 		}
 	}

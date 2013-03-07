@@ -12,8 +12,8 @@ MainWindow::MainWindow(CopterCtrl *copterCtrl, QWidget* _parent) :
 
 	connect(m_copterCtrl, SIGNAL(stateChanged(CopterState)), this, SLOT(onStateChange()));
 	connect(m_copterCtrl, SIGNAL(accelerometerRead(Axis)), this, SLOT(onAccelerometerRead(Axis)));
-	connect(m_copterCtrl, SIGNAL(motorPowerChanged(CopterCtrl::Motor,double)),
-					this, SLOT(onMotorPowerChange(CopterCtrl::Motor,double)));
+	connect(m_copterCtrl, SIGNAL(motorPowerChanged(CopterCtrl::Motor,float)),
+					this, SLOT(onMotorPowerChange(CopterCtrl::Motor,float)));
 
 	// customize status bar appearance
 	QFont statusBarFont = statusBar()->font();
@@ -39,7 +39,7 @@ void MainWindow::onAccelerometerRead(Axis val)
 	m_ui->cur_accel_z->setText(QString::number(static_cast<int>(val.z)));
 }
 
-void MainWindow::onMotorPowerChange(CopterCtrl::Motor motor, double power)
+void MainWindow::onMotorPowerChange(CopterCtrl::Motor motor, float power)
 {
 	QLCDNumber* lcd;
 	switch (motor) {
@@ -52,9 +52,9 @@ void MainWindow::onMotorPowerChange(CopterCtrl::Motor motor, double power)
 
 	QPalette palette = lcd->palette();
 	QColor bg = palette.color(QPalette::Disabled, lcd->backgroundRole());
-	double powerMax = m_settings->value("PowerMax").toDouble();
-	double powerMin = m_settings->value("PowerMin").toDouble();
-	double pwrSat = 1.0 - static_cast<double>((power - powerMin) / (2 * powerMax - powerMin));
+	float powerMax = m_settings->value("PowerMax").toFloat();
+	float powerMin = m_settings->value("PowerMin").toFloat();
+	float pwrSat = 1.0 - static_cast<float>((power - powerMin) / (2 * powerMax - powerMin));
 	bg.setBlue(bg.blue()   * pwrSat);
 	bg.setGreen(bg.green() * pwrSat + 0xff * (1.0 - pwrSat));
 	bg.setRed(bg.red()     * pwrSat);

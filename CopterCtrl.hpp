@@ -16,7 +16,7 @@
 QT_FORWARD_DECLARE_CLASS(Accelerometer)
 
 struct Axis {
-	Axis(double _x = 0, double _y = 0, double _z = 0) :
+	Axis(float _x = 0, float _y = 0, float _z = 0) :
 		x(_x), y(_y), z(_z) {}
 
 	Axis operator +(const Axis& other) {
@@ -25,10 +25,10 @@ struct Axis {
 	Axis operator -(const Axis& other) {
 		return Axis(x - other.x, y - other.y, z - other.z);
 	}
-	Axis operator *(const double scalar) {
+	Axis operator *(const float scalar) {
 		return Axis (x * scalar, y * scalar, z * scalar);
 	}
-	Axis operator /(const double scalar) {
+	Axis operator /(const float scalar) {
 		return Axis (x / scalar, y / scalar, z / scalar);
 	}
 
@@ -39,7 +39,7 @@ struct Axis {
 		return *this;
 	}
 
-	double x, y, z;
+	float x, y, z;
 };
 
 class CopterCtrl : public QObject
@@ -48,11 +48,11 @@ class CopterCtrl : public QObject
 public:
 	CopterCtrl();
 
-	double tiltX() const { return m_axisX->tilt(); }
-	double tiltY() const { return m_axisY->tilt(); }
-	void tiltX(double _tilt) const { m_axisX->tilt(_tilt); m_axisX->setPower(m_power); }
-	void tiltY(double _tilt) const { m_axisY->tilt(_tilt); m_axisY->setPower(m_power); }
-	void adjustTilt(double tiltX, double tiltY) const { Axis tilt(tiltX, tiltY); adjustTilt(tilt); }
+	float tiltX() const { return m_axisX->tilt(); }
+	float tiltY() const { return m_axisY->tilt(); }
+	void tiltX(float _tilt) const { m_axisX->tilt(_tilt); m_axisX->setPower(m_power); }
+	void tiltY(float _tilt) const { m_axisY->tilt(_tilt); m_axisY->setPower(m_power); }
+	void adjustTilt(float tiltX, float tiltY) const { Axis tilt(tiltX, tiltY); adjustTilt(tilt); }
 	void adjustTilt(Axis tilt) const;
 	void adjustPower(int _incr);
 	enum CopterState { IDLE = 0,
@@ -101,7 +101,7 @@ protected slots:
 	void onButtonRead();
 	void initMotors(const QString& motorControlPath);
 	void initSettings();
-	void onMotorPowerChange(double power);
+	void onMotorPowerChange(float power);
 
 signals:
 	void lcdUpdate(int);
@@ -110,7 +110,7 @@ signals:
 	void zeroAxisChanged(Axis val);
 	void buttonPressed(BoardButton button);
 	void buttonReleased(BoardButton button);
-	void motorPowerChanged(CopterCtrl::Motor motor, double power);
+	void motorPowerChanged(CopterCtrl::Motor motor, float power);
 
 protected:
 	int m_power;

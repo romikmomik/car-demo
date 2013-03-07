@@ -38,7 +38,7 @@ private:
 	QTextStream* m_logStream;
 	unsigned int m_logCounter;
 
-	double minVal, maxVal;
+	float minVal, maxVal;
 	int m_adjustCounter;
 	int m_inputFd;
 	Axis m_zeroAxis;
