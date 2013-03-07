@@ -118,7 +118,7 @@ Axis Accelerometer::filterAxis(Axis axis)
 			 << QString::number(res.x) << QString::number(res.y) << QString::number(res.z);
 	writeToLog(vals);
 //	return filterMean(axis);
-	return filterKalman(filterLinear(axis));
+	return res;
 }
 
 Axis Accelerometer::filterMean(Axis axis)
