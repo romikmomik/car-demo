@@ -74,6 +74,9 @@ void Accelerometer::onRead()
 
 void Accelerometer::initLogFile()
 {
+	if (!m_copterCtrl->getSettings()->value("WriteLog").toBool()) {
+		return;
+	}
 	m_logFile = new QFile("./accel-log-" + QTime::currentTime().toString() + ".csv");
 	if (!m_logFile->open(QFile::WriteOnly)) {
 		qDebug() << "Can't open log file" << endl;
@@ -87,6 +90,9 @@ void Accelerometer::initLogFile()
 
 void Accelerometer::writeToLog(QStringList values)
 {
+	if (!m_copterCtrl->getSettings()->value("WriteLog").toBool()) {
+		return;
+	}
 	if (m_logStream->status() == QTextStream::Ok) {
 		++m_logCounter;
 		*m_logStream << m_logCounter << "," << values.join(",") << endl;

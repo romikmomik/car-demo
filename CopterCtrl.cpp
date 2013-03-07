@@ -86,6 +86,7 @@ void CopterCtrl::initSettings()
 		m_settings->setValue("PidD", QVariant(-0.005d));
 		m_settings->setValue("PidIWindow", QVariant(10));
 		m_settings->setValue("FilterMethod", QVariant(0));
+		m_settings->setValue("WriteLog", QVariant(true));
 		m_settings->setValue("MotorControlFile", QVariant("duty_ns"));
 	}
 
