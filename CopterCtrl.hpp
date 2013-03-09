@@ -5,6 +5,7 @@
 #include <QPointer>
 #include <QSocketNotifier>
 #include <QSettings>
+#include <QVector3D>
 
 #include "CopterAxis.hpp"
 #if QT_VERSION >= 0x050000
@@ -14,33 +15,6 @@
 #endif
 
 QT_FORWARD_DECLARE_CLASS(Accelerometer)
-
-struct Axis {
-	Axis(float _x = 0, float _y = 0, float _z = 0) :
-		x(_x), y(_y), z(_z) {}
-
-	Axis operator +(const Axis& other) {
-		return Axis(x + other.x, y + other.y, z + other.z);
-	}
-	Axis operator -(const Axis& other) {
-		return Axis(x - other.x, y - other.y, z - other.z);
-	}
-	Axis operator *(const float scalar) {
-		return Axis (x * scalar, y * scalar, z * scalar);
-	}
-	Axis operator /(const float scalar) {
-		return Axis (x / scalar, y / scalar, z / scalar);
-	}
-
-	Axis& operator =(const Axis & other) {
-		x = other.x;
-		y = other.y;
-		z = other.z;
-		return *this;
-	}
-
-	float x, y, z;
-};
 
 class CopterCtrl : public QObject
 {
@@ -52,8 +26,8 @@ public:
 	float tiltY() const { return m_axisY->tilt(); }
 	void tiltX(float _tilt) const { m_axisX->tilt(_tilt); m_axisX->setPower(m_power); }
 	void tiltY(float _tilt) const { m_axisY->tilt(_tilt); m_axisY->setPower(m_power); }
-	void adjustTilt(float tiltX, float tiltY) const { Axis tilt(tiltX, tiltY); adjustTilt(tilt); }
-	void adjustTilt(Axis tilt) const;
+	void adjustTilt(float tiltX, float tiltY) const { QVector3D tilt(tiltX, tiltY, 0); adjustTilt(tilt); }
+	void adjustTilt(QVector3D tilt) const;
 	void adjustPower(int _incr);
 	enum CopterState { IDLE = 0,
 										 ADJUSTING_ACCEL,
@@ -89,12 +63,12 @@ public:
 public slots:
 	void setState(CopterState _state = IDLE) { m_state = _state; emit stateChanged(m_state); }
 	void setupAccelZeroAxis();
-	void handleTilt(Axis tilt);
+	void handleTilt(QVector3D tilt);
 	void tcpLog(const QString& message);
 	void emergencyStop();
 
 protected slots:
-	void onAccelerometerRead(Axis val);
+	void onAccelerometerRead(QVector3D val);
 	void onConnection();
 	void onDisconnected();
 	void onNetworkRead();
@@ -104,10 +78,9 @@ protected slots:
 	void onMotorPowerChange(float power);
 
 signals:
-	void lcdUpdate(int);
 	void stateChanged(CopterState state);
-	void accelerometerRead(Axis val);
-	void zeroAxisChanged(Axis val);
+	void accelerometerRead(QVector3D val);
+	void zeroAxisChanged(QVector3D val);
 	void buttonPressed(BoardButton button);
 	void buttonReleased(BoardButton button);
 	void motorPowerChanged(CopterCtrl::Motor motor, float power);
@@ -125,9 +98,9 @@ protected:
 	int                  m_buttonsInputFd;
 	QPointer<QSocketNotifier> m_buttonsInputNotifier;
 
-	Axis m_lastTilt;
-	QVector<Axis> m_pidIntegralVector;
-	Axis m_pidIntegral;
+	QVector3D m_lastTilt;
+	QVector<QVector3D> m_pidIntegralVector;
+	QVector3D m_pidIntegral;
 	unsigned int m_pidCounter;
 
 	Accelerometer* m_accel;

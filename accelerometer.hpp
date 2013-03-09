@@ -13,11 +13,11 @@ public:
 	explicit Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QObject *parent = 0);
 	
 	void adjustZeroAxis();
-	Axis zeroAxis() { return m_zeroAxis; }
+	QVector3D zeroAxis() { return m_zeroAxis; }
 
 signals:
-	void accelerometerRead(Axis val);
-	void zeroAxisChanged(Axis val);
+	void accelerometerRead(QVector3D val);
+	void zeroAxisChanged(QVector3D val);
 
 public slots:
 	void onRead();
@@ -25,14 +25,14 @@ public slots:
 	void writeToLog(QStringList values);
 
 private:
-	Axis filterAxis(Axis axis);
-	Axis filterMean(Axis axis);
-	Axis filterKalman(Axis axis);
-	Axis filterLinear(Axis axis);
-	Axis filterLinearAlt(Axis axis);
+	QVector3D filterAxis(QVector3D axis);
+	QVector3D filterMean(QVector3D axis);
+	QVector3D filterKalman(QVector3D axis);
+	QVector3D filterLinear(QVector3D axis);
+	QVector3D filterLinearAlt(QVector3D axis);
 
-	Axis m_kalmanOpt;
-	Axis m_linearOpt[3];
+	QVector3D m_kalmanOpt;
+	QVector3D m_linearOpt[3];
 
 	QFile* m_logFile;
 	QTextStream* m_logStream;
@@ -41,9 +41,9 @@ private:
 	float minVal, maxVal;
 	int m_adjustCounter;
 	int m_inputFd;
-	Axis m_zeroAxis;
-	Axis m_curAxis;
-	Axis m_prevAxis[5];
+	QVector3D m_zeroAxis;
+	QVector3D m_curAxis;
+	QVector3D m_prevAxis[5];
 	int m_meanCounter;
 	int m_linearCounter;
 	CopterCtrl* m_copterCtrl;

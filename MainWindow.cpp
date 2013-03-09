@@ -11,7 +11,7 @@ MainWindow::MainWindow(CopterCtrl *copterCtrl, QWidget* _parent) :
 	m_ui->setupUi(this);
 
 	connect(m_copterCtrl, SIGNAL(stateChanged(CopterState)), this, SLOT(onStateChange()));
-	connect(m_copterCtrl, SIGNAL(accelerometerRead(Axis)), this, SLOT(onAccelerometerRead(Axis)));
+	connect(m_copterCtrl, SIGNAL(accelerometerRead(QVector3D)), this, SLOT(onAccelerometerRead(QVector3D)));
 	connect(m_copterCtrl, SIGNAL(motorPowerChanged(CopterCtrl::Motor,float)),
 					this, SLOT(onMotorPowerChange(CopterCtrl::Motor,float)));
 
@@ -32,11 +32,11 @@ void MainWindow::onStateChange()
 	statusBar()->showMessage(m_copterCtrl->stateString());
 }
 
-void MainWindow::onAccelerometerRead(Axis val)
+void MainWindow::onAccelerometerRead(QVector3D val)
 {
-	m_ui->cur_accel_x->setText(QString::number(static_cast<int>(val.x)));
-	m_ui->cur_accel_y->setText(QString::number(static_cast<int>(val.y)));
-	m_ui->cur_accel_z->setText(QString::number(static_cast<int>(val.z)));
+	m_ui->cur_accel_x->setText(QString::number(static_cast<int>(val.x())));
+	m_ui->cur_accel_y->setText(QString::number(static_cast<int>(val.y())));
+	m_ui->cur_accel_z->setText(QString::number(static_cast<int>(val.z())));
 }
 
 void MainWindow::onMotorPowerChange(CopterCtrl::Motor motor, float power)

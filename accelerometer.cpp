@@ -20,8 +20,8 @@ Accelerometer::Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QO
 	m_kalmanOpt()
 {
 	// TODO: write with vectors
-	for (int i = 0; i < 5; ++i) m_prevAxis[i] = Axis();
-	for (int i = 0; i < 3; ++i) m_linearOpt[i] = Axis();
+	for (int i = 0; i < 5; ++i) m_prevAxis[i] = QVector3D();
+	for (int i = 0; i < 3; ++i) m_linearOpt[i] = QVector3D();
 	m_inputFd = ::open(inputPath.toLatin1().data(), O_SYNC, O_RDONLY);
 	if (m_inputFd == -1)
 		qDebug() << "Cannot open accelerometer input file " << inputPath << ", reason: " << errno;
@@ -62,13 +62,13 @@ void Accelerometer::onRead()
 	switch (evt.code)
 	{
 		case ABS_X:
-			m_curAxis.x = evt.value;
+			m_curAxis.setX(evt.value);
 			break;
 		case ABS_Y:
-			m_curAxis.y = evt.value;
+			m_curAxis.setY(evt.value);
 			break;
 		case ABS_Z:
-			m_curAxis.z = evt.value;
+			m_curAxis.setZ(evt.value);
 			break;
 	}
 }
@@ -100,9 +100,9 @@ void Accelerometer::writeToLog(QStringList values)
 	}
 }
 
-Axis Accelerometer::filterAxis(Axis axis)
+QVector3D Accelerometer::filterAxis(QVector3D axis)
 {
-	Axis res;
+	QVector3D res;
 	switch (m_copterCtrl->getSettings()->value("FilterMethod").toInt()) {
 		case 0: res = filterMean(axis); break;
 		case 1: res = filterKalman(axis); break;
@@ -115,29 +115,29 @@ Axis Accelerometer::filterAxis(Axis axis)
 		default: res = filterKalman(axis); break;
 	}
 	QStringList vals;
-	vals << QString::number(axis.x) << QString::number(axis.y) << QString::number(axis.z)
-			 << QString::number(res.x) << QString::number(res.y) << QString::number(res.z);
+	vals << QString::number(axis.x()) << QString::number(axis.y()) << QString::number(axis.z())
+			 << QString::number(res.x()) << QString::number(res.y()) << QString::number(res.z());
 	writeToLog(vals);
 	return res;
 }
 
-Axis Accelerometer::filterMean(Axis axis)
+QVector3D Accelerometer::filterMean(QVector3D axis)
 {
-	Axis countedAxis;
+	QVector3D countedAxis;
 	m_prevAxis[m_meanCounter] = axis;
 	m_meanCounter = (m_meanCounter + 1) % 5;
 	for (int i = 0; i < 5; ++i) countedAxis = countedAxis + m_prevAxis[i] / 5;
 	return countedAxis;
 }
 
-Axis Accelerometer::filterKalman(Axis axis)
+QVector3D Accelerometer::filterKalman(QVector3D axis)
 {
 	float k = m_copterCtrl->getSettings()->value("KalmanK").toFloat();
 	m_kalmanOpt = m_kalmanOpt * k + axis * (1 - k);
 	return m_kalmanOpt;
 }
 
-Axis Accelerometer::filterLinear(Axis axis)
+QVector3D Accelerometer::filterLinear(QVector3D axis)
 {
 	m_linearCounter = (m_linearCounter + 1) % 3;
 	m_linearOpt[m_linearCounter] = (axis +
@@ -147,7 +147,7 @@ Axis Accelerometer::filterLinear(Axis axis)
 	return m_linearOpt[m_linearCounter];
 }
 
-Axis Accelerometer::filterLinearAlt(Axis axis)
+QVector3D Accelerometer::filterLinearAlt(QVector3D axis)
 {
 	m_linearCounter = (m_linearCounter + 1) % 2;
 	m_linearOpt[m_linearCounter] = (axis +
@@ -159,6 +159,8 @@ Axis Accelerometer::filterLinearAlt(Axis axis)
 void Accelerometer::adjustZeroAxis()
 {
 	m_adjustCounter = 0;
-	m_zeroAxis.x = m_zeroAxis.y = m_zeroAxis.z = 0;
+	m_zeroAxis.setX(0);
+	m_zeroAxis.setY(0);
+	m_zeroAxis.setZ(0);
 }
 

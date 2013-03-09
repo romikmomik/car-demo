@@ -19,7 +19,7 @@ CopterCtrl::CopterCtrl() :
 	initSettings();
 	initMotors(m_settings->value("ControlPath").toString());
 
-	m_pidIntegralVector = QVector<Axis>(m_settings->value("PidIWindow").toInt(), Axis());
+	m_pidIntegralVector = QVector<QVector3D>(m_settings->value("PidIWindow").toInt(), QVector3D());
 
 	m_tcpServer.listen(QHostAddress::Any, m_settings->value("TcpPort").toInt());
 	connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
@@ -35,10 +35,10 @@ CopterCtrl::CopterCtrl() :
 	m_buttonsInputNotifier->setEnabled(true);
 
 	m_accel = new Accelerometer(m_settings->value("AccelInputPath").toString(), this);
-	connect(m_accel, SIGNAL(accelerometerRead(Axis)),
-					this, SIGNAL(accelerometerRead(Axis)));
-	connect(m_accel, SIGNAL(accelerometerRead(Axis)), this, SLOT(handleTilt(Axis)));
-	connect(m_accel, SIGNAL(zeroAxisChanged(Axis)), this, SIGNAL(zeroAxisChanged(Axis)));
+	connect(m_accel, SIGNAL(accelerometerRead(QVector3D)),
+					this, SIGNAL(accelerometerRead(QVector3D)));
+	connect(m_accel, SIGNAL(accelerometerRead(QVector3D)), this, SLOT(handleTilt(QVector3D)));
+	connect(m_accel, SIGNAL(zeroAxisChanged(QVector3D)), this, SIGNAL(zeroAxisChanged(QVector3D)));
 }
 
 void CopterCtrl::initMotors(const QString& motorControlPath)
@@ -100,10 +100,10 @@ void CopterCtrl::onMotorPowerChange(float power)
 	emit motorPowerChanged(m_motorIds[dynamic_cast<CopterMotor*>(sender())], power);
 }
 
-void CopterCtrl::adjustTilt(Axis tilt) const
+void CopterCtrl::adjustTilt(QVector3D tilt) const
 {
-	m_axisX->tilt(m_axisX->tilt() + tilt.x);
-	m_axisY->tilt(m_axisY->tilt() + tilt.y);
+	m_axisX->tilt(m_axisX->tilt() + tilt.x());
+	m_axisY->tilt(m_axisY->tilt() + tilt.y());
 	m_axisX->setPower(m_power);
 	m_axisY->setPower(m_power);
 }
@@ -132,11 +132,11 @@ void CopterCtrl::setupAccelZeroAxis()
 	QTimer::singleShot(m_settings->value("AccelAdjustingTime").toInt(), this, SLOT(setState()));
 }
 
-void CopterCtrl::onAccelerometerRead(Axis val)
+void CopterCtrl::onAccelerometerRead(QVector3D val)
 {
 }
 
-void CopterCtrl::handleTilt(Axis tilt)
+void CopterCtrl::handleTilt(QVector3D tilt)
 {
 	float pidP = m_settings->value("PidP").toFloat();
 	float pidI = m_settings->value("PidI").toFloat();
@@ -146,7 +146,7 @@ void CopterCtrl::handleTilt(Axis tilt)
 	m_pidIntegral = m_pidIntegral + tilt - m_pidIntegralVector[m_pidCounter];
 	m_pidIntegralVector[m_pidCounter] = tilt;
 	m_pidCounter = (m_pidCounter + 1) % (m_settings->value("PidIWindow").toInt());
-	Axis adj = tilt * pidP + m_pidIntegral * pidI + (tilt - m_lastTilt) * pidD;
+	QVector3D adj = tilt * pidP + m_pidIntegral * pidI + (tilt - m_lastTilt) * pidD;
 
 	adjustTilt(adj);
 	m_lastTilt = tilt;

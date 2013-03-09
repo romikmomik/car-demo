@@ -13,10 +13,9 @@ int main(int argc, char *argv[])
 #ifdef Q_WS_QWS
 	QWSServer::setCursorVisible( false );
 #endif
-
 	a.setStyle(QStyleFactory::create("Cleanlooks"));
-	CopterCtrl* ctrl = new CopterCtrl();
 
+	CopterCtrl* ctrl = new CopterCtrl();
 	if (!ctrl->getSettings()->value("NoGraphics").toBool()) {
 		MainWindow* w = new MainWindow(ctrl);
 		w->show();

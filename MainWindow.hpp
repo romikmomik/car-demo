@@ -12,7 +12,7 @@ public:
 
 public slots:
 	void onStateChange();
-	void onAccelerometerRead(Axis val);
+	void onAccelerometerRead(QVector3D val);
 	void onMotorPowerChange(CopterCtrl::Motor motor, float power);
 
 private:
