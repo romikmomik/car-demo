@@ -68,26 +68,27 @@ void CopterCtrl::initSettings()
 	// TODO: write proper checker
 	if (m_settings->allKeys().count() == 0) {
 		// TODO: move to conf file
-		m_settings->setValue("ControlPath", QVariant("/sys/devices/platform/"));
-		m_settings->setValue("AccelInputPath", QVariant("/dev/input/event1"));
-		m_settings->setValue("ButtonsInputPath", QVariant("/dev/input/event0"));
-		m_settings->setValue("AccelAdjustingTime", QVariant(10000));
-		m_settings->setValue("TcpPort", QVariant(4000));
-		m_settings->setValue("TiltStep", QVariant(0.02d));
-		m_settings->setValue("PowerStep1", QVariant(1));
-		m_settings->setValue("PowerStep2", QVariant(5));
-		m_settings->setValue("PowerMin", QVariant(0));
-		m_settings->setValue("PowerMax", QVariant(100));
-		m_settings->setValue("MotorMax", QVariant(1740000));
-		m_settings->setValue("MotorMin", QVariant(1250000));
-		m_settings->setValue("KalmanK", QVariant(0.95));
-		m_settings->setValue("PidP", QVariant(-0.02d));
-		m_settings->setValue("PidI", QVariant(0.0));
-		m_settings->setValue("PidD", QVariant(-0.005d));
-		m_settings->setValue("PidIWindow", QVariant(10));
-		m_settings->setValue("FilterMethod", QVariant(0));
-		m_settings->setValue("WriteLog", QVariant(true));
-		m_settings->setValue("MotorControlFile", QVariant("duty_ns"));
+		m_settings->setValue("ControlPath", "/sys/devices/platform/");
+		m_settings->setValue("AccelInputPath", "/dev/input/event1");
+		m_settings->setValue("ButtonsInputPath", "/dev/input/event0");
+		m_settings->setValue("AccelAdjustingTime", 10000);
+		m_settings->setValue("TcpPort", 4000);
+		m_settings->setValue("TiltStep", 0.02d);
+		m_settings->setValue("PowerStep1", 1);
+		m_settings->setValue("PowerStep2", 5);
+		m_settings->setValue("PowerMin", 0);
+		m_settings->setValue("PowerMax", 100);
+		m_settings->setValue("MotorMax", 1740000);
+		m_settings->setValue("MotorMin", 1250000);
+		m_settings->setValue("KalmanK", 0.95);
+		m_settings->setValue("PidP", -0.02d);
+		m_settings->setValue("PidI", 0.0);
+		m_settings->setValue("PidD", -0.005d);
+		m_settings->setValue("PidIWindow", 10);
+		m_settings->setValue("FilterMethod", 0);
+		m_settings->setValue("WriteLog", true);
+		m_settings->setValue("MotorControlFile", "duty_ns");
+		m_settings->setValue("NoGraphics", false);
 	}
 
 	m_settings->setFallbacksEnabled(false);
@@ -249,6 +250,14 @@ void CopterCtrl::onNetworkRead()
 			case '>':
 				m_settings->setValue("PidD", QVariant(m_settings->value("PidD").toFloat() / 0.9));
 				tcpLog("PidD changed: " + QString::number(m_settings->value("PidD").toFloat()));
+				break;
+			case '(':
+				m_settings->setValue("PidI", QVariant(m_settings->value("PidI").toFloat() * 0.9));
+				tcpLog("PidI changed: " + QString::number(m_settings->value("PidI").toFloat()));
+				break;
+			case ')':
+				m_settings->setValue("PidI", QVariant(m_settings->value("PidI").toFloat() / 0.9));
+				tcpLog("PidI changed: " + QString::number(m_settings->value("PidI").toFloat()));
 				break;
 		}
 	}

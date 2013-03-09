@@ -17,8 +17,10 @@ int main(int argc, char *argv[])
 	a.setStyle(QStyleFactory::create("Cleanlooks"));
 	CopterCtrl* ctrl = new CopterCtrl();
 
-	MainWindow* w = new MainWindow(ctrl);
-	w->show();
+	if (!ctrl->getSettings()->value("NoGraphics").toBool()) {
+		MainWindow* w = new MainWindow(ctrl);
+		w->show();
+	}
 	return a.exec();
 }
 
