@@ -32,7 +32,10 @@ Accelerometer::Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QO
 	initLogFile();
 }
 
-// TODO: write destructor
+Accelerometer::~Accelerometer()
+{
+	m_logFile->close();
+}
 
 void Accelerometer::onRead()
 {
@@ -78,12 +81,14 @@ void Accelerometer::initLogFile()
 	if (!m_copterCtrl->getSettings()->value("WriteLog").toBool()) {
 		return;
 	}
-	m_logFile = new QFile("./accel-log-" + QTime::currentTime().toString() + ".csv");
+
+	m_logFile = new QFile("./accel-log-" + QTime::currentTime().toString("yyyy-MM-dd-hhmmss") + ".csv");
 	if (!m_logFile->open(QFile::WriteOnly)) {
 		qDebug() << "Can't open log file" << endl;
 	}
 	else {
 		m_logStream = new QTextStream(m_logFile);
+		// header of the csv
 		*m_logStream << "time,x_unfiltered,y_unfiltered,z_unfiltered,x_filtered,y_filtered,z_filtered" << endl;
 	}
 	m_logCounter = 0;

@@ -76,6 +76,8 @@ protected slots:
 	void initMotors(const QString& motorControlPath);
 	void initSettings();
 	void onMotorPowerChange(float power);
+	void adjustSettingsValue(const QString& key, bool increase = true);
+	void onSettingsValueChange(const QString& key, const QVariant& value);
 
 signals:
 	void stateChanged(CopterState state);
@@ -84,6 +86,7 @@ signals:
 	void buttonPressed(BoardButton button);
 	void buttonReleased(BoardButton button);
 	void motorPowerChanged(CopterCtrl::Motor motor, float power);
+	void settingsValueChanged(QString key, QVariant value);
 
 protected:
 	int m_power;

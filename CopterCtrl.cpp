@@ -93,11 +93,47 @@ void CopterCtrl::initSettings()
 
 	m_settings->setFallbacksEnabled(false);
 	m_settings->sync();
+
+	connect(this, SIGNAL(settingsValueChanged(QString,QVariant)), this, SLOT(onSettingsValueChange(QString,QVariant)));
 }
 
 void CopterCtrl::onMotorPowerChange(float power)
 {
 	emit motorPowerChanged(m_motorIds[dynamic_cast<CopterMotor*>(sender())], power);
+}
+
+void CopterCtrl::adjustSettingsValue(const QString &key, bool increase)
+{
+	QVariant::Type type = m_settings->value(key).type();
+	switch(type) {
+		case QMetaType::Int:
+			m_settings->setValue(key, m_settings->value(key).toInt() + (increase ? 1 : -1));
+			break;
+		case QMetaType::Float:
+			m_settings->setValue(key, m_settings->value(key).toFloat() * (increase ? 0.9 : (1.0 / 0.9)));
+			break;
+		case QMetaType::Double:
+			m_settings->setValue(key, m_settings->value(key).toDouble() * (increase ? 0.9 : (1.0 / 0.9)));
+			break;
+		case QMetaType::Bool:
+			m_settings->setValue(key, increase);
+			break;
+		default:
+			tcpLog("Inappropriate type for adjusting: " + QString(QMetaType::typeName(type)));
+			return;
+			break;
+	}
+	emit settingsValueChanged(key, m_settings->value(key));
+}
+
+void CopterCtrl::onSettingsValueChange(const QString &key, const QVariant &value)
+{
+	if (value.canConvert(QVariant::String)) {
+		tcpLog("Settings value for key " + key + " changed. New value: " + value.toString());
+	}
+	else {
+		tcpLog("Settings value for key " + key + " changed. Value is inconvertable to string");
+	}
 }
 
 void CopterCtrl::adjustTilt(QVector3D tilt) const
@@ -156,7 +192,7 @@ void CopterCtrl::tcpLog(const QString &message)
 {
 	if (!m_tcpConnection.isNull()) {
 		m_tcpConnection->write(message.toAscii());
-		m_tcpConnection->write("\n");
+		m_tcpConnection->write("\n\r");
 	}
 }
 
@@ -219,46 +255,16 @@ void CopterCtrl::onNetworkRead()
 			case 'V': adjustPower(+s_power_max); break;
 			case '0': setupAccelZeroAxis(); break;
 			case 'a': emergencyStop(); break;
-			case '[':
-				m_settings->setValue("MotorMax", QVariant(m_settings->value("MotorMax").toInt() - 1));
-				tcpLog("MotorMax changed: " + QString::number(m_settings->value("MotorMax").toInt()));
-				break;
-			case ']':
-				m_settings->setValue("MotorMax", QVariant(m_settings->value("MotorMax").toInt() + 1));
-				tcpLog("MotorMax changed: " + QString::number(m_settings->value("MotorMax").toInt()));
-				break;
-			case '{':
-				m_settings->setValue("MotorMin", QVariant(m_settings->value("MotorMin").toInt() - 1));
-				tcpLog("MotorMin changed: " + QString::number(m_settings->value("MotorMin").toInt()));
-				break;
-			case '}':
-				m_settings->setValue("MotorMin", QVariant(m_settings->value("MotorMin").toInt() + 1));
-				tcpLog("MotorMin changed: " + QString::number(m_settings->value("MotorMin").toInt()));
-				break;
-			case ',':
-				m_settings->setValue("PidP", QVariant(m_settings->value("PidP").toFloat() * 0.9));
-				tcpLog("PidP changed: " + QString::number(m_settings->value("PidP").toFloat()));
-				break;
-			case '.':
-				m_settings->setValue("PidP", QVariant(m_settings->value("PidP").toFloat() / 0.9));
-				tcpLog("PidP changed: " + QString::number(m_settings->value("PidP").toFloat()));
-				break;
-			case '<':
-				m_settings->setValue("PidD", QVariant(m_settings->value("PidD").toFloat() * 0.9));
-				tcpLog("PidD changed: " + QString::number(m_settings->value("PidD").toFloat()));
-				break;
-			case '>':
-				m_settings->setValue("PidD", QVariant(m_settings->value("PidD").toFloat() / 0.9));
-				tcpLog("PidD changed: " + QString::number(m_settings->value("PidD").toFloat()));
-				break;
-			case '(':
-				m_settings->setValue("PidI", QVariant(m_settings->value("PidI").toFloat() * 0.9));
-				tcpLog("PidI changed: " + QString::number(m_settings->value("PidI").toFloat()));
-				break;
-			case ')':
-				m_settings->setValue("PidI", QVariant(m_settings->value("PidI").toFloat() / 0.9));
-				tcpLog("PidI changed: " + QString::number(m_settings->value("PidI").toFloat()));
-				break;
+			case '[': adjustSettingsValue("MotorMax", false); break;
+			case ']': adjustSettingsValue("MotorMax", true); break;
+			case '{': adjustSettingsValue("MotorMin", false); break;
+			case '}': adjustSettingsValue("MotorMin", true); break;
+			case ',': adjustSettingsValue("PidP", false); break;
+			case '.': adjustSettingsValue("PidP", true); break;
+			case '<': adjustSettingsValue("PidD", false); break;
+			case '>': adjustSettingsValue("PidD", true); break;
+			case '(': adjustSettingsValue("PidI", false); break;
+			case ')': adjustSettingsValue("PidI", true); break;
 		}
 	}
 }

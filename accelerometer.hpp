@@ -11,6 +11,7 @@ class Accelerometer : public QObject
 	Q_OBJECT
 public:
 	explicit Accelerometer(const QString inputPath, CopterCtrl* copterCtrl, QObject *parent = 0);
+	~Accelerometer();
 	
 	void adjustZeroAxis();
 	QVector3D zeroAxis() { return m_zeroAxis; }
