@@ -9,6 +9,8 @@
 
 CopterCtrl::CopterCtrl() :
 	m_power(0),
+	m_angle(0),
+	m_camAngle(0),
 	m_tcpServer(),
 	m_tcpConnection()
 {
@@ -17,6 +19,8 @@ CopterCtrl::CopterCtrl() :
 
 	m_tcpServer.listen(QHostAddress::Any, m_settings->value("TcpPort").toInt());
 	connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
+	m_androidServer.listen(QHostAddress::Any, m_settings->value("AndroidPort").toInt());
+	connect(&m_androidServer, SIGNAL(newConnection()), this, SLOT(onAndroidConnection()));
 }
 
 void CopterCtrl::initMotors(const QString& motorControlPath)
@@ -40,6 +44,7 @@ void CopterCtrl::initSettings()
 		// TODO: move to conf file
 		m_settings->setValue("ControlPath", "/sys/devices/platform/");
 		m_settings->setValue("TcpPort", 4000);
+		m_settings->setValue("AndroidPort", 4444);
 		m_settings->setValue("PowerStep1", 5);
 		m_settings->setValue("PowerStep2", 20);
 		m_settings->setValue("PowerMin", -100);
@@ -195,3 +200,41 @@ void CopterCtrl::onNetworkRead()
 	}
 }
 
+
+void CopterCtrl::onAndroidConnection()
+{
+	if (!m_androidConnection.isNull())
+		qDebug() << "Replacing existing android connection";
+	m_androidConnection = m_androidServer.nextPendingConnection();
+	qDebug() << "Accepted new android connection";
+	m_androidConnection->setSocketOption(QAbstractSocket::LowDelayOption, 1);
+	connect(m_androidConnection, SIGNAL(disconnected()), this, SLOT(onAndroidDisconnected()));
+	connect(m_androidConnection, SIGNAL(readyRead()), this, SLOT(onAndroidNetworkRead()));
+}
+
+void CopterCtrl::onAndroidDisconnected()
+{
+	qDebug() << "Existing android connection disconnected";
+	m_androidConnection = 0;
+}
+
+void CopterCtrl::onAndroidNetworkRead()
+{
+	if (m_androidConnection.isNull())
+		return;
+
+	while (m_androidConnection->isReadable())
+	{
+		QString command = QString(m_androidConnection->readAll());
+		QStringList cmd = command.split(" ");
+		if (cmd.at(0) == "power") {
+			setPower(cmd.at(1).toInt());
+		}
+		else if (cmd.at(0) == "angle") {
+			setAngle(cmd.at(1).toInt());
+		}
+		else {
+			qDebug() << "Unknown command: " + cmd.at(0) << endl;
+		}
+	}
+}

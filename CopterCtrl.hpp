@@ -37,6 +37,9 @@ protected slots:
 	void onConnection();
 	void onDisconnected();
 	void onNetworkRead();
+	void onAndroidConnection();
+	void onAndroidDisconnected();
+	void onAndroidNetworkRead();
 	void initMotors(const QString& motorControlPath);
 	void initSettings();
 	void adjustSettingsValue(const QString& key, bool increase = true);
@@ -57,6 +60,8 @@ protected:
 
 	QTcpServer           m_tcpServer;
 	QPointer<QTcpSocket> m_tcpConnection;
+	QTcpServer           m_androidServer;
+	QPointer<QTcpSocket> m_androidConnection;
 };
 
 #endif // COPTERCTRL_HPP
