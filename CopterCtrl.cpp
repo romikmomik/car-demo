@@ -100,8 +100,8 @@ void CopterCtrl::adjustPower(int _incr)
 
 void CopterCtrl::setPower(int _power)
 {
-	static const int s_power_min = m_settings->value("PowerMotorMin").toInt();
-	static const int s_power_max = m_settings->value("PowerMotorMax").toInt();
+	static const int s_power_min = m_settings->value("PowerMin").toInt();
+	static const int s_power_max = m_settings->value("PowerMax").toInt();
 
 	m_power = _power;
 	m_power = qMax(qMin(m_power, s_power_max), s_power_min);
@@ -117,8 +117,8 @@ void CopterCtrl::adjustAngle(int angle)
 
 void CopterCtrl::setAngle(int angle)
 {
-	static const int s_angle_min = m_settings->value("AngleMotorMin").toInt();
-	static const int s_angle_max = m_settings->value("AngleMotorMax").toInt();
+	static const int s_angle_min = m_settings->value("PowerMin").toInt();
+	static const int s_angle_max = m_settings->value("PowerMax").toInt();
 
 	m_angle = angle;
 	m_angle = qMax(qMin(m_angle, s_angle_max), s_angle_min);
