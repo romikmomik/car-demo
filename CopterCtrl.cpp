@@ -154,7 +154,7 @@ void CopterCtrl::onNetworkRead()
 			break;
 		switch (c)
 		{
-			case 'Z': adjustPower(-s_power_max); break;
+			case 'Z': setPower(0); break;
 			case 'z': adjustPower(-s_power_step2); break;
 			case 'x': adjustPower(-s_power_step1); break;
 			case 'c': adjustPower(+s_power_step1); break;
