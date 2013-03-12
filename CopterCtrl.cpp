@@ -36,8 +36,8 @@ void CopterCtrl::initSettings()
 		// TODO: move to conf file
 		m_settings->setValue("ControlPath", "/sys/devices/platform/");
 		m_settings->setValue("TcpPort", 4000);
-		m_settings->setValue("PowerStep1", 1);
-		m_settings->setValue("PowerStep2", 5);
+		m_settings->setValue("PowerStep1", 5);
+		m_settings->setValue("PowerStep2", 20);
 		m_settings->setValue("PowerMin", -100);
 		m_settings->setValue("PowerMax", 100); // null 1540000
 		m_settings->setValue("MotorMax", 1680000);
@@ -89,10 +89,15 @@ void CopterCtrl::onSettingsValueChange(const QString &key, const QVariant &value
 
 void CopterCtrl::adjustPower(int _incr)
 {
+	setPower(m_power + _incr);
+}
+
+void CopterCtrl::setPower(int _power)
+{
 	static const int s_power_min = m_settings->value("PowerMin").toInt();
 	static const int s_power_max = m_settings->value("PowerMax").toInt();
 
-	m_power += _incr;
+	m_power = _power;
 	m_power = qMax(qMin(m_power, s_power_max), s_power_min);
 	tcpLog("Motor power changed: " + QString::number(m_power));
 

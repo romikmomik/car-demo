@@ -23,6 +23,7 @@ public:
 	CopterCtrl();
 
 	void adjustPower(int _incr);
+	void setPower(int _power);
 
 	QSettings* getSettings() { return m_settings; }
 
