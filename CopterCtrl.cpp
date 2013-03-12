@@ -223,7 +223,7 @@ void CopterCtrl::onAndroidNetworkRead()
 	if (m_androidConnection.isNull())
 		return;
 
-	while (m_androidConnection->isReadable())
+	while (m_androidConnection->bytesAvailable() > 0)
 	{
 		QString command = QString(m_androidConnection->readAll());
 		QStringList cmd = command.split(" ");
