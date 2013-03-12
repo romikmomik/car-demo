@@ -19,20 +19,13 @@ TARGET =        copter-pwm-ctrl-qt
 SOURCES +=      \
     CopterMotor.cpp \
     CopterCtrl.cpp \
-    CopterAxis.cpp \
-    MainWindow.cpp \
-    Main.cpp \
-    accelerometer.cpp
+    Main.cpp
 
 HEADERS +=      \
     CopterMotor.hpp \
-    CopterCtrl.hpp \
-    CopterAxis.hpp \
-    MainWindow.hpp \
-    accelerometer.hpp
+    CopterCtrl.hpp
 
-FORMS += \       
-    MainWindow.ui
+FORMS +=        
 
 QMAKE_CXXFLAGS += -std=c++0x
 QMAKE_CXXFLAGS_WARN_ON = -Wno-reorder
