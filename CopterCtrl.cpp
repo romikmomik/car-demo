@@ -22,8 +22,12 @@ CopterCtrl::CopterCtrl() :
 void CopterCtrl::initMotors(const QString& motorControlPath)
 {
 	QString motorControlFile = m_settings->value("MotorControlFile").toString();
-	m_powerMotor = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:1/" + motorControlFile);
-	m_angleMotor = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
+	int powerMax = m_settings->value("PowerMotorMax").toInt();
+	int powerMin = m_settings->value("PowerMotorMin").toInt();
+	int angleMax = m_settings->value("AngleMotorMax").toInt();
+	int angleMin = m_settings->value("AngleMotorMin").toInt();
+	m_powerMotor = new CopterMotor(powerMin, powerMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:1/" + motorControlFile);
+	m_angleMotor = new CopterMotor(angleMin, angleMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
 //	m_cameraMotor = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
 }
 
@@ -40,10 +44,12 @@ void CopterCtrl::initSettings()
 		m_settings->setValue("PowerStep2", 20);
 		m_settings->setValue("PowerMin", -100);
 		m_settings->setValue("PowerMax", 100); // null 1540000
-		m_settings->setValue("MotorMax", 1680000);
-		m_settings->setValue("MotorMin", 1540000);
-		m_settings->setValue("WriteLog", true);
+		m_settings->setValue("PowerMotorMax", 1680000);
+		m_settings->setValue("PowerMotorMin", 1540000);
+		m_settings->setValue("AngleMotorMax", 1500000);
+		m_settings->setValue("AngleMotorMin", 1800000);
 		m_settings->setValue("MotorControlFile", "duty_ns");
+		// servo 1500000 +- 300000
 	}
 
 	m_settings->setFallbacksEnabled(false);
@@ -94,14 +100,31 @@ void CopterCtrl::adjustPower(int _incr)
 
 void CopterCtrl::setPower(int _power)
 {
-	static const int s_power_min = m_settings->value("PowerMin").toInt();
-	static const int s_power_max = m_settings->value("PowerMax").toInt();
+	static const int s_power_min = m_settings->value("PowerMotorMin").toInt();
+	static const int s_power_max = m_settings->value("PowerMotorMax").toInt();
 
 	m_power = _power;
 	m_power = qMax(qMin(m_power, s_power_max), s_power_min);
 	tcpLog("Motor power changed: " + QString::number(m_power));
 
 	m_powerMotor->invoke(m_power);
+}
+
+void CopterCtrl::adjustAngle(int angle)
+{
+	setPower(m_angle + angle);
+}
+
+void CopterCtrl::setAngle(int angle)
+{
+	static const int s_angle_min = m_settings->value("AngleMotorMin").toInt();
+	static const int s_angle_max = m_settings->value("AngleMotorMax").toInt();
+
+	m_angle = angle;
+	m_angle = qMax(qMin(m_angle, s_angle_max), s_angle_min);
+	tcpLog("Angle power changed: " + QString::number(m_angle));
+
+	m_angleMotor->invoke(m_angle);
 }
 
 void CopterCtrl::tcpLog(const QString &message)
@@ -154,10 +177,10 @@ void CopterCtrl::onNetworkRead()
 			break;
 		switch (c)
 		{
-			case 'Z': setPower(0); break;
+			case 'Z': setPower(0); setAngle(0); break;
 			case 'z': adjustPower(-s_power_step2); break;
-			case 'x': adjustPower(-s_power_step1); break;
-			case 'c': adjustPower(+s_power_step1); break;
+			case 'x': adjustAngle(-s_power_step1); break;
+			case 'c': adjustAngle(+s_power_step1); break;
 			case 'v': adjustPower(+s_power_step2); break;
 			case 'V': adjustPower(+s_power_max); break;
 			case 'a': emergencyStop(); break;

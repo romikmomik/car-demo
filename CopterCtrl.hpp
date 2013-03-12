@@ -24,6 +24,8 @@ public:
 
 	void adjustPower(int _incr);
 	void setPower(int _power);
+	void adjustAngle(int angle);
+	void setAngle(int angle);
 
 	QSettings* getSettings() { return m_settings; }
 
@@ -45,6 +47,8 @@ signals:
 
 protected:
 	int m_power;
+	int m_angle;
+	int m_camAngle;
 
 	CopterMotor* m_powerMotor;
 	CopterMotor* m_angleMotor;

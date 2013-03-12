@@ -10,13 +10,11 @@ void CopterMotor::invoke(int _power)
 	m_ctrlFile.close();
 }
 
-CopterMotor::CopterMotor(QSettings* settings, const QString& _ctrlPath) :
-	m_settings(settings),
-	m_ctrlFile(_ctrlPath)
+CopterMotor::CopterMotor(int motorMin, int motorMax, const QString& _ctrlPath) :
+	m_ctrlFile(_ctrlPath),
+	m_powerMin(motorMin),
+	m_powerMax(motorMax)
 {
-	m_powerMin = m_settings->value("MotorMin").toFloat();
-	m_powerMax = m_settings->value("MotorMax").toFloat();
-
 	invoke(0);
 }
 
