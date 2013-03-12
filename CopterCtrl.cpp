@@ -46,8 +46,8 @@ void CopterCtrl::initSettings()
 		m_settings->setValue("PowerMax", 100); // null 1540000
 		m_settings->setValue("PowerMotorMax", 1680000);
 		m_settings->setValue("PowerMotorMin", 1540000);
-		m_settings->setValue("AngleMotorMax", 1500000);
-		m_settings->setValue("AngleMotorMin", 1800000);
+		m_settings->setValue("AngleMotorMax", 1800000);
+		m_settings->setValue("AngleMotorMin", 1500000);
 		m_settings->setValue("MotorControlFile", "duty_ns");
 		// servo 1500000 +- 300000
 	}
@@ -112,7 +112,7 @@ void CopterCtrl::setPower(int _power)
 
 void CopterCtrl::adjustAngle(int angle)
 {
-	setPower(m_angle + angle);
+	setAngle(m_angle + angle);
 }
 
 void CopterCtrl::setAngle(int angle)
@@ -178,7 +178,14 @@ void CopterCtrl::onNetworkRead()
 		switch (c)
 		{
 			case 'Z': setPower(0); setAngle(0); break;
-			case 'z': adjustPower(-s_power_step2); break;
+			case 'z':
+				if (m_power == 0) {
+					setPower(-100);
+				}
+				else {
+					adjustPower(-s_power_step2);
+				}
+				break;
 			case 'x': adjustAngle(-s_power_step1); break;
 			case 'c': adjustAngle(+s_power_step1); break;
 			case 'v': adjustPower(+s_power_step2); break;
