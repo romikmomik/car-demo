@@ -71,7 +71,7 @@ void CopterCtrl::initSettings()
 		m_settings->setValue("ControlPath", "/sys/devices/platform/");
 		m_settings->setValue("AccelInputPath", "/dev/input/event1");
 		m_settings->setValue("ButtonsInputPath", "/dev/input/event0");
-		m_settings->setValue("AccelAdjustingTime", 10000);
+		m_settings->setValue("AccelAdjustingTime", 5000);
 		m_settings->setValue("TcpPort", 4000);
 		m_settings->setValue("TiltStep", 0.02d);
 		m_settings->setValue("PowerStep1", 1);
@@ -79,13 +79,13 @@ void CopterCtrl::initSettings()
 		m_settings->setValue("PowerMin", 0);
 		m_settings->setValue("PowerMax", 100);
 		m_settings->setValue("MotorMax", 1740000);
-		m_settings->setValue("MotorMin", 1250000);
+		m_settings->setValue("MotorMin", 1200000);
 		m_settings->setValue("KalmanK", 0.95);
 		m_settings->setValue("PidP", -0.02d);
 		m_settings->setValue("PidI", 0.0);
 		m_settings->setValue("PidD", -0.005d);
 		m_settings->setValue("PidIWindow", 10);
-		m_settings->setValue("FilterMethod", 0);
+		m_settings->setValue("FilterMethod", 3);
 		m_settings->setValue("WriteLog", true);
 		m_settings->setValue("MotorControlFile", "duty_ns");
 		m_settings->setValue("NoGraphics", false);
