@@ -225,8 +225,10 @@ void CopterCtrl::onAndroidNetworkRead()
 
 	while (m_androidConnection->bytesAvailable() > 0)
 	{
-		QString command = QString(m_androidConnection->readAll());
-		QStringList cmd = command.split(" ");
+		char data[100];
+		m_androidConnection->readLineData(data);
+		QString command(data);// = QString(m_androidConnection->readAll());
+		QStringList cmd = command.split(" ", QString::SkipEmptyParts);
 		if (cmd.at(0) == "power") {
 			setPower(cmd.at(1).toInt());
 		}
