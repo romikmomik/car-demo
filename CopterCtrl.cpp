@@ -22,12 +22,9 @@ CopterCtrl::CopterCtrl() :
 void CopterCtrl::initMotors(const QString& motorControlPath)
 {
 	QString motorControlFile = m_settings->value("MotorControlFile").toString();
-	m_powerMotor = new CopterMotor(m_settings, motorControlPath + "ehrpwm.0/pwm/ehrpwm.0:0/" + motorControlFile);
-	m_angleMotor = new CopterMotor(m_settings, motorControlPath + "ehrpwm.0/pwm/ehrpwm.0:1/" + motorControlFile);
-	m_cameraMotor = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
-	connect(m_powerMotor, SIGNAL(powerChanged(float)), this, SLOT(onMotorPowerChange(float)));
-	connect(m_angleMotor, SIGNAL(powerChanged(float)), this, SLOT(onMotorPowerChange(float)));
-	connect(m_cameraMotor, SIGNAL(powerChanged(float)), this, SLOT(onMotorPowerChange(float)));
+	m_powerMotor = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:1/" + motorControlFile);
+	m_angleMotor = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
+//	m_cameraMotor = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
 }
 
 void CopterCtrl::initSettings()
@@ -38,17 +35,13 @@ void CopterCtrl::initSettings()
 	if (m_settings->allKeys().count() == 0) {
 		// TODO: move to conf file
 		m_settings->setValue("ControlPath", "/sys/devices/platform/");
-		m_settings->setValue("AccelInputPath", "/dev/input/event1");
-		m_settings->setValue("ButtonsInputPath", "/dev/input/event0");
-		m_settings->setValue("AccelAdjustingTime", 5000);
 		m_settings->setValue("TcpPort", 4000);
-		m_settings->setValue("TiltStep", 0.02d);
 		m_settings->setValue("PowerStep1", 1);
 		m_settings->setValue("PowerStep2", 5);
-		m_settings->setValue("PowerMin", 0);
-		m_settings->setValue("PowerMax", 100);
-		m_settings->setValue("MotorMax", 1740000);
-		m_settings->setValue("MotorMin", 1200000);
+		m_settings->setValue("PowerMin", -100);
+		m_settings->setValue("PowerMax", 100); // null 1540000
+		m_settings->setValue("MotorMax", 1680000);
+		m_settings->setValue("MotorMin", 1540000);
 		m_settings->setValue("WriteLog", true);
 		m_settings->setValue("MotorControlFile", "duty_ns");
 	}
