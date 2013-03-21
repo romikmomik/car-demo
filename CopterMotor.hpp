@@ -8,7 +8,7 @@ class CopterMotor : public QObject
 {
 	Q_OBJECT
 public:
-	CopterMotor(int motorMin, int motorMax, const QString& _ctrlPath, const QString& name = QString());
+	CopterMotor(int motorMin, int motorMax, const QString& _ctrlPath, QSettings* settings, const QString& name = QString());
 	~CopterMotor();
 
 	void invoke(int _power);

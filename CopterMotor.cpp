@@ -1,7 +1,8 @@
 #include "CopterMotor.hpp"
 
-CopterMotor::CopterMotor(int motorMin, int motorMax, const QString& _ctrlPath, const QString& name) :
+CopterMotor::CopterMotor(int motorMin, int motorMax, const QString& _ctrlPath, QSettings* settings, const QString& name) :
 	m_ctrlFile(_ctrlPath),
+	m_settings(settings),
 	m_powerMin(motorMin),
 	m_powerMax(motorMax),
 	m_power(0),
