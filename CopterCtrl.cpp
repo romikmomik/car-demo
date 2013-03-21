@@ -154,38 +154,14 @@ void CopterCtrl::onAndroidNetworkRead()
 		m_androidConnection->readLine(data, 100);
 		QString command(data);// = QString(m_androidConnection->readAll());
 		QStringList cmd = command.split(" ", QString::SkipEmptyParts);
-		if (cmd.at(0) == "power") {
-			int power = cmd.at(1).toInt();
-			m_leftMotor->setPower(power);
-			m_rightMotor->setPower(power);
-			if (power > 0) m_forward = true;
-			if (power < 0) m_forward = false;
+		if (cmd.at(0) == "left") {
+			m_leftMotor->setPower(cmd.at(1).toInt());
+		}
+		else if (cmd.at(0) == "right") {
+			m_rightMotor->setPower(cmd.at(1).toInt());
 		}
 		else if (cmd.at(0) == "hand") {
 			m_handMotor->setPower(cmd.at(1).toInt());
-		}
-		else if (cmd.at(0) == "angle") {
-			int angle = cmd.at(1).toInt();
-			if (angle > 50) {
-				if (m_forward) {
-					m_rightMotor->setPower(-abs(m_rightMotor->power()));
-					m_leftMotor->setPower(abs(m_leftMotor->power()));
-				}
-				else {
-					m_rightMotor->setPower(abs(m_rightMotor->power()));
-					m_leftMotor->setPower(-abs(m_leftMotor->power()));
-				}
-			}
-			if (angle < -50) {
-				if (m_forward) {
-					m_rightMotor->setPower(abs(m_rightMotor->power()));
-					m_leftMotor->setPower(-abs(m_leftMotor->power()));
-				}
-				else {
-					m_rightMotor->setPower(-abs(m_rightMotor->power()));
-					m_leftMotor->setPower(abs(m_leftMotor->power()));
-				}
-			}
 		}
 		else {
 			qDebug() << "Unknown command: " + cmd.at(0) << endl;
