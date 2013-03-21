@@ -46,6 +46,8 @@ protected:
 	CopterMotor* m_handMotor;
 	QSettings* m_settings;
 
+	bool m_forward;
+
 	QTcpServer           m_tcpServer;
 	QPointer<QTcpSocket> m_tcpConnection;
 	QTcpServer           m_androidServer;

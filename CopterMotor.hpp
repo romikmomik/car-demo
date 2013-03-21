@@ -12,6 +12,7 @@ public:
 	~CopterMotor();
 
 	void invoke(int _power);
+	int power() const { return m_power; }
 
 public slots:
 	void emergencyStop();

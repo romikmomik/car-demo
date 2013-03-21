@@ -9,7 +9,8 @@
 
 CopterCtrl::CopterCtrl() :
 	m_tcpServer(),
-	m_tcpConnection()
+	m_tcpConnection(),
+	m_forward(true)
 {
 	initSettings();
 	initMotors(m_settings->value("ControlPath").toString());
@@ -30,7 +31,7 @@ void CopterCtrl::initMotors(const QString& motorControlPath)
 	int handMin = m_settings->value("HandMotorMin").toInt();
 	m_rightMotor = new CopterMotor(powerMin, powerMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:1/" + motorControlFile, m_settings, "Right");
 	m_leftMotor = new CopterMotor(powerMin, powerMax, motorControlPath + "ehrpwm.0/pwm/ehrpwm.0:1/" + motorControlFile, m_settings, "Left");
-	m_handMotor = new CopterMotor(handMin, handMax, motorControlPath + "ehrpwm.0/pwm/ehrpwm.0:0/" + motorControlFile, m_settings, "Hand");
+	m_handMotor = new CopterMotor(handMin, handMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile, m_settings, "Hand");
 
 	connect(m_rightMotor, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
 	connect(m_leftMotor, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
@@ -117,7 +118,7 @@ void CopterCtrl::onNetworkRead()
 			case 'z': m_leftMotor->adjustPower(-s_power_step2); m_rightMotor->adjustPower(-s_power_step2); break;
 			case 'x': m_handMotor->adjustPower(-s_power_step1); break;
 			case 'c': m_handMotor->adjustPower(+s_power_step1); break;
-//			case 'v': m_powerMotor->adjustPower(+s_power_step2); break;
+			case 'v': m_leftMotor->adjustPower(+s_power_step2); m_rightMotor->adjustPower(+s_power_step2); break;
 			case 'V': m_leftMotor->adjustPower(+s_power_max); m_rightMotor->adjustPower(+s_power_max); break;
 			case 'a': emergencyStop(); break;
 		}
@@ -147,20 +148,47 @@ void CopterCtrl::onAndroidNetworkRead()
 	if (m_androidConnection.isNull())
 		return;
 
-//	while (m_androidConnection->bytesAvailable() > 0)
-//	{
-//		char data[100];
-//		m_androidConnection->readLine(data, 100);
-//		QString command(data);// = QString(m_androidConnection->readAll());
-//		QStringList cmd = command.split(" ", QString::SkipEmptyParts);
-//		if (cmd.at(0) == "power") {
-//			m_powerMotor->setPower(cmd.at(1).toInt());
-//		}
-//		else if (cmd.at(0) == "angle") {
-//			m_angleMotor->setPower(cmd.at(1).toInt());
-//		}
-//		else {
-//			qDebug() << "Unknown command: " + cmd.at(0) << endl;
-//		}
-//	}
+	while (m_androidConnection->bytesAvailable() > 0)
+	{
+		char data[100];
+		m_androidConnection->readLine(data, 100);
+		QString command(data);// = QString(m_androidConnection->readAll());
+		QStringList cmd = command.split(" ", QString::SkipEmptyParts);
+		if (cmd.at(0) == "power") {
+			int power = cmd.at(1).toInt();
+			m_leftMotor->setPower(power);
+			m_rightMotor->setPower(power);
+			if (power > 0) m_forward = true;
+			if (power < 0) m_forward = false;
+		}
+		else if (cmd.at(0) == "hand") {
+			m_handMotor->setPower(cmd.at(1).toInt());
+		}
+		else if (cmd.at(0) == "angle") {
+			int angle = cmd.at(1).toInt();
+			if (angle > 50) {
+				if (m_forward) {
+					m_rightMotor->setPower(-abs(m_rightMotor->power()));
+					m_leftMotor->setPower(abs(m_leftMotor->power()));
+				}
+				else {
+					m_rightMotor->setPower(abs(m_rightMotor->power()));
+					m_leftMotor->setPower(-abs(m_leftMotor->power()));
+				}
+			}
+			if (angle < -50) {
+				if (m_forward) {
+					m_rightMotor->setPower(abs(m_rightMotor->power()));
+					m_leftMotor->setPower(-abs(m_leftMotor->power()));
+				}
+				else {
+					m_rightMotor->setPower(-abs(m_rightMotor->power()));
+					m_leftMotor->setPower(abs(m_leftMotor->power()));
+				}
+			}
+		}
+		else {
+			qDebug() << "Unknown command: " + cmd.at(0) << endl;
+		}
+	}
 }
