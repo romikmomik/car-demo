@@ -8,9 +8,6 @@
 #include <linux/input.h>
 
 CopterCtrl::CopterCtrl() :
-	m_power(0),
-	m_angle(0),
-	m_camAngle(0),
 	m_tcpServer(),
 	m_tcpConnection()
 {
@@ -32,6 +29,9 @@ void CopterCtrl::initMotors(const QString& motorControlPath)
 	int angleMin = m_settings->value("AngleMotorMin").toInt();
 	m_powerMotor = new CopterMotor(powerMin, powerMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:1/" + motorControlFile);
 	m_angleMotor = new CopterMotor(angleMin, angleMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
+
+	connect(m_powerMotor, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
+	connect(m_angleMotor, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
 //	m_cameraMotor = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
 }
 
@@ -63,75 +63,6 @@ void CopterCtrl::initSettings()
 	connect(this, SIGNAL(settingsValueChanged(QString,QVariant)), this, SLOT(onSettingsValueChange(QString,QVariant)));
 }
 
-void CopterCtrl::adjustSettingsValue(const QString &key, bool increase)
-{
-	QVariant::Type type = m_settings->value(key).type();
-	switch(type) {
-		case QMetaType::Int:
-			m_settings->setValue(key, m_settings->value(key).toInt() + (increase ? 1 : -1));
-			break;
-		case QMetaType::Float:
-			m_settings->setValue(key, m_settings->value(key).toFloat() * (increase ? 0.9 : (1.0 / 0.9)));
-			break;
-		case QMetaType::Double:
-			m_settings->setValue(key, m_settings->value(key).toDouble() * (increase ? 0.9 : (1.0 / 0.9)));
-			break;
-		case QMetaType::Bool:
-			m_settings->setValue(key, increase);
-			break;
-		default:
-			tcpLog("Inappropriate type for adjusting: " + QString(QMetaType::typeName(type)));
-			return;
-			break;
-	}
-	emit settingsValueChanged(key, m_settings->value(key));
-}
-
-void CopterCtrl::onSettingsValueChange(const QString &key, const QVariant &value)
-{
-	if (value.canConvert(QVariant::String)) {
-		tcpLog("Settings value for key " + key + " changed. New value: " + value.toString());
-	}
-	else {
-		tcpLog("Settings value for key " + key + " changed. Value is inconvertable to string");
-	}
-}
-
-
-void CopterCtrl::adjustPower(int _incr)
-{
-	setPower(m_power + _incr);
-}
-
-void CopterCtrl::setPower(int _power)
-{
-	static const int s_power_min = m_settings->value("PowerMin").toInt();
-	static const int s_power_max = m_settings->value("PowerMax").toInt();
-
-	m_power = _power;
-	m_power = qMax(qMin(m_power, s_power_max), s_power_min);
-	tcpLog("Motor power changed: " + QString::number(m_power));
-
-	m_powerMotor->invoke(m_power);
-}
-
-void CopterCtrl::adjustAngle(int angle)
-{
-	setAngle(m_angle + angle);
-}
-
-void CopterCtrl::setAngle(int angle)
-{
-	static const int s_angle_min = m_settings->value("PowerMin").toInt();
-	static const int s_angle_max = m_settings->value("PowerMax").toInt();
-
-	m_angle = angle;
-	m_angle = qMax(qMin(m_angle, s_angle_max), s_angle_min);
-	tcpLog("Angle power changed: " + QString::number(m_angle));
-
-	m_angleMotor->invoke(m_angle);
-}
-
 void CopterCtrl::tcpLog(const QString &message)
 {
 	if (!m_tcpConnection.isNull()) {
@@ -144,7 +75,6 @@ void CopterCtrl::emergencyStop()
 {
 	m_powerMotor->invoke(0);
 	m_angleMotor->invoke(0);
-	m_cameraMotor->invoke(0);
 	QApplication::quit();
 }
 
@@ -182,19 +112,12 @@ void CopterCtrl::onNetworkRead()
 			break;
 		switch (c)
 		{
-			case 'Z': setPower(0); setAngle(0); break;
-			case 'z':
-				if (m_power == 0) {
-					setPower(-100);
-				}
-				else {
-					adjustPower(-s_power_step2);
-				}
-				break;
-			case 'x': adjustAngle(-s_power_step1); break;
-			case 'c': adjustAngle(+s_power_step1); break;
-			case 'v': adjustPower(+s_power_step2); break;
-			case 'V': adjustPower(+s_power_max); break;
+			case 'Z': m_powerMotor->setPower(0); m_angleMotor->setPower(0); break;
+			case 'z': m_powerMotor->adjustPower(-s_power_step2);
+			case 'x': m_angleMotor->adjustPower(-s_power_step1); break;
+			case 'c': m_angleMotor->adjustPower(+s_power_step1); break;
+			case 'v': m_powerMotor->adjustPower(+s_power_step2); break;
+			case 'V': m_powerMotor->adjustPower(+s_power_max); break;
 			case 'a': emergencyStop(); break;
 		}
 	}
@@ -230,10 +153,10 @@ void CopterCtrl::onAndroidNetworkRead()
 		QString command(data);// = QString(m_androidConnection->readAll());
 		QStringList cmd = command.split(" ", QString::SkipEmptyParts);
 		if (cmd.at(0) == "power") {
-			setPower(cmd.at(1).toInt());
+			m_powerMotor->setPower(cmd.at(1).toInt());
 		}
 		else if (cmd.at(0) == "angle") {
-			setAngle(cmd.at(1).toInt());
+			m_angleMotor->setPower(cmd.at(1).toInt());
 		}
 		else {
 			qDebug() << "Unknown command: " + cmd.at(0) << endl;

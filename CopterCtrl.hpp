@@ -21,12 +21,6 @@ class CopterCtrl : public QObject
 	Q_OBJECT
 public:
 	CopterCtrl();
-
-	void adjustPower(int _incr);
-	void setPower(int _power);
-	void adjustAngle(int angle);
-	void setAngle(int angle);
-
 	QSettings* getSettings() { return m_settings; }
 
 public slots:
@@ -42,17 +36,11 @@ protected slots:
 	void onAndroidNetworkRead();
 	void initMotors(const QString& motorControlPath);
 	void initSettings();
-	void adjustSettingsValue(const QString& key, bool increase = true);
-	void onSettingsValueChange(const QString& key, const QVariant& value);
 
 signals:
 	void settingsValueChanged(QString key, QVariant value);
 
 protected:
-	int m_power;
-	int m_angle;
-	int m_camAngle;
-
 	CopterMotor* m_powerMotor;
 	CopterMotor* m_angleMotor;
 	CopterMotor* m_cameraMotor;
