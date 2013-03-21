@@ -28,9 +28,9 @@ void CopterCtrl::initMotors(const QString& motorControlPath)
 	int powerMin = m_settings->value("PowerMotorMin").toInt();
 	int handMax = m_settings->value("HandMotorMax").toInt();
 	int handMin = m_settings->value("HandMotorMin").toInt();
-	m_rightMotor = new CopterMotor(powerMin, powerMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:1/" + motorControlFile);
-	m_leftMotor = new CopterMotor(powerMin, powerMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.0:1/" + motorControlFile);
-	m_handMotor = new CopterMotor(handMin, handMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.0:0/" + motorControlFile);
+	m_rightMotor = new CopterMotor(powerMin, powerMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:1/" + motorControlFile, "Right");
+	m_leftMotor = new CopterMotor(powerMin, powerMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.0:1/" + motorControlFile, "Left");
+	m_handMotor = new CopterMotor(handMin, handMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.0:0/" + motorControlFile, "Hand");
 
 	connect(m_rightMotor, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
 	connect(m_leftMotor, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
@@ -61,8 +61,6 @@ void CopterCtrl::initSettings()
 
 	m_settings->setFallbacksEnabled(false);
 	m_settings->sync();
-
-	connect(this, SIGNAL(settingsValueChanged(QString,QVariant)), this, SLOT(onSettingsValueChange(QString,QVariant)));
 }
 
 void CopterCtrl::tcpLog(const QString &message)
