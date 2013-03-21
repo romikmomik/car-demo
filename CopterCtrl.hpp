@@ -41,9 +41,9 @@ signals:
 	void settingsValueChanged(QString key, QVariant value);
 
 protected:
-	CopterMotor* m_powerMotor;
-	CopterMotor* m_angleMotor;
-	CopterMotor* m_cameraMotor;
+	CopterMotor* m_rightMotor;
+	CopterMotor* m_leftMotor;
+	CopterMotor* m_handMotor;
 	QSettings* m_settings;
 
 	QTcpServer           m_tcpServer;
