@@ -179,10 +179,10 @@ void CopterCtrl::onAndroidNetworkRead()
 		else if (cmd.at(0) == "light_sensor") {
 			unsigned int ans = 0;
 			if (cmd.at(1) == "left") {
-				ans = 1347;
+				ans = m_lightSensorLeft->getLight();
 			}
 			else {
-				ans = 41647;
+				ans = m_lightSensorRight->getLight();
 			}
 			char buf[2];
 			buf[0] = (ans >> 8) & 0xff;

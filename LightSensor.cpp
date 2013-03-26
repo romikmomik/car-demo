@@ -6,7 +6,7 @@ LightSensor::LightSensor(const QString &filePath, QObject *parent) :
 	m_file = new QFile(filePath);
 }
 
-int LightSensor::getLight()
+unsigned int LightSensor::getLight()
 {
 	m_file->open(QIODevice::ReadOnly);
 	char data[128];
@@ -14,5 +14,5 @@ int LightSensor::getLight()
 	QString s(data);
 
 	m_file->close();
-	return s.toInt();
+	return s.toUInt();
 }

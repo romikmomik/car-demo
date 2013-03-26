@@ -10,7 +10,7 @@ class LightSensor : public QObject
 public:
 	explicit LightSensor(const QString& filePath, QObject *parent = 0);
 
-	int getLight();
+	unsigned int getLight();
 
 signals:
 	
