@@ -14,6 +14,6 @@ unsigned int LightSensor::getLight()
 	QString s(data);
 	m_file->close();
 	if (m_max == m_min) return 0;
-	unsigned int res = (unsigned int)((s.toUInt() - m_min) * 1000 / (m_max - m_min));
+	unsigned int res = (((s.toUInt() - m_min) * 1000) / (m_max - m_min));
 	return res;
 }
