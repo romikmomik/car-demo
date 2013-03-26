@@ -30,7 +30,3 @@ void CopterMotor::emergencyStop()
 	invoke(0);
 }
 
-void CopterMotor::adjustPower(int adj)
-{
-	setPower(m_power + adj);
-}

@@ -15,7 +15,6 @@ public:
 
 public slots:
 	void emergencyStop();
-	void adjustPower(int adj);
 
 signals:
 	void toLog(QString msg);
