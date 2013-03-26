@@ -12,7 +12,6 @@ int LightSensor::getLight()
 	char data[128];
 	m_file->readLine(data, 128);
 	QString s(data);
-	qDebug() << "Light data " << s;
 
 	m_file->close();
 	return s.toInt();

@@ -173,10 +173,12 @@ void CopterCtrl::onAndroidNetworkRead()
 		}
 		else if (cmd.at(0) == "light_sensor") {
 			if (cmd.at(1) == "left") {
-				tcpLog(QString::number(m_lightSensorLeft->getLight()));
+//				tcpLog(QString::number(m_lightSensorLeft->getLight()));
+				tcpLog(QString::number(1347));
 			}
 			else {
-				tcpLog(QString::number(m_lightSensorRight->getLight()));
+//				tcpLog(QString::number(m_lightSensorRight->getLight()));
+				tcpLog(QString::number(41647));
 			}
 		}
 		else {
