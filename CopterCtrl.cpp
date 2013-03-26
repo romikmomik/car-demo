@@ -192,5 +192,6 @@ void CopterCtrl::onAndroidNetworkRead()
 		else {
 			qDebug() << "Unknown command: " + cmd.at(0) << endl;
 		}
+		qDebug() << "Android request " << command << endl;
 	}
 }
