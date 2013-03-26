@@ -15,7 +15,6 @@ public:
 
 public slots:
 	void emergencyStop();
-	void setPower(int power);
 	void adjustPower(int adj);
 
 signals:
@@ -23,7 +22,6 @@ signals:
 
 protected:
 	QString m_name;
-	QSettings* m_settings;
 	QFile       m_ctrlFile;
 	int m_power;
 	int m_powerMax, m_powerMin; // real power, to write to ctrlFile

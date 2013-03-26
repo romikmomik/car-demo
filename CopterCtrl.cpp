@@ -172,10 +172,10 @@ void CopterCtrl::onAndroidNetworkRead()
 		QStringList cmd = command.split(" ", QString::SkipEmptyParts);
 		if (cmd.at(0) == "motor") {
 			if (cmd.at(1).trimmed() == "left") {
-				m_motorLeft->setPower(cmd.at(2).toInt());
+				m_motorLeft->invoke(cmd.at(2).toInt());
 			}
 			else {
-				m_motorRight->setPower(cmd.at(2).toInt());
+				m_motorRight->invoke(cmd.at(2).toInt());
 			}
 		}
 		else if (cmd.at(0) == "light_sensor") {

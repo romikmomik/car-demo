@@ -30,18 +30,6 @@ void CopterMotor::emergencyStop()
 	invoke(0);
 }
 
-void CopterMotor::setPower(int power)
-{
-	int powerMin = m_settings->value("PowerMin").toInt();
-	int powerMax = m_settings->value("PowerMax").toInt();
-
-	m_power = power;
-	m_power = qMax(qMin(m_power, powerMax), powerMin);
-	emit toLog(m_name + "motor power changed: " + QString::number(m_power));
-
-	invoke(m_power);
-}
-
 void CopterMotor::adjustPower(int adj)
 {
 	setPower(m_power + adj);
