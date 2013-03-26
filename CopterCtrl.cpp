@@ -39,8 +39,10 @@ void CopterCtrl::initMotors(const QString& motorControlPath)
 
 void CopterCtrl::initSensors()
 {
-	QString path = m_settings->value("LightSensorFilePath").toString();
-	m_lightSensor = new LightSensor(path, this);
+	QString pathLeft = m_settings->value("LightSensorLeftFilePath").toString();
+	QString pathRight = m_settings->value("LightSensorRightFilePath").toString();
+	m_lightSensorLeft = new LightSensor(pathLeft, this);
+	m_lightSensorRight = new LightSensor(pathRight, this);
 }
 
 void CopterCtrl::initSettings()
