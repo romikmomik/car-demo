@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 #endif
 	a.setStyle(QStyleFactory::create("Cleanlooks"));
 
-	CopterCtrl* ctrl = new CopterCtrl();
+	CopterCtrl ctrl;
+	Q_UNUSED(ctrl)
 	return a.exec();
 }
-

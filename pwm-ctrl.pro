@@ -6,8 +6,6 @@ CONFIG +=       debug_and_release \
 
 debug:CONFIG += console
 
-CONFIG -=       warn_off
-
 QT +=           network
 
 contains($$[QT_VERSION_MAJOR],5) {
@@ -17,13 +15,30 @@ contains($$[QT_VERSION_MAJOR],5) {
 TARGET =        copter-pwm-ctrl-qt
 
 SOURCES +=      \
-    CopterMotor.cpp \
-    CopterCtrl.cpp \
-    Main.cpp
+	CopterMotor.cpp \
+	CopterCtrl.cpp \
+	Main.cpp \
+	commands/AbstractCommand.cpp \
+    commands/CommandFactory.cpp \
+    commands/MotorCommand.cpp \
+    commands/BeepCommand.cpp \
+    commands/SensorCommand.cpp \
+    commands/DistanceSensorCommand.cpp \
+    commands/LightSensorCommand.cpp \
+    commands/ColorSensorCommand.cpp
 
 HEADERS +=      \
-    CopterMotor.hpp \
-    CopterCtrl.hpp
+	CopterMotor.hpp \
+	CopterCtrl.hpp \
+    commands/CommandFactory.h \
+    commands/MotorCommand.h \
+    commands/BeepCommand.h \
+    commands/SensorCommand.h \
+    commands/DistanceSensorCommand.h \
+    commands/LightSensorCommand.h \
+    commands/CommandDefinitions.h \
+    commands/AbstractCommand.h \
+    commands/ColorSensorCommand.h
 
 FORMS +=        
 

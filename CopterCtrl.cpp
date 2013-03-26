@@ -2,10 +2,12 @@
 #include <QTcpSocket>
 
 #include <cmath>
-#include "CopterCtrl.hpp"
 #include <fcntl.h>
 #include <unistd.h>
 #include <linux/input.h>
+
+#include "CopterCtrl.hpp"
+#include "commands/AbstractCommand.h"
 
 CopterCtrl::CopterCtrl() :
 	m_tcpServer(),
@@ -28,7 +30,9 @@ void CopterCtrl::initMotors(const QString& motorControlPath)
 	int angleMax = m_settings->value("AngleMotorMax").toInt();
 	int angleMin = m_settings->value("AngleMotorMin").toInt();
 	m_powerMotor = new CopterMotor(powerMin, powerMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:1/" + motorControlFile);
+	m_powerMotor->setParent(this);
 	m_angleMotor = new CopterMotor(angleMin, angleMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
+	m_angleMotor->setParent(this);
 
 	connect(m_powerMotor, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
 	connect(m_angleMotor, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
@@ -38,6 +42,7 @@ void CopterCtrl::initMotors(const QString& motorControlPath)
 void CopterCtrl::initSettings()
 {
 	m_settings = new QSettings(QApplication::applicationDirPath() + "/config.ini", QSettings::IniFormat);
+	m_settings->setParent(this);
 
 	// TODO: write proper checker
 	if (m_settings->allKeys().count() == 0) {
@@ -59,8 +64,6 @@ void CopterCtrl::initSettings()
 
 	m_settings->setFallbacksEnabled(false);
 	m_settings->sync();
-
-	connect(this, SIGNAL(settingsValueChanged(QString,QVariant)), this, SLOT(onSettingsValueChange(QString,QVariant)));
 }
 
 void CopterCtrl::tcpLog(const QString &message)
@@ -100,27 +103,35 @@ void CopterCtrl::onNetworkRead()
 	if (m_tcpConnection.isNull())
 		return;
 
-	static const int s_power_max = m_settings->value("PowerMax").toInt();
-	//static const int s_power_min = m_settings->value("PowerMin").toInt();
-	static const int s_power_step1 = m_settings->value("PowerStep1").toInt();
-	static const int s_power_step2 = m_settings->value("PowerStep2").toInt();
-
-	while (m_tcpConnection->isReadable())
-	{
-		char c;
-		if (!m_tcpConnection->getChar(&c))
-			break;
-		switch (c)
-		{
-			case 'Z': m_powerMotor->setPower(0); m_angleMotor->setPower(0); break;
-			case 'z': m_powerMotor->adjustPower(-s_power_step2);
-			case 'x': m_angleMotor->adjustPower(-s_power_step1); break;
-			case 'c': m_angleMotor->adjustPower(+s_power_step1); break;
-			case 'v': m_powerMotor->adjustPower(+s_power_step2); break;
-			case 'V': m_powerMotor->adjustPower(+s_power_max); break;
-			case 'a': emergencyStop(); break;
-		}
+	QByteArray const bytes = m_tcpConnection->readLine(100);
+	commands::AbstractCommand *command = mFactory.parseCommand(QString(bytes));
+	if (!command) {
+		return;
 	}
+
+	connect(command, SIGNAL(responce(QByteArray)), this, SLOT())
+
+//	static const int s_power_max = m_settings->value("PowerMax").toInt();
+//	static const int s_power_step1 = m_settings->value("PowerStep1").toInt();
+//	static const int s_power_step2 = m_settings->value("PowerStep2").toInt();
+
+//	// TODO: Use RPC Jedi
+//	while (m_tcpConnection->isReadable())
+//	{
+//		char c;
+//		if (!m_tcpConnection->getChar(&c))
+//			break;
+//		switch (c)
+//		{
+//			case 'Z': m_powerMotor->setPower(0); m_angleMotor->setPower(0); break;
+//			case 'z': m_powerMotor->adjustPower(-s_power_step2);
+//			case 'x': m_angleMotor->adjustPower(-s_power_step1); break;
+//			case 'c': m_angleMotor->adjustPower(+s_power_step1); break;
+//			case 'v': m_powerMotor->adjustPower(+s_power_step2); break;
+//			case 'V': m_powerMotor->adjustPower(+s_power_max); break;
+//			case 'a': emergencyStop(); break;
+//		}
+//	}
 }
 
 
