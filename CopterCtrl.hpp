@@ -35,17 +35,15 @@ protected slots:
 	void onAndroidConnection();
 	void onAndroidDisconnected();
 	void onAndroidNetworkRead();
-	void initMotors(const QString& motorControlPath);
+	void initMotors();
 	void initSettings();
 	void initSensors();
 
 signals:
-	void settingsValueChanged(QString key, QVariant value);
 
 protected:
-	CopterMotor* m_powerMotor;
-	CopterMotor* m_angleMotor;
-	CopterMotor* m_cameraMotor;
+	CopterMotor* m_motorLeft;
+	CopterMotor* m_motorRight;
 	LightSensor* m_lightSensorLeft;
 	LightSensor* m_lightSensorRight;
 

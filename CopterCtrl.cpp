@@ -13,7 +13,7 @@ CopterCtrl::CopterCtrl() :
 	m_tcpConnection()
 {
 	initSettings();
-	initMotors(m_settings->value("ControlPath").toString());
+	initMotors();
 	initSensors();
 
 	m_tcpServer.listen(QHostAddress::Any, m_settings->value("TcpPort").toInt());
@@ -22,19 +22,17 @@ CopterCtrl::CopterCtrl() :
 	connect(&m_androidServer, SIGNAL(newConnection()), this, SLOT(onAndroidConnection()));
 }
 
-void CopterCtrl::initMotors(const QString& motorControlPath)
+void CopterCtrl::initMotors()
 {
-	QString motorControlFile = m_settings->value("MotorControlFile").toString();
-	int powerMax = m_settings->value("PowerMotorMax").toInt();
-	int powerMin = m_settings->value("PowerMotorMin").toInt();
-	int angleMax = m_settings->value("AngleMotorMax").toInt();
-	int angleMin = m_settings->value("AngleMotorMin").toInt();
-	m_powerMotor = new CopterMotor(powerMin, powerMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:1/" + motorControlFile);
-	m_angleMotor = new CopterMotor(angleMin, angleMax, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
+	int powerLeftMax = m_settings->value("MotorLeftMax").toInt();
+	int powerLeftMin = m_settings->value("MotorLeftMin").toInt();
+	int powerRightMax = m_settings->value("MotorRightMax").toInt();
+	int powerRightMin = m_settings->value("MotorRightMin").toInt();
+	m_motorLeft = new CopterMotor(powerLeftMin, powerLeftMax, m_settings->value("MotorLeftControlPath").toString());
+	m_motorRight = new CopterMotor(powerRightMin, powerRightMax, m_settings->value("MotorRightControlPath").toString());
 
-	connect(m_powerMotor, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
-	connect(m_angleMotor, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
-//	m_cameraMotor = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
+	connect(m_motorLeft, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
+	connect(m_motorRight, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
 }
 
 void CopterCtrl::initSensors()
@@ -52,18 +50,18 @@ void CopterCtrl::initSettings()
 	// TODO: write proper checker
 	if (m_settings->allKeys().count() == 0) {
 		// TODO: move to conf file
-		m_settings->setValue("ControlPath", "/sys/devices/platform/");
+		m_settings->setValue("MotorLeftControlPath", "/sys/devices/platform/ehrpwm.1/pwm/ehrpwm.1:0/duty_ns");
+		m_settings->setValue("MotorRightControlPath", "/sys/devices/platform/ehrpwm.0/pwm/ehrpwm.0:1/duty_ns");
 		m_settings->setValue("TcpPort", 4000);
 		m_settings->setValue("AndroidPort", 4444);
 		m_settings->setValue("PowerStep1", 5);
 		m_settings->setValue("PowerStep2", 20);
 		m_settings->setValue("PowerMin", -100);
 		m_settings->setValue("PowerMax", 100); // null 1540000
-		m_settings->setValue("PowerMotorMax", 1680000);
-		m_settings->setValue("PowerMotorMin", 1540000);
-		m_settings->setValue("AngleMotorMax", 1800000);
-		m_settings->setValue("AngleMotorMin", 1500000);
-		m_settings->setValue("MotorControlFile", "duty_ns");
+		m_settings->setValue("MotorLeftMax", 1680000);
+		m_settings->setValue("MotorLeftMin", 1540000);
+		m_settings->setValue("MotorRightMax", 1800000);
+		m_settings->setValue("MotorRightMin", 1500000);
 		m_settings->setValue("LightSensorLeftFilePath", "/tmp/light_left");
 		m_settings->setValue("LightSensorRightFilePath", "/tmp/light_right");
 		m_settings->setValue("SonicSensorFilePath", "/tmp/sonic");
@@ -72,8 +70,6 @@ void CopterCtrl::initSettings()
 
 	m_settings->setFallbacksEnabled(false);
 	m_settings->sync();
-
-	connect(this, SIGNAL(settingsValueChanged(QString,QVariant)), this, SLOT(onSettingsValueChange(QString,QVariant)));
 }
 
 void CopterCtrl::tcpLog(const QString &message)
@@ -86,8 +82,8 @@ void CopterCtrl::tcpLog(const QString &message)
 
 void CopterCtrl::emergencyStop()
 {
-	m_powerMotor->invoke(0);
-	m_angleMotor->invoke(0);
+	m_motorLeft->invoke(0);
+	m_motorRight->invoke(0);
 	QApplication::quit();
 }
 
@@ -113,27 +109,27 @@ void CopterCtrl::onNetworkRead()
 	if (m_tcpConnection.isNull())
 		return;
 
-	static const int s_power_max = m_settings->value("PowerMax").toInt();
-	//static const int s_power_min = m_settings->value("PowerMin").toInt();
-	static const int s_power_step1 = m_settings->value("PowerStep1").toInt();
-	static const int s_power_step2 = m_settings->value("PowerStep2").toInt();
+//	static const int s_power_max = m_settings->value("PowerMax").toInt();
+//	//static const int s_power_min = m_settings->value("PowerMin").toInt();
+//	static const int s_power_step1 = m_settings->value("PowerStep1").toInt();
+//	static const int s_power_step2 = m_settings->value("PowerStep2").toInt();
 
-	while (m_tcpConnection->isReadable())
-	{
-		char c;
-		if (!m_tcpConnection->getChar(&c))
-			break;
-		switch (c)
-		{
-			case 'Z': m_powerMotor->setPower(0); m_angleMotor->setPower(0); break;
-			case 'z': m_powerMotor->adjustPower(-s_power_step2);
-			case 'x': m_angleMotor->adjustPower(-s_power_step1); break;
-			case 'c': m_angleMotor->adjustPower(+s_power_step1); break;
-			case 'v': m_powerMotor->adjustPower(+s_power_step2); break;
-			case 'V': m_powerMotor->adjustPower(+s_power_max); break;
-			case 'a': emergencyStop(); break;
-		}
-	}
+//	while (m_tcpConnection->isReadable())
+//	{
+//		char c;
+//		if (!m_tcpConnection->getChar(&c))
+//			break;
+//		switch (c)
+//		{
+//			case 'Z': m_powerMotor->setPower(0); m_angleMotor->setPower(0); break;
+//			case 'z': m_powerMotor->adjustPower(-s_power_step2);
+//			case 'x': m_angleMotor->adjustPower(-s_power_step1); break;
+//			case 'c': m_angleMotor->adjustPower(+s_power_step1); break;
+//			case 'v': m_powerMotor->adjustPower(+s_power_step2); break;
+//			case 'V': m_powerMotor->adjustPower(+s_power_max); break;
+//			case 'a': emergencyStop(); break;
+//		}
+//	}
 }
 
 
@@ -170,11 +166,13 @@ void CopterCtrl::onAndroidNetworkRead()
 		m_androidConnection->readLine(data, 100);
 		QString command(data);// = QString(m_androidConnection->readAll());
 		QStringList cmd = command.split(" ", QString::SkipEmptyParts);
-		if (cmd.at(0) == "motor_power") {
-//			m_powerMotor->setPower(cmd.at(1).toInt());
-		}
-		else if (cmd.at(0) == "motor_angle") {
-//			m_angleMotor->setPower(cmd.at(1).toInt());
+		if (cmd.at(0) == "motor") {
+			if (cmd.at(1) == "left") {
+//			m_motorLeft->setPower(cmd.at(2).toInt());
+			}
+			else {
+//			m_motorRight->setPower(cmd.at(2).toInt());
+			}
 		}
 		else if (cmd.at(0) == "light_sensor") {
 			unsigned int ans = 0;
