@@ -24,8 +24,7 @@ SOURCES +=      \
     commands/BeepCommand.cpp \
     commands/SensorCommand.cpp \
     commands/DistanceSensorCommand.cpp \
-    commands/LightSensorCommand.cpp \
-    commands/ColorSensorCommand.cpp
+    commands/LightSensorCommand.cpp
 
 HEADERS +=      \
 	CopterMotor.hpp \
@@ -37,8 +36,7 @@ HEADERS +=      \
     commands/DistanceSensorCommand.h \
     commands/LightSensorCommand.h \
     commands/CommandDefinitions.h \
-    commands/AbstractCommand.h \
-    commands/ColorSensorCommand.h
+    commands/AbstractCommand.h
 
 FORMS +=        
 

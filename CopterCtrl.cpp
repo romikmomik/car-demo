@@ -108,8 +108,10 @@ void CopterCtrl::onNetworkRead()
 	if (!command) {
 		return;
 	}
-
-	connect(command, SIGNAL(responce(QByteArray)), this, SLOT())
+	connect(command, SIGNAL(responce(QString)), this, SLOT(tcpLog(QString)));
+	if (!command->execute()) {
+		qDebug() << "Execution failed";
+	}
 
 //	static const int s_power_max = m_settings->value("PowerMax").toInt();
 //	static const int s_power_step1 = m_settings->value("PowerStep1").toInt();

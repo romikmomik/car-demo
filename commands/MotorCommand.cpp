@@ -10,7 +10,7 @@ MotorCommand::MotorCommand(Motor type, int power)
 bool MotorCommand::execute()
 {
 	// TODO: move CopterMotor.cpp contents here or smth
-	qDebug() << "Executing " << mType == power ? "power" : "angle"
+	qDebug() << "Executing " << (mType == power ? "power" : "angle")
 			<< "motor command; power:" << mPower;
 	return true;
 }

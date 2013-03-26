@@ -3,6 +3,7 @@
 using namespace commands;
 
 DistanceSensorCommand::DistanceSensorCommand(Port port)
+	: SensorCommand(port)
 {
 }
 

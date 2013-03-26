@@ -2,7 +2,7 @@
 
 using namespace commands;
 
-void AbstractCommand::answer(QString const &responce)
+void AbstractCommand::answer(QString const &responseString)
 {
-	emit responce(responce.toLatin1());
+	emit response(responseString);
 }

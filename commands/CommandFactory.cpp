@@ -6,7 +6,6 @@
 #include "MotorCommand.h"
 #include "DistanceSensorCommand.h"
 #include "LightSensorCommand.h"
-#include "ColorSensorCommand.h"
 
 using namespace commands;
 
@@ -35,7 +34,8 @@ AbstractCommand *CommandFactory::parseCommand(QStringList const &parts)
 			qDebug() << "Motor command specified in a wrong format";
 			return 0;
 		}
-		return new MotorCommand(parts[1].toInt());
+		Motor const motor = command.endsWith("angle") ? angle : power;
+		return new MotorCommand(motor, parts[1].toInt());
 	}
 	if (command == "beep") {
 		QVector<int> params = parseIntParams(parts, 1, 3);
@@ -52,14 +52,7 @@ AbstractCommand *CommandFactory::parseCommand(QStringList const &parts)
 		Port const port = parsePort(parts[1]);
 		return new DistanceSensorCommand(port);
 	}
-	if (command == "color_sensor") {
-		if (parts.count() < 2) {
-			qDebug() << "Read color sensor command specified in a wrong format";
-		}
-		Port const port = parsePort(parts[1]);
-		return new ColorSensorCommand(port);
-	}
-	if (parts == "light_sensor") {
+	if (command == "light_sensor") {
 		if (parts.count() < 2) {
 			qDebug() << "Read light sensor command specified in a wrong format";
 		}

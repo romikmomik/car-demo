@@ -8,7 +8,7 @@ namespace commands
 class LightSensorCommand : public SensorCommand
 {
 public:
-	LightSensorCommand();
+	LightSensorCommand(Port port);
 
 	virtual bool execute();
 	virtual QString sensorName() const;

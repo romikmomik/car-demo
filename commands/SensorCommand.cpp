@@ -10,14 +10,14 @@ SensorCommand::SensorCommand(Port port)
 bool SensorCommand::execute()
 {
 	qDebug() << "Reading" << sensorName() << "on"
-			 << mPort == left ? "left" : "right" << "port";
+			<< (mPort == left ? "left" : "right") << "port";
 	// Maybe some initializations common for all sensor commands here
 	return true;
 }
 
 void SensorCommand::answer(int value)
 {
-	answer(QString::number(value));
+	AbstractCommand::answer(QString::number(value));
 }
 
 QString SensorCommand::sensorName() const

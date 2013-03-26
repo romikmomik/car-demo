@@ -2,7 +2,8 @@
 
 using namespace commands;
 
-LightSensorCommand::LightSensorCommand()
+LightSensorCommand::LightSensorCommand(Port port)
+	: SensorCommand(port)
 {
 }
 

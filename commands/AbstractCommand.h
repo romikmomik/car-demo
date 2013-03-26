@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtCore/QObject>
+#include <QtCore/QDebug>
 
 namespace commands
 {
@@ -16,10 +17,10 @@ public:
 	// Here can be added some methods as name() for logging and so on
 
 signals:
-	void responce(QByteArray const &result);
+	void response(QString const &result);
 
 protected:
-	void answer(QString const &responce);
+	void answer(QString const &responseString);
 
 };
 

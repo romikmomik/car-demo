@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AbstractCommand.hpp"
+#include "AbstractCommand.h"
 
 namespace commands
 {
