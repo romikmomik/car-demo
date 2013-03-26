@@ -19,11 +19,13 @@ TARGET =        copter-pwm-ctrl-qt
 SOURCES +=      \
     CopterMotor.cpp \
     CopterCtrl.cpp \
-    Main.cpp
+    Main.cpp \
+    LightSensor.cpp
 
 HEADERS +=      \
     CopterMotor.hpp \
-    CopterCtrl.hpp
+    CopterCtrl.hpp \
+    LightSensor.hpp
 
 FORMS +=        
 

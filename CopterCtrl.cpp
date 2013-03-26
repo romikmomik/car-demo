@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include "CopterCtrl.hpp"
+#include "LightSensor.hpp"
 #include <fcntl.h>
 #include <unistd.h>
 #include <linux/input.h>
@@ -13,6 +14,7 @@ CopterCtrl::CopterCtrl() :
 {
 	initSettings();
 	initMotors(m_settings->value("ControlPath").toString());
+	initSensors();
 
 	m_tcpServer.listen(QHostAddress::Any, m_settings->value("TcpPort").toInt());
 	connect(&m_tcpServer, SIGNAL(newConnection()), this, SLOT(onConnection()));
@@ -33,6 +35,12 @@ void CopterCtrl::initMotors(const QString& motorControlPath)
 	connect(m_powerMotor, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
 	connect(m_angleMotor, SIGNAL(toLog(QString)), this, SLOT(tcpLog(QString)));
 //	m_cameraMotor = new CopterMotor(m_settings, motorControlPath + "ehrpwm.1/pwm/ehrpwm.1:0/" + motorControlFile);
+}
+
+void CopterCtrl::initSensors()
+{
+	QString path = m_settings->value("LightSensorFilePath").toString();
+	m_lightSensor = new LightSensor(path, this);
 }
 
 void CopterCtrl::initSettings()
@@ -152,11 +160,14 @@ void CopterCtrl::onAndroidNetworkRead()
 		m_androidConnection->readLine(data, 100);
 		QString command(data);// = QString(m_androidConnection->readAll());
 		QStringList cmd = command.split(" ", QString::SkipEmptyParts);
-		if (cmd.at(0) == "power") {
+		if (cmd.at(0) == "motor_power") {
 			m_powerMotor->setPower(cmd.at(1).toInt());
 		}
-		else if (cmd.at(0) == "angle") {
+		else if (cmd.at(0) == "motor_angle") {
 			m_angleMotor->setPower(cmd.at(1).toInt());
+		}
+		else if (cmd.at(0) == "light_sensor") {
+			tcpLog(QString::number(m_lightSensor->getLight()));
 		}
 		else {
 			qDebug() << "Unknown command: " + cmd.at(0) << endl;

@@ -14,7 +14,7 @@
 #include <QtGui/QApplication>
 #endif
 
-QT_FORWARD_DECLARE_CLASS(Accelerometer)
+QT_FORWARD_DECLARE_CLASS(LightSensor)
 
 class CopterCtrl : public QObject
 {
@@ -36,6 +36,7 @@ protected slots:
 	void onAndroidNetworkRead();
 	void initMotors(const QString& motorControlPath);
 	void initSettings();
+	void initSensors();
 
 signals:
 	void settingsValueChanged(QString key, QVariant value);
@@ -44,6 +45,8 @@ protected:
 	CopterMotor* m_powerMotor;
 	CopterMotor* m_angleMotor;
 	CopterMotor* m_cameraMotor;
+	LightSensor* m_lightSensor;
+
 	QSettings* m_settings;
 
 	QTcpServer           m_tcpServer;
