@@ -62,6 +62,9 @@ void CopterCtrl::initSettings()
 		m_settings->setValue("AngleMotorMax", 1800000);
 		m_settings->setValue("AngleMotorMin", 1500000);
 		m_settings->setValue("MotorControlFile", "duty_ns");
+		m_settings->setValue("LightSensorLeftFilePath", "/tmp/light_left");
+		m_settings->setValue("LightSensorRightFilePath", "/tmp/light_right");
+		m_settings->setValue("SonicSensorFilePath", "/tmp/sonic");
 		// servo 1500000 +- 300000
 	}
 
@@ -167,7 +170,12 @@ void CopterCtrl::onAndroidNetworkRead()
 			m_angleMotor->setPower(cmd.at(1).toInt());
 		}
 		else if (cmd.at(0) == "light_sensor") {
-			tcpLog(QString::number(m_lightSensor->getLight()));
+			if (cmd.at(1) == "left") {
+				tcpLog(QString::number(m_lightSensorLeft->getLight()));
+			}
+			else {
+				tcpLog(QString::number(m_lightSensorRight->getLight()));
+			}
 		}
 		else {
 			qDebug() << "Unknown command: " + cmd.at(0) << endl;

@@ -45,7 +45,8 @@ protected:
 	CopterMotor* m_powerMotor;
 	CopterMotor* m_angleMotor;
 	CopterMotor* m_cameraMotor;
-	LightSensor* m_lightSensor;
+	LightSensor* m_lightSensorLeft;
+	LightSensor* m_lightSensorRight;
 
 	QSettings* m_settings;
 
