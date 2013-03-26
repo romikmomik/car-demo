@@ -25,6 +25,7 @@ public:
 
 public slots:
 	void tcpLog(const QString& message);
+	void androidLog(const QByteArray& a);
 	void emergencyStop();
 
 protected slots:

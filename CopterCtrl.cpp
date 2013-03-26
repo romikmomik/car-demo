@@ -154,6 +154,11 @@ void CopterCtrl::onAndroidDisconnected()
 	m_androidConnection = 0;
 }
 
+void CopterCtrl::androidLog(const QByteArray& a)
+{
+	m_androidConnection->write(a);
+}
+
 void CopterCtrl::onAndroidNetworkRead()
 {
 	if (m_androidConnection.isNull())
@@ -166,20 +171,23 @@ void CopterCtrl::onAndroidNetworkRead()
 		QString command(data);// = QString(m_androidConnection->readAll());
 		QStringList cmd = command.split(" ", QString::SkipEmptyParts);
 		if (cmd.at(0) == "motor_power") {
-			m_powerMotor->setPower(cmd.at(1).toInt());
+//			m_powerMotor->setPower(cmd.at(1).toInt());
 		}
 		else if (cmd.at(0) == "motor_angle") {
-			m_angleMotor->setPower(cmd.at(1).toInt());
+//			m_angleMotor->setPower(cmd.at(1).toInt());
 		}
 		else if (cmd.at(0) == "light_sensor") {
+			unsigned int ans = 0;
 			if (cmd.at(1) == "left") {
-//				tcpLog(QString::number(m_lightSensorLeft->getLight()));
-				tcpLog(QString::number(1347));
+				ans = 1347;
 			}
 			else {
-//				tcpLog(QString::number(m_lightSensorRight->getLight()));
-				tcpLog(QString::number(41647));
+				ans = 41647;
 			}
+			char buf[2];
+			buf[0] = (ans >> 8) & 0xff;
+			buf[1] = ans & 0xff;
+			androidLog(buf);
 		}
 		else {
 			qDebug() << "Unknown command: " + cmd.at(0) << endl;
