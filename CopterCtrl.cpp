@@ -39,8 +39,10 @@ void CopterCtrl::initSensors()
 {
 	QString pathLeft = m_settings->value("LightSensorLeftFilePath").toString();
 	QString pathRight = m_settings->value("LightSensorRightFilePath").toString();
-	m_lightSensorLeft = new LightSensor(pathLeft, this);
-	m_lightSensorRight = new LightSensor(pathRight, this);
+	unsigned int lightMin = m_settings->value("LightMin").toUInt();
+	unsigned int lightMax = m_settings->value("LightMax").toUInt();
+	m_lightSensorLeft = new LightSensor(pathLeft, lightMin, lightMax, this);
+	m_lightSensorRight = new LightSensor(pathRight, lightMin, lightMax, this);
 }
 
 void CopterCtrl::initSettings()
@@ -62,6 +64,8 @@ void CopterCtrl::initSettings()
 		m_settings->setValue("MotorLeftMin", 1540000);
 		m_settings->setValue("MotorRightMax", 1800000);
 		m_settings->setValue("MotorRightMin", 1500000);
+		m_settings->setValue("LightMinValue", 0);
+		m_settings->setValue("LightMaxValue", 4000000);
 		m_settings->setValue("LightSensorLeftFilePath", "/tmp/light_left");
 		m_settings->setValue("LightSensorRightFilePath", "/tmp/light_right");
 		m_settings->setValue("SonicSensorFilePath", "/tmp/sonic");

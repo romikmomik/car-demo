@@ -1,7 +1,7 @@
 #include "LightSensor.hpp"
 
-LightSensor::LightSensor(const QString &filePath, QObject *parent) :
-	QObject(parent)
+LightSensor::LightSensor(const QString &filePath, unsigned int lightMin, unsigned int lightMax, QObject *parent) :
+	m_min(lightMin), m_max(lightMax), QObject(parent)
 {
 	m_file = new QFile(filePath);
 }
@@ -12,7 +12,7 @@ unsigned int LightSensor::getLight()
 	char data[128];
 	m_file->readLine(data, 128);
 	QString s(data);
-
 	m_file->close();
-	return s.toUInt();
+	unsigned int res = (unsigned int)((s.toUInt() - m_min) * 1000 / (m_max - m_min));
+	return res;
 }

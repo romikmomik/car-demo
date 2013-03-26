@@ -8,7 +8,7 @@ class LightSensor : public QObject
 {
 	Q_OBJECT
 public:
-	explicit LightSensor(const QString& filePath, QObject *parent = 0);
+	explicit LightSensor(const QString& filePath, unsigned int lightMin, unsigned int lightMax, QObject *parent = 0);
 
 	unsigned int getLight();
 
@@ -18,6 +18,7 @@ public slots:
 
 
 private:
+	unsigned int m_min, m_max;
 	QFile* m_file;
 };
 
