@@ -187,7 +187,7 @@ void CopterCtrl::onAndroidNetworkRead()
 			char buf[2];
 			buf[0] = (ans >> 8) & 0xff;
 			buf[1] = ans & 0xff;
-			androidLog(buf);
+			androidLog(QByteArray(buf, 2));
 		}
 		else {
 			qDebug() << "Unknown command: " + cmd.at(0) << endl;
