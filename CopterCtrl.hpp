@@ -14,7 +14,7 @@
 #include <QtGui/QApplication>
 #endif
 
-QT_FORWARD_DECLARE_CLASS(LightSensor)
+QT_FORWARD_DECLARE_CLASS(Sensor)
 
 class CopterCtrl : public QObject
 {
@@ -44,8 +44,9 @@ signals:
 protected:
 	CopterMotor* m_motorLeft;
 	CopterMotor* m_motorRight;
-	LightSensor* m_lightSensorLeft;
-	LightSensor* m_lightSensorRight;
+	Sensor* m_lightSensorLeft;
+	Sensor* m_lightSensorRight;
+	Sensor* m_sonarSensor;
 
 	QSettings* m_settings;
 

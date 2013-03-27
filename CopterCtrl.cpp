@@ -3,7 +3,7 @@
 
 #include <cmath>
 #include "CopterCtrl.hpp"
-#include "LightSensor.hpp"
+#include "Sensor.hpp"
 #include <fcntl.h>
 #include <unistd.h>
 #include <linux/input.h>
@@ -37,12 +37,17 @@ void CopterCtrl::initMotors()
 
 void CopterCtrl::initSensors()
 {
-	QString pathLeft = m_settings->value("LightSensorLeftFilePath").toString();
-	QString pathRight = m_settings->value("LightSensorRightFilePath").toString();
+	QString pathLightLeft = m_settings->value("LightSensorLeftFilePath").toString();
+	QString pathLightRight = m_settings->value("LightSensorRightFilePath").toString();
+	QString pathSonar = m_settings->value("SonarSensorFilePath").toString();
 	unsigned int lightMin = m_settings->value("LightMin").toUInt();
 	unsigned int lightMax = m_settings->value("LightMax").toUInt();
-	m_lightSensorLeft = new LightSensor(pathLeft, lightMin, lightMax, this);
-	m_lightSensorRight = new LightSensor(pathRight, lightMin, lightMax, this);
+	unsigned int lightNormalizedMax = m_settings->value("LightNormalizedMax").toUInt();
+	unsigned int sonarNormalizedMax = m_settings->value("SonarNormalizedMax").toUInt();
+	unsigned int sonarMiltiplicator = m_settings->value("SonarMultiplicator").toUInt();
+	m_lightSensorLeft = new Sensor(pathLightLeft, lightMin, lightMax, lightNormalizedMax, this);
+	m_lightSensorRight = new Sensor(pathLightRight, lightMin, lightMax, lightNormalizedMax, this);
+	m_sonarSensor = new Sensor(pathSonar, 0, sonarNormalizedMax * sonarMiltiplicator, sonarNormalizedMax, this);
 }
 
 void CopterCtrl::initSettings()
@@ -64,11 +69,14 @@ void CopterCtrl::initSettings()
 		m_settings->setValue("MotorLeftMin", 1540000);
 		m_settings->setValue("MotorRightMax", 1800000);
 		m_settings->setValue("MotorRightMin", 1500000);
-		m_settings->setValue("LightMinValue", 0);
-		m_settings->setValue("LightMaxValue", 4000000);
+		m_settings->setValue("LightMin", 0);
+		m_settings->setValue("LightMax", 4000000);
+		m_settings->setValue("LightNormalizedMax", 1000);
+		m_settings->setValue("SonarMultiplicator", 58);
+		m_settings->setValue("SonarNormalizedMax", 400);
 		m_settings->setValue("LightSensorLeftFilePath", "/tmp/light_left");
 		m_settings->setValue("LightSensorRightFilePath", "/tmp/light_right");
-		m_settings->setValue("SonicSensorFilePath", "/tmp/sonic");
+		m_settings->setValue("SonarSensorFilePath", "/tmp/sonar");
 		// servo 1500000 +- 300000
 	}
 
@@ -181,11 +189,20 @@ void CopterCtrl::onAndroidNetworkRead()
 		else if (cmd.at(0) == "light_sensor") {
 			unsigned int ans = 0;
 			if (cmd.at(1).trimmed() == "left") {
-				ans = m_lightSensorLeft->getLight();
+				ans = m_lightSensorLeft->getValue();
 			}
 			else {
-				ans = m_lightSensorRight->getLight();
+				ans = m_lightSensorRight->getValue();
 			}
+			char buf[2];
+			buf[0] = (ans >> 8) & 0xff;
+			buf[1] = ans & 0xff;
+			androidLog(QByteArray(buf, 2));
+		}
+		else if (cmd.at(0).trimmed() == "distance_sensor" ||
+				cmd.at(0).trimmed() == "sonar_sensor") {
+			unsigned int ans = 0;
+			ans = m_sonarSensor->getValue();
 			char buf[2];
 			buf[0] = (ans >> 8) & 0xff;
 			buf[1] = ans & 0xff;

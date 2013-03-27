@@ -20,12 +20,12 @@ SOURCES +=      \
     CopterMotor.cpp \
     CopterCtrl.cpp \
     Main.cpp \
-    LightSensor.cpp
+    Sensor.cpp
 
 HEADERS +=      \
     CopterMotor.hpp \
     CopterCtrl.hpp \
-    LightSensor.hpp
+    Sensor.hpp
 
 FORMS +=        
 
