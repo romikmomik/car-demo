@@ -5,6 +5,9 @@ Sensor::Sensor(const QString &filePath, uint lightMin, uint lightMax
 	m_min(lightMin), m_max(lightMax), m_normalizedMax(normalizedMax), QObject(parent)
 {
 	m_file = new QFile(filePath);
+	if (m_min < m_max) {
+		qSwap(m_min, m_max);
+	}
 }
 
 unsigned int Sensor::getValue()
