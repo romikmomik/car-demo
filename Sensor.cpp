@@ -18,7 +18,10 @@ unsigned int Sensor::getValue()
 	QString s(data);
 	s = s.trimmed();
 	m_file->close();
-	if (m_max == m_min) return 0;
-	unsigned int res = (((s.toUInt() - m_min) * m_normalizedMax) / (m_max - m_min));
+	if (m_max == m_min) return m_min;
+	long long value = s.toLongLong();
+	value = qMin(value, static_cast<long long>(m_max));
+	value = qMax(value, static_cast<long long>(m_min));
+	unsigned int res = (((value - m_min) * m_normalizedMax) / (m_max - m_min));
 	return res;
 }

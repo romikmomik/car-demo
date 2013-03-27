@@ -14,7 +14,8 @@ int main(int argc, char *argv[])
 #endif
 	a.setStyle(QStyleFactory::create("Cleanlooks"));
 
-	CarCtrl* ctrl = new CarCtrl();
+	CarCtrl ctrl;
+	Q_UNUSED(ctrl)
 	return a.exec();
 }
 
