@@ -16,6 +16,7 @@ unsigned int Sensor::getValue()
 	char data[128];
 	m_file->readLine(data, 128);
 	QString s(data);
+	s = s.trimmed();
 	m_file->close();
 	if (m_max == m_min) return 0;
 	unsigned int res = (((s.toUInt() - m_min) * m_normalizedMax) / (m_max - m_min));

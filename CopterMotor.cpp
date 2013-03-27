@@ -7,6 +7,9 @@ CopterMotor::CopterMotor(int motorMin, int motorMax, const QString& _ctrlPath, c
 	m_power(0),
 	m_name(name)
 {
+	if (m_powerMin > m_powerMax) {
+		qSwap(m_powerMin, m_powerMax);
+	}
 	invoke(0);
 }
 
@@ -14,7 +17,7 @@ void CopterMotor::invoke(int _power)
 {
 	QString s;
 	m_ctrlFile.open(QIODevice::WriteOnly|QIODevice::Truncate|QIODevice::Unbuffered|QIODevice::Text);
-	float powerFactor = (float)(m_powerMax - m_powerMin) / 100;
+	qreal powerFactor = (qreal) (m_powerMax - m_powerMin) / 100;
 	s.sprintf("%d\n", static_cast<int>(_power * powerFactor + m_powerMin));
 	m_ctrlFile.write(s.toLatin1());
 	m_ctrlFile.close();
