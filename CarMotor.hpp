@@ -1,15 +1,14 @@
 #pragma once
 
-#include <QLCDNumber>
 #include <QFile>
 #include <QSettings>
 
-class CopterMotor : public QObject
+class CarMotor : public QObject
 {
 	Q_OBJECT
 public:
-	CopterMotor(int motorMin, int motorMax, const QString& _ctrlPath, const QString& name = QString());
-	~CopterMotor();
+	CarMotor(int motorMin, int motorMax, const QString& _ctrlPath, const QString& name = QString());
+	~CarMotor();
 
 	void invoke(int _power);
 

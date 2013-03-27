@@ -3,7 +3,7 @@
 #include <QStringList>
 #include <QWSServer>
 
-#include "CopterCtrl.hpp"
+#include "CarCtrl.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 #endif
 	a.setStyle(QStyleFactory::create("Cleanlooks"));
 
-	CopterCtrl* ctrl = new CopterCtrl();
+	CarCtrl* ctrl = new CarCtrl();
 	return a.exec();
 }
 

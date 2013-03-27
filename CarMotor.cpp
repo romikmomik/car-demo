@@ -1,6 +1,6 @@
-#include "CopterMotor.hpp"
+#include "CarMotor.hpp"
 
-CopterMotor::CopterMotor(int motorMin, int motorMax, const QString& _ctrlPath, const QString& name) :
+CarMotor::CarMotor(int motorMin, int motorMax, const QString& _ctrlPath, const QString& name) :
 	m_ctrlFile(_ctrlPath),
 	m_powerMin(motorMin),
 	m_powerMax(motorMax),
@@ -13,7 +13,7 @@ CopterMotor::CopterMotor(int motorMin, int motorMax, const QString& _ctrlPath, c
 	invoke(0);
 }
 
-void CopterMotor::invoke(int _power)
+void CarMotor::invoke(int _power)
 {
 	QString s;
 	m_ctrlFile.open(QIODevice::WriteOnly|QIODevice::Truncate|QIODevice::Unbuffered|QIODevice::Text);
@@ -23,12 +23,12 @@ void CopterMotor::invoke(int _power)
 	m_ctrlFile.close();
 }
 
-CopterMotor::~CopterMotor()
+CarMotor::~CarMotor()
 {
 	invoke(0);
 }
 
-void CopterMotor::emergencyStop()
+void CarMotor::emergencyStop()
 {
 	invoke(0);
 }

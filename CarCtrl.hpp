@@ -7,7 +7,7 @@
 #include <QSettings>
 #include <QVector3D>
 
-#include "CopterMotor.hpp"
+#include "CarMotor.hpp"
 #if QT_VERSION >= 0x050000
 #include <QApplication>
 #else
@@ -16,25 +16,25 @@
 
 QT_FORWARD_DECLARE_CLASS(Sensor)
 
-class CopterCtrl : public QObject
+class CarCtrl : public QObject
 {
 	Q_OBJECT
 public:
-	CopterCtrl();
+	CarCtrl();
 	QSettings* getSettings() { return m_settings; }
 
 public slots:
 	void tcpLog(const QString& message);
-	void androidLog(const QByteArray& a);
+	void qrealResponce(const QByteArray& a);
 	void emergencyStop();
 
 protected slots:
 	void onConnection();
 	void onDisconnected();
 	void onNetworkRead();
-	void onAndroidConnection();
-	void onAndroidDisconnected();
-	void onAndroidNetworkRead();
+	void onQRealConnection();
+	void onQRealDisconnected();
+	void onQRealNetworkRead();
 	void initMotors();
 	void initSettings();
 	void initSensors();
@@ -42,8 +42,8 @@ protected slots:
 signals:
 
 protected:
-	CopterMotor* m_motorLeft;
-	CopterMotor* m_motorRight;
+	CarMotor* m_motorLeft;
+	CarMotor* m_motorRight;
 	Sensor* m_lightSensorLeft;
 	Sensor* m_lightSensorRight;
 	Sensor* m_sonarSensor;
@@ -52,8 +52,8 @@ protected:
 
 	QTcpServer           m_tcpServer;
 	QPointer<QTcpSocket> m_tcpConnection;
-	QTcpServer           m_androidServer;
-	QPointer<QTcpSocket> m_androidConnection;
+	QTcpServer           m_qrealServer;
+	QPointer<QTcpSocket> m_qrealConnection;
 };
 
 #endif // COPTERCTRL_HPP

@@ -17,15 +17,15 @@ contains($$[QT_VERSION_MAJOR],5) {
 TARGET =        copter-pwm-ctrl-qt
 
 SOURCES +=      \
-    CopterMotor.cpp \
-    CopterCtrl.cpp \
     Main.cpp \
-    Sensor.cpp
+    Sensor.cpp \
+    CarCtrl.cpp \
+    CarMotor.cpp
 
 HEADERS +=      \
-    CopterMotor.hpp \
-    CopterCtrl.hpp \
-    Sensor.hpp
+    Sensor.hpp \
+    CarCtrl.hpp \
+    CarMotor.hpp
 
 FORMS +=        
 
