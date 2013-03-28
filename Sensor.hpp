@@ -12,6 +12,7 @@ public:
 			, uint normalizedMax, QObject *parent = 0);
 
 	unsigned int getValue();
+	QByteArray getByteValue();
 
 signals:
 	

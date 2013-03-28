@@ -5,9 +5,6 @@ Sensor::Sensor(const QString &filePath, uint lightMin, uint lightMax
 	m_min(lightMin), m_max(lightMax), m_normalizedMax(normalizedMax), QObject(parent)
 {
 	m_file = new QFile(filePath);
-	if (m_min > m_max) {
-		qSwap(m_min, m_max);
-	}
 }
 
 unsigned int Sensor::getValue()
@@ -24,4 +21,13 @@ unsigned int Sensor::getValue()
 	value = qMax(value, static_cast<long long>(m_min));
 	unsigned int res = (((value - m_min) * m_normalizedMax) / (m_max - m_min));
 	return res;
+}
+
+QByteArray Sensor::getByteValue()
+{
+	unsigned int value = getValue();
+	char buf[2];
+	buf[0] = (value >> 8) & 0xff;
+	buf[1] = value & 0xff;
+	return QByteArray(buf, 2);
 }

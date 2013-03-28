@@ -7,9 +7,6 @@ CarMotor::CarMotor(int motorMin, int motorMax, const QString& _ctrlPath, const Q
 	m_power(0),
 	m_name(name)
 {
-	if (m_powerMin > m_powerMax) {
-		qSwap(m_powerMin, m_powerMax);
-	}
 	invoke(0);
 }
 

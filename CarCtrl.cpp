@@ -15,33 +15,8 @@ CarCtrl::CarCtrl()
 	initMotors();
 	initSensors();
 
-	m_qrealServer.listen(QHostAddress::Any, m_settings->value("QRealPort").toInt());
+	m_qrealServer.listen(QHostAddress::Any, m_settings->value("General/QRealPort").toInt());
 	connect(&m_qrealServer, SIGNAL(newConnection()), this, SLOT(onQRealConnection()));
-}
-
-void CarCtrl::initMotors()
-{
-	int powerLeftMax = m_settings->value("MotorLeftMax").toInt();
-	int powerLeftMin = m_settings->value("MotorLeftMin").toInt();
-	int powerRightMax = m_settings->value("MotorRightMax").toInt();
-	int powerRightMin = m_settings->value("MotorRightMin").toInt();
-	m_motorLeft = new CarMotor(powerLeftMin, powerLeftMax, m_settings->value("MotorLeftControlPath").toString());
-	m_motorRight = new CarMotor(powerRightMin, powerRightMax, m_settings->value("MotorRightControlPath").toString());
-}
-
-void CarCtrl::initSensors()
-{
-	QString pathLightLeft = m_settings->value("LightSensorLeftFilePath").toString();
-	QString pathLightRight = m_settings->value("LightSensorRightFilePath").toString();
-	QString pathSonar = m_settings->value("SonarSensorFilePath").toString();
-	unsigned int lightMin = m_settings->value("LightMin").toUInt();
-	unsigned int lightMax = m_settings->value("LightMax").toUInt();
-	unsigned int lightNormalizedMax = m_settings->value("LightNormalizedMax").toUInt();
-	unsigned int sonarNormalizedMax = m_settings->value("SonarNormalizedMax").toUInt();
-	unsigned int sonarMiltiplicator = m_settings->value("SonarMultiplicator").toUInt();
-	m_lightSensorLeft = new Sensor(pathLightLeft, lightMin, lightMax, lightNormalizedMax, this);
-	m_lightSensorRight = new Sensor(pathLightRight, lightMin, lightMax, lightNormalizedMax, this);
-	m_sonarSensor = new Sensor(pathSonar, 0, sonarNormalizedMax * sonarMiltiplicator, sonarNormalizedMax, this);
 }
 
 void CarCtrl::initSettings()
@@ -50,37 +25,104 @@ void CarCtrl::initSettings()
 
 	// TODO: write proper checker
 	if (m_settings->allKeys().count() == 0) {
+		m_settings->beginGroup("MotorKeys");
+		m_settings->setValue("MotorLeft", 0);
+		m_settings->setValue("MotorRight", 1);
+		m_settings->endGroup();
+
+		m_settings->beginGroup("SensorKeys");
+		m_settings->setValue("SensorLightLeft", 0);
+		m_settings->setValue("SensorLightRight", 1);
+		m_settings->setValue("SensorSonar", 2);
+		m_settings->endGroup();
+
+		m_settings->beginGroup("MotorLeft");
+		m_settings->setValue("ControlPath", "/sys/devices/platform/ehrpwm.1/pwm/ehrpwm.1:0/duty_ns");
+		m_settings->setValue("PercentMin", -100);
+		m_settings->setValue("PercentMax", 100);
+		m_settings->setValue("PowerMin", 1500000);
+		m_settings->setValue("PowerMax", 1800000);
+		m_settings->endGroup();
+
+		m_settings->beginGroup("MotorRight");
+		m_settings->setValue("ControlPath", "/sys/devices/platform/ehrpwm.0/pwm/ehrpwm.0:1/duty_ns");
+		m_settings->setValue("PercentMin", -100);
+		m_settings->setValue("PercentMax", 100);
+		m_settings->setValue("PowerMin", 1500000);
+		m_settings->setValue("PowerMax", 1800000);
+		m_settings->endGroup();
+
+		m_settings->beginGroup("SensorLightLeft");
+		m_settings->setValue("FilePath", "/tmp/light_left");
+		m_settings->setValue("ValueMin", 0);
+		m_settings->setValue("ValueMax", 4000000);
+		m_settings->setValue("NormalizedMax", 1000);
+		m_settings->endGroup();
+
+		m_settings->beginGroup("SensorLightRight");
+		m_settings->setValue("FilePath", "/tmp/light_right");
+		m_settings->setValue("ValueMin", 0);
+		m_settings->setValue("ValueMax", 4000000);
+		m_settings->setValue("NormalizedMax", 1000);
+		m_settings->endGroup();
+
+		m_settings->beginGroup("SensorSonar");
+		m_settings->setValue("FilePath", "/tmp/sonar");
+		m_settings->setValue("ValueMin", 0);
+		m_settings->setValue("ValueMax", 400 * 58);
+		m_settings->setValue("NormalizedMax", 400);
+		m_settings->endGroup();
+
 		// TODO: move to conf file
-		m_settings->setValue("MotorLeftControlPath", "/sys/devices/platform/ehrpwm.1/pwm/ehrpwm.1:0/duty_ns");
-		m_settings->setValue("MotorRightControlPath", "/sys/devices/platform/ehrpwm.0/pwm/ehrpwm.0:1/duty_ns");
 		m_settings->setValue("QRealPort", 4444);
-		m_settings->setValue("PowerStep1", 5);
-		m_settings->setValue("PowerStep2", 20);
-		m_settings->setValue("PowerMin", -100);
-		m_settings->setValue("PowerMax", 100); // null 1540000
-		m_settings->setValue("MotorLeftMax", 1680000);
-		m_settings->setValue("MotorLeftMin", 1540000);
-		m_settings->setValue("MotorRightMax", 1800000);
-		m_settings->setValue("MotorRightMin", 1500000);
-		m_settings->setValue("LightMin", 0);
-		m_settings->setValue("LightMax", 4000000);
-		m_settings->setValue("LightNormalizedMax", 1000);
-		m_settings->setValue("SonarMultiplicator", 58);
-		m_settings->setValue("SonarNormalizedMax", 400);
-		m_settings->setValue("LightSensorLeftFilePath", "/tmp/light_left");
-		m_settings->setValue("LightSensorRightFilePath", "/tmp/light_right");
-		m_settings->setValue("SonarSensorFilePath", "/tmp/sonar");
-		// servo 1500000 +- 300000
 	}
 
 	m_settings->setFallbacksEnabled(false);
 	m_settings->sync();
 }
 
+void CarCtrl::initMotors()
+{
+	m_settings->beginGroup("MotorKeys");
+	QStringList motorKeys = m_settings->allKeys();
+	m_settings->endGroup();
+	for (int i = 0; i < motorKeys.size(); ++i) {
+		QString name = motorKeys[i];
+		m_settings->beginGroup(name);
+		QString controlPath = m_settings->value("ControlPath").toString();
+		int powerMin = m_settings->value("PowerMin").toInt();
+		int powerMax = m_settings->value("PowerMax").toInt();
+		CarMotor* motor = new CarMotor(powerMin, powerMax, controlPath, name);
+		m_motors[name] = motor;
+		m_settings->endGroup();
+	}
+}
+
+void CarCtrl::initSensors()
+{
+	m_settings->beginGroup("SensorKeys");
+	QStringList sensorKeys = m_settings->allKeys();
+	m_settings->endGroup();
+	for (int i = 0; i < sensorKeys.size(); ++i) {
+		QString name = sensorKeys[i];
+		m_settings->beginGroup(name);
+		QString filePath = m_settings->value("FilePath").toString();
+		int valueMin = m_settings->value("ValueMin").toInt();
+		int valueMax = m_settings->value("ValueMax").toInt();
+		int normalizedMax = m_settings->value("NormalizedMax").toInt();
+		Sensor* sensor = new Sensor(filePath, valueMin, valueMax, normalizedMax, this);
+		m_sensors[name] = sensor;
+		m_settings->endGroup();
+	}
+}
+
 void CarCtrl::emergencyStop()
 {
-	m_motorLeft->invoke(0);
-	m_motorRight->invoke(0);
+	CarMotor* motor;
+	foreach (motor, m_motors) {
+		motor->invoke(0);
+	}
+
 	QApplication::quit();
 }
 
@@ -117,35 +159,13 @@ void CarCtrl::onQRealNetworkRead()
 		m_qrealConnection->readLine(data, 100);
 		QString command(data);
 		QStringList cmd = command.split(" ", QString::SkipEmptyParts);
-		if (cmd.at(0) == "motor") {
-			if (cmd.at(1).trimmed() == "left") {
-				m_motorLeft->invoke(cmd.at(2).toInt());
-			}
-			else {
-				m_motorRight->invoke(cmd.at(2).toInt());
-			}
+
+		QString commandName = cmd.at(0).trimmed();
+		if (m_motors.contains(commandName)) {
+			m_motors[commandName]->invoke(cmd.at(2).toInt());
 		}
-		else if (cmd.at(0) == "light_sensor") {
-			unsigned int ans = 0;
-			if (cmd.at(1).trimmed() == "left") {
-				ans = m_lightSensorLeft->getValue();
-			}
-			else {
-				ans = m_lightSensorRight->getValue();
-			}
-			char buf[2];
-			buf[0] = (ans >> 8) & 0xff;
-			buf[1] = ans & 0xff;
-			qrealResponce(QByteArray(buf, 2));
-		}
-		else if (cmd.at(0).trimmed() == "distance_sensor" ||
-				cmd.at(0).trimmed() == "sonar_sensor") {
-			unsigned int ans = 0;
-			ans = m_sonarSensor->getValue();
-			char buf[2];
-			buf[0] = (ans >> 8) & 0xff;
-			buf[1] = ans & 0xff;
-			qrealResponce(QByteArray(buf, 2));
+		else if (m_sensors.contains(commandName)) {
+			qrealResponce(m_sensors[commandName]->getByteValue());
 		}
 		else {
 			qDebug() << "Unknown command: " + cmd.at(0) << endl;

@@ -37,11 +37,8 @@ protected slots:
 signals:
 
 protected:
-	CarMotor* m_motorLeft;
-	CarMotor* m_motorRight;
-	Sensor* m_lightSensorLeft;
-	Sensor* m_lightSensorRight;
-	Sensor* m_sonarSensor;
+	QMap<QString, CarMotor*> m_motors;
+	QMap<QString, Sensor*> m_sensors;
 
 	QSettings* m_settings;
 
