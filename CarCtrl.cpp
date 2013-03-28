@@ -9,12 +9,14 @@
 #include <unistd.h>
 #include <linux/input.h>
 
-CarCtrl::CarCtrl()
+CarCtrl::CarCtrl() :
+	m_qrealServer()
 {
 	initSettings();
 	initMotors();
 	initSensors();
 
+	m_qrealConnection = new QTcpSocket();
 	m_qrealServer.listen(QHostAddress::Any, m_settings->value("QRealPort").toInt());
 	connect(&m_qrealServer, SIGNAL(newConnection()), this, SLOT(onQRealConnection()));
 }
