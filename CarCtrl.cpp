@@ -130,7 +130,7 @@ void CarCtrl::emergencyStop()
 
 void CarCtrl::onQRealConnection()
 {
-	if (!m_qrealConnection->isValid())
+	if (m_qrealConnection->isValid())
 		qDebug() << "Replacing existing QReal connection";
 	m_qrealConnection = m_qrealServer.nextPendingConnection();
 	qDebug() << "Accepted new QReal connection";
@@ -152,7 +152,7 @@ void CarCtrl::qrealResponce(const QByteArray& a)
 
 void CarCtrl::onQRealNetworkRead()
 {
-	if (m_qrealConnection->isValid())
+	if (!m_qrealConnection->isValid())
 		return;
 
 	while (m_qrealConnection->bytesAvailable() > 0)
