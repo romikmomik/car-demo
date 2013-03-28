@@ -10,7 +10,9 @@
 #include <linux/input.h>
 
 CarCtrl::CarCtrl() :
-	m_qrealServer()
+	m_qrealServer(),
+	m_motors(),
+	m_sensors()
 {
 	initSettings();
 	initMotors();
