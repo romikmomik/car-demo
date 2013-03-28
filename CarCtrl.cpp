@@ -166,7 +166,7 @@ void CarCtrl::onQRealNetworkRead()
 
 		QString commandName = cmd.at(0).trimmed();
 		if (m_motors.contains(commandName)) {
-			m_motors[commandName]->invoke(cmd.at(2).toInt());
+			m_motors[commandName]->invoke(cmd.at(1).toInt());
 		}
 		else if (m_sensors.contains(commandName)) {
 			qrealResponce(m_sensors[commandName]->getByteValue());
