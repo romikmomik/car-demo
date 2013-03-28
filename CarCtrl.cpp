@@ -15,7 +15,7 @@ CarCtrl::CarCtrl()
 	initMotors();
 	initSensors();
 
-	m_qrealServer.listen(QHostAddress::Any, m_settings->value("General/QRealPort").toInt());
+	m_qrealServer.listen(QHostAddress::Any, m_settings->value("QRealPort").toInt());
 	connect(&m_qrealServer, SIGNAL(newConnection()), this, SLOT(onQRealConnection()));
 }
 
