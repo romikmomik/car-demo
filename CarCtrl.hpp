@@ -1,8 +1,7 @@
-#ifndef COPTERCTRL_HPP
-#define COPTERCTRL_HPP
+#ifndef CARCTRL_HPP
+#define CARCTRL_HPP
 
 #include <QTcpServer>
-#include <QPointer>
 #include <QSocketNotifier>
 #include <QSettings>
 #include <QVector3D>
@@ -24,14 +23,10 @@ public:
 	QSettings* getSettings() { return m_settings; }
 
 public slots:
-	void tcpLog(const QString& message);
 	void qrealResponce(const QByteArray& a);
 	void emergencyStop();
 
 protected slots:
-	void onConnection();
-	void onDisconnected();
-	void onNetworkRead();
 	void onQRealConnection();
 	void onQRealDisconnected();
 	void onQRealNetworkRead();
@@ -50,10 +45,8 @@ protected:
 
 	QSettings* m_settings;
 
-	QTcpServer           m_tcpServer;
-	QPointer<QTcpSocket> m_tcpConnection;
-	QTcpServer           m_qrealServer;
-	QPointer<QTcpSocket> m_qrealConnection;
+	QTcpServer  m_qrealServer;
+	QTcpSocket* m_qrealConnection;
 };
 
-#endif // COPTERCTRL_HPP
+#endif // CARCTRL_HPP

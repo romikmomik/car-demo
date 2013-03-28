@@ -14,8 +14,7 @@ contains($$[QT_VERSION_MAJOR],5) {
     QT += widgets
 }
 
-TARGET =        copter-pwm-ctrl-qt
-
+TARGET =        car-ctrl
 SOURCES +=      \
     Main.cpp \
     Sensor.cpp \

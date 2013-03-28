@@ -20,7 +20,7 @@ signals:
 
 protected:
 	QString m_name;
-	QFile       m_ctrlFile;
+	QFile   m_ctrlFile;
 	int m_power;
 	int m_powerMax, m_powerMin; // real power, to write to ctrlFile
 };
