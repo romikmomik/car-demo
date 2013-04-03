@@ -140,7 +140,7 @@ void CarCtrl::emergencyStop()
 
 void CarCtrl::playSound(const QString &fileName)
 {
-	QString command = "aplay --quiet " + fileName;
+	QString command = "aplay --quiet " + fileName + " &";
 	system(command.toStdString().c_str());
 }
 
