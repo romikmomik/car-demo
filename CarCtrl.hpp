@@ -41,6 +41,7 @@ protected:
 	QMap<QString, Sensor*> m_sensors;
 
 	QSettings* m_settings;
+	QSettings* m_defaultSettings;
 
 	QTcpServer  m_qrealServer;
 	QTcpSocket* m_qrealConnection;

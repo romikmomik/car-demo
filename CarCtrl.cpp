@@ -25,60 +25,64 @@ CarCtrl::CarCtrl() :
 
 void CarCtrl::initSettings()
 {
-	m_settings = new QSettings(QApplication::applicationDirPath() + "/config.ini", QSettings::IniFormat);
+	m_defaultSettings = new QSettings(this);
 
+	// default settings init
+	m_defaultSettings->beginGroup("MotorKeys");
+	m_defaultSettings->setValue("MotorLeft", 0);
+	m_defaultSettings->setValue("MotorRight", 1);
+	m_defaultSettings->endGroup();
+
+	m_defaultSettings->beginGroup("SensorKeys");
+	m_defaultSettings->setValue("SensorLightLeft", 0);
+	m_defaultSettings->setValue("SensorLightRight", 1);
+	m_defaultSettings->setValue("SensorSonar", 2);
+	m_defaultSettings->endGroup();
+
+	m_defaultSettings->beginGroup("MotorLeft");
+	m_defaultSettings->setValue("ControlPath", "/sys/devices/platform/ehrpwm.1/pwm/ehrpwm.1:0/duty_ns");
+	m_defaultSettings->setValue("PercentMin", -100);
+	m_defaultSettings->setValue("PercentMax", 100);
+	m_defaultSettings->setValue("PowerMin", 1500000);
+	m_defaultSettings->setValue("PowerMax", 1800000);
+	m_defaultSettings->endGroup();
+
+	m_defaultSettings->beginGroup("MotorRight");
+	m_defaultSettings->setValue("ControlPath", "/sys/devices/platform/ehrpwm.0/pwm/ehrpwm.0:1/duty_ns");
+	m_defaultSettings->setValue("PercentMin", -100);
+	m_defaultSettings->setValue("PercentMax", 100);
+	m_defaultSettings->setValue("PowerMin", 1500000);
+	m_defaultSettings->setValue("PowerMax", 1800000);
+	m_defaultSettings->endGroup();
+
+	m_defaultSettings->beginGroup("SensorLightLeft");
+	m_defaultSettings->setValue("FilePath", "/tmp/light_left");
+	m_defaultSettings->setValue("ValueMin", 0);
+	m_defaultSettings->setValue("ValueMax", 4000000);
+	m_defaultSettings->setValue("NormalizedMax", 1000);
+	m_defaultSettings->endGroup();
+
+	m_defaultSettings->beginGroup("SensorLightRight");
+	m_defaultSettings->setValue("FilePath", "/tmp/light_right");
+	m_defaultSettings->setValue("ValueMin", 0);
+	m_defaultSettings->setValue("ValueMax", 4000000);
+	m_defaultSettings->setValue("NormalizedMax", 1000);
+	m_defaultSettings->endGroup();
+
+	m_defaultSettings->beginGroup("SensorSonar");
+	m_defaultSettings->setValue("FilePath", "/tmp/sonar");
+	m_defaultSettings->setValue("ValueMin", 0);
+	m_defaultSettings->setValue("ValueMax", 400 * 58);
+	m_defaultSettings->setValue("NormalizedMax", 400);
+	m_defaultSettings->endGroup();
+
+	m_defaultSettings->setValue("QRealPort", 4444);
+
+	m_settings = new QSettings(QApplication::applicationDirPath() + "/config.ini", QSettings::IniFormat);
 	// TODO: write proper checker
 	if (m_settings->allKeys().count() == 0) {
-		m_settings->beginGroup("MotorKeys");
-		m_settings->setValue("MotorLeft", 0);
-		m_settings->setValue("MotorRight", 1);
-		m_settings->endGroup();
-
-		m_settings->beginGroup("SensorKeys");
-		m_settings->setValue("SensorLightLeft", 0);
-		m_settings->setValue("SensorLightRight", 1);
-		m_settings->setValue("SensorSonar", 2);
-		m_settings->endGroup();
-
-		m_settings->beginGroup("MotorLeft");
-		m_settings->setValue("ControlPath", "/sys/devices/platform/ehrpwm.1/pwm/ehrpwm.1:0/duty_ns");
-		m_settings->setValue("PercentMin", -100);
-		m_settings->setValue("PercentMax", 100);
-		m_settings->setValue("PowerMin", 1500000);
-		m_settings->setValue("PowerMax", 1800000);
-		m_settings->endGroup();
-
-		m_settings->beginGroup("MotorRight");
-		m_settings->setValue("ControlPath", "/sys/devices/platform/ehrpwm.0/pwm/ehrpwm.0:1/duty_ns");
-		m_settings->setValue("PercentMin", -100);
-		m_settings->setValue("PercentMax", 100);
-		m_settings->setValue("PowerMin", 1500000);
-		m_settings->setValue("PowerMax", 1800000);
-		m_settings->endGroup();
-
-		m_settings->beginGroup("SensorLightLeft");
-		m_settings->setValue("FilePath", "/tmp/light_left");
-		m_settings->setValue("ValueMin", 0);
-		m_settings->setValue("ValueMax", 4000000);
-		m_settings->setValue("NormalizedMax", 1000);
-		m_settings->endGroup();
-
-		m_settings->beginGroup("SensorLightRight");
-		m_settings->setValue("FilePath", "/tmp/light_right");
-		m_settings->setValue("ValueMin", 0);
-		m_settings->setValue("ValueMax", 4000000);
-		m_settings->setValue("NormalizedMax", 1000);
-		m_settings->endGroup();
-
-		m_settings->beginGroup("SensorSonar");
-		m_settings->setValue("FilePath", "/tmp/sonar");
-		m_settings->setValue("ValueMin", 0);
-		m_settings->setValue("ValueMax", 400 * 58);
-		m_settings->setValue("NormalizedMax", 400);
-		m_settings->endGroup();
-
-		// TODO: move to conf file
-		m_settings->setValue("QRealPort", 4444);
+		// use default
+		m_settings = m_defaultSettings;
 	}
 
 	m_settings->setFallbacksEnabled(false);
