@@ -25,6 +25,7 @@ public:
 public slots:
 	void qrealResponce(const QByteArray& a);
 	void emergencyStop();
+	void playSound(const QString& fileName);
 
 protected slots:
 	void onQRealConnection();

@@ -134,6 +134,12 @@ void CarCtrl::emergencyStop()
 	QApplication::quit();
 }
 
+void CarCtrl::playSound(const QString &fileName)
+{
+	QString command = "aplay --quiet " + fileName;
+	system(command.toStdString().c_str());
+}
+
 void CarCtrl::onQRealConnection()
 {
 	if (m_qrealConnection->isValid())
@@ -175,9 +181,12 @@ void CarCtrl::onQRealNetworkRead()
 		else if (m_sensors.contains(commandName)) {
 			qrealResponce(m_sensors[commandName]->getByteValue());
 		}
-		else {
-			qDebug() << "Unknown command: " + cmd.at(0) << endl;
+		else if (commandName == "sound") {
+			playSound("/home/root/alarm.wav");
 		}
-		qDebug() << "QReal request " << command << endl;
+		else {
+			qDebug() << "Unknown command: " + cmd.at(0);
+		}
+		qDebug() << "QReal request " << command;
 	}
 }
