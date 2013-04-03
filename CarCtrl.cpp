@@ -144,7 +144,7 @@ void CarCtrl::onQRealConnection()
 void CarCtrl::onQRealDisconnected()
 {
 	qDebug() << "Existing QReal connection disconnected";
-	m_qrealConnection = 0;
+	m_qrealConnection->disconnectFromHost();
 }
 
 void CarCtrl::qrealResponce(const QByteArray& a)
