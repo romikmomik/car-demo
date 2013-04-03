@@ -83,7 +83,10 @@ void CarCtrl::initSettings()
 	// TODO: write proper checker
 	if (m_settings->allKeys().count() == 0) {
 		// use default
-		m_settings = m_defaultSettings;
+		QStringList keys = m_defaultSettings->allKeys();
+		for (unsigned int i = 0; i < keys.count(); ++i) {
+			m_settings->setValue(keys.at(i), m_defaultSettings->value(keys.at(i)));
+		}
 	}
 
 	m_settings->setFallbacksEnabled(false);
