@@ -77,6 +77,7 @@ void CarCtrl::initSettings()
 	m_defaultSettings->endGroup();
 
 	m_defaultSettings->setValue("QRealPort", 4444);
+	m_defaultSettings->setValue("SoundFile", "/home/root/alarm.wav");
 
 	m_settings = new QSettings(QApplication::applicationDirPath() + "/config.ini", QSettings::IniFormat);
 	// TODO: write proper checker
@@ -181,8 +182,8 @@ void CarCtrl::onQRealNetworkRead()
 		else if (m_sensors.contains(commandName)) {
 			qrealResponce(m_sensors[commandName]->getByteValue());
 		}
-		else if (commandName == "sound") {
-			playSound("/home/root/alarm.wav");
+		else if (commandName == "sound" || commandName == "beep") {
+			playSound(m_settings->value("SoundFile").toString());
 		}
 		else {
 			qDebug() << "Unknown command: " + cmd.at(0);
