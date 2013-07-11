@@ -12,7 +12,9 @@
 CarCtrl::CarCtrl() :
 	m_qrealServer(),
 	m_motors(),
-	m_sensors()
+	m_sensors(),
+	m_autopilot(false),
+	m_timerId(-1)
 {
 	initSettings();
 	initMotors();
@@ -78,6 +80,9 @@ void CarCtrl::initSettings()
 
 	m_defaultSettings->setValue("QRealPort", 4444);
 	m_defaultSettings->setValue("SoundFile", "/home/root/alarm.wav");
+
+	m_defaultSettings->setValue("AutopilotPower", 70);
+	m_defaultSettings->setValue("k", 0.1);
 
 	m_settings = new QSettings(QApplication::applicationDirPath() + "/config.ini", QSettings::IniFormat);
 	// TODO: write proper checker
@@ -165,7 +170,34 @@ void CarCtrl::qrealResponce(const QByteArray& a)
 {
 	m_qrealConnection->write(a);
 }
+void CarCtrl::timerEvent(QTimerEvent *event)
+{
+	//qDebug() << "Timer ID:" << event->timerId();
+	int motor = m_settings->value("AutopilotPower").toInt();
+	double k =m_settings->value("k").toDouble();
+	int d1 = m_sensors["SensorLightRight"]->getValue();
+	int d2 = m_sensors["SensorLightLeft"]->getValue();
 
+	double u = k * ( d1 - d2);
+
+
+
+	m_motors["right"]->invoke( motor - (int)u );
+	m_motors["left"]->invoke( motor + (int)u );
+
+	qDebug() <<"SensorLightRight = "<< d1;
+	qDebug() <<"SensorLightLeft" <<d2;
+
+	qDebug() <<"u = "<< u;
+	qDebug() <<" motor + u" << motor + u;
+	qDebug() <<" motor - u" << motor - u;
+	//m_motor() <<
+
+
+
+
+
+}
 void CarCtrl::onQRealNetworkRead()
 {
 	if (!m_qrealConnection->isValid())
@@ -180,13 +212,29 @@ void CarCtrl::onQRealNetworkRead()
 
 		QString commandName = cmd.at(0).trimmed();
 		if (m_motors.contains(commandName)) {
-			m_motors[commandName]->invoke(cmd.at(1).toInt());
+			if (!m_autopilot){
+				m_motors[commandName]->invoke(cmd.at(1).toInt());
+			}
 		}
 		else if (m_sensors.contains(commandName)) {
-			qrealResponce(m_sensors[commandName]->getByteValue());
+			if (!m_autopilot){
+				qrealResponce(m_sensors[commandName]->getByteValue());
+			}
 		}
 		else if (commandName == "sound" || commandName == "beep") {
-			playSound(m_settings->value("SoundFile").toString());
+			m_autopilot = !m_autopilot;
+			qDebug() << "Unknown command: ";
+			if (m_autopilot){
+				m_timerId = startTimer(20);
+
+			}
+			else 
+			{
+				killTimer(m_timerId);
+				m_timerId =-1;
+				this->emergencyStop();
+			}
+			//	playSound(m_settings->value("SoundFile").toString());
 		}
 		else {
 			qDebug() << "Unknown command: " + cmd.at(0);

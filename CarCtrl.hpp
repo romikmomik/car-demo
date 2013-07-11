@@ -38,6 +38,7 @@ protected slots:
 signals:
 
 protected:
+	void timerEvent(QTimerEvent *event);
 	QMap<QString, CarMotor*> m_motors;
 	QMap<QString, Sensor*> m_sensors;
 
@@ -46,6 +47,8 @@ protected:
 
 	QTcpServer  m_qrealServer;
 	QTcpSocket* m_qrealConnection;
+	bool m_autopilot;
+	int m_timerId;
 };
 
 #endif // CARCTRL_HPP
